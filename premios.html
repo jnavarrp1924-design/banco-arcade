@@ -101,30 +101,22 @@
       <div class="premio">
         <strong>Premio Oro</strong>
         <p>100 tickets</p>
-        <button class="canjear" data-premio="ORO">
-          Canjear premio Oro
-        </button>
+        <button class="canjear" data-premio="ORO">Canjear premio Oro</button>
       </div>
 
       <div class="premio">
         <strong>Premio Plata</strong>
         <p>50 tickets</p>
-        <button class="canjear" data-premio="PLATA">
-          Canjear premio Plata
-        </button>
+        <button class="canjear" data-premio="PLATA">Canjear premio Plata</button>
       </div>
 
       <div class="premio">
         <strong>Premio Bronce</strong>
         <p>30 tickets</p>
-        <button class="canjear" data-premio="BRONCE">
-          Canjear premio Bronce
-        </button>
+        <button class="canjear" data-premio="BRONCE">Canjear premio Bronce</button>
       </div>
 
-      <button id="limpiar" class="secundario">
-        Consultar otro grupo
-      </button>
+      <button id="limpiar" class="secundario">Consultar otro grupo</button>
     </div>
   </section>
 
@@ -146,18 +138,10 @@ const $ = id => document.getElementById(id);
 
 let equipoActual = null;
 let tokenActual = null;
-let procesando = false;
+let tokenAutorizado = null;
+let nombreAutorizado = null;
 let dispositivoAutorizado = false;
-
-function leerConfig() {
-  try {
-    return JSON.parse(
-      localStorage.getItem("arcade_premios_config")
-    );
-  } catch {
-    return null;
-  }
-}
+let procesando = false;
 
 function mostrarMensaje(texto) {
   $("mensaje").textContent = texto;
@@ -165,31 +149,44 @@ function mostrarMensaje(texto) {
 
 function bloquearPuesto() {
   dispositivoAutorizado = false;
+  tokenAutorizado = null;
+  nombreAutorizado = null;
   equipoActual = null;
   tokenActual = null;
 
   $("zonaPremios").hidden = true;
   $("datosEquipo").hidden = true;
   $("tokenTarjeta").value = "";
+  $("tokenEstacion").value = "";
 }
 
 function actualizarConexion() {
   $("estadoConexion").textContent = navigator.onLine
     ? "Con conexión a internet"
-    : "Sin conexión: el puesto necesita internet para autorizarse y realizar canjes.";
+    : "Sin conexión: necesitas internet para autorizar el puesto y realizar canjes.";
 
   if (!navigator.onLine) {
     bloquearPuesto();
-    mostrarMensaje("Sin conexión. El puesto permanece bloqueado.");
+    mostrarMensaje("Sin conexión. El puesto permanece bloqueado. Debes autorizarlo nuevamente al recuperar internet.");
   }
 }
 
-async function validarDispositivo(token) {
-  if (!navigator.onLine) {
-    bloquearPuesto();
-    mostrarMensaje("Necesitas conexión para validar el dispositivo.");
-    return false;
+async function validarDispositivo() {
+  const nombre = $("nombrePuesto").value.trim();
+  const token = $("tokenEstacion").value.trim();
+
+  if (!nombre || !token) {
+    mostrarMensaje("Escribe el nombre y el token del dispositivo.");
+    return;
   }
+
+  if (!navigator.onLine) {
+    mostrarMensaje("Necesitas conexión para autorizar el dispositivo.");
+    return;
+  }
+
+  bloquearPuesto();
+  mostrarMensaje("Validando dispositivo...");
 
   try {
     const { data, error } = await supabaseClient.rpc(
@@ -200,67 +197,23 @@ async function validarDispositivo(token) {
     if (error) throw error;
 
     if (data !== true) {
-      bloquearPuesto();
       mostrarMensaje("Dispositivo no autorizado.");
-      return false;
+      return;
     }
 
+    tokenAutorizado = token;
+    nombreAutorizado = nombre;
     dispositivoAutorizado = true;
+
+    $("tokenEstacion").value = "";
     $("zonaPremios").hidden = false;
 
-    mostrarMensaje("Dispositivo autorizado. Puesto de premios habilitado.");
-
-    return true;
+    mostrarMensaje("Dispositivo autorizado: " + nombreAutorizado);
 
   } catch (error) {
     bloquearPuesto();
     mostrarMensaje("No se pudo autorizar el dispositivo: " + error.message);
-    return false;
   }
-}
-
-async function guardarConfig() {
-  const nombre = $("nombrePuesto").value.trim();
-  const token = $("tokenEstacion").value.trim();
-
-  if (!nombre || !token) {
-    bloquearPuesto();
-    mostrarMensaje("Escribe el nombre y el token del dispositivo.");
-    return;
-  }
-
-  bloquearPuesto();
-  mostrarMensaje("Validando dispositivo...");
-
-  const autorizado = await validarDispositivo(token);
-
-  if (!autorizado) {
-    localStorage.removeItem("arcade_premios_config");
-    return;
-  }
-
-  localStorage.setItem(
-    "arcade_premios_config",
-    JSON.stringify({ nombre, token })
-  );
-
-  mostrarMensaje("Dispositivo autorizado: " + nombre);
-}
-
-async function cargarConfig() {
-  const config = leerConfig();
-
-  if (!config || !config.token) {
-    bloquearPuesto();
-    return;
-  }
-
-  $("nombrePuesto").value = config.nombre || "";
-  $("tokenEstacion").value = config.token || "";
-
-  mostrarMensaje("Comprobando autorización del dispositivo...");
-
-  await validarDispositivo(config.token);
 }
 
 function extraerToken(texto) {
@@ -279,9 +232,7 @@ async function leerNFC() {
   }
 
   if (!("NDEFReader" in window)) {
-    mostrarMensaje(
-      "Este navegador no permite leer NFC. Introduce el código manualmente."
-    );
+    mostrarMensaje("Este navegador no permite leer NFC. Introduce el código manualmente.");
     return;
   }
 
@@ -303,9 +254,7 @@ async function leerNFC() {
         }
 
         if (record.recordType === "text") {
-          const decoder = new TextDecoder(
-            record.encoding || "utf-8"
-          );
+          const decoder = new TextDecoder(record.encoding || "utf-8");
 
           $("tokenTarjeta").value = extraerToken(
             decoder.decode(record.data)
@@ -325,9 +274,9 @@ async function leerNFC() {
 }
 
 async function consultarEquipo() {
-  if (!dispositivoAutorizado) {
+  if (!dispositivoAutorizado || !tokenAutorizado) {
     bloquearPuesto();
-    mostrarMensaje("Dispositivo no autorizado.");
+    mostrarMensaje("Debes autorizar el dispositivo nuevamente.");
     return;
   }
 
@@ -336,7 +285,6 @@ async function consultarEquipo() {
     return;
   }
 
-  const config = leerConfig();
   const token = $("tokenTarjeta").value.trim();
 
   if (!token) {
@@ -350,7 +298,7 @@ async function consultarEquipo() {
     const { data, error } = await supabaseClient.rpc(
       "consultar_equipo_premios",
       {
-        p_token_estacion: config.token,
+        p_token_estacion: tokenAutorizado,
         p_token_tarjeta: token
       }
     );
@@ -366,9 +314,7 @@ async function consultarEquipo() {
     equipoActual = equipo;
     tokenActual = token;
 
-    $("nombreEquipo").textContent =
-      equipo.nombre || equipo.equipo_id;
-
+    $("nombreEquipo").textContent = equipo.nombre || equipo.equipo_id;
     $("saldoTickets").textContent = equipo.tickets;
     $("datosEquipo").hidden = false;
 
@@ -386,9 +332,9 @@ async function consultarEquipo() {
 async function canjearPremio(premioId) {
   if (procesando) return;
 
-  if (!dispositivoAutorizado) {
+  if (!dispositivoAutorizado || !tokenAutorizado) {
     bloquearPuesto();
-    mostrarMensaje("Dispositivo no autorizado.");
+    mostrarMensaje("Debes autorizar el dispositivo nuevamente.");
     return;
   }
 
@@ -397,10 +343,8 @@ async function canjearPremio(premioId) {
     return;
   }
 
-  const config = leerConfig();
-
-  if (!config || !config.token || !equipoActual || !tokenActual) {
-    mostrarMensaje("Primero autoriza el puesto y consulta un grupo.");
+  if (!equipoActual || !tokenActual) {
+    mostrarMensaje("Primero consulta un grupo.");
     return;
   }
 
@@ -421,9 +365,7 @@ async function canjearPremio(premioId) {
   )) return;
 
   procesando = true;
-  document.querySelectorAll(".canjear").forEach(b => {
-    b.disabled = true;
-  });
+  document.querySelectorAll(".canjear").forEach(b => b.disabled = true);
 
   try {
     mostrarMensaje("Procesando canje...");
@@ -433,7 +375,7 @@ async function canjearPremio(premioId) {
     const { error } = await supabaseClient.rpc(
       "canjear_premio",
       {
-        p_token_estacion: config.token,
+        p_token_estacion: tokenAutorizado,
         p_token_tarjeta: tokenActual,
         p_premio_id: premioId,
         p_solicitud_id: solicitudId
@@ -446,10 +388,14 @@ async function canjearPremio(premioId) {
 
     await consultarEquipo();
 
-    mostrarMensaje(
-      "Canje confirmado: " + nombres[premioId] +
-      "\nTickets restantes: " + $("saldoTickets").textContent
-    );
+    if (equipoActual) {
+      mostrarMensaje(
+        "Canje confirmado: " + nombres[premioId] +
+        "\nTickets restantes: " + $("saldoTickets").textContent
+      );
+    } else {
+      mostrarMensaje("Canje confirmado, pero no se pudo actualizar el saldo. Consulta nuevamente el grupo.");
+    }
 
   } catch (error) {
     mostrarMensaje(
@@ -459,43 +405,37 @@ async function canjearPremio(premioId) {
     );
   } finally {
     procesando = false;
-
-    document.querySelectorAll(".canjear").forEach(b => {
-      b.disabled = false;
-    });
+    document.querySelectorAll(".canjear").forEach(b => b.disabled = false);
   }
 }
 
-$("guardarConfig").addEventListener("click", guardarConfig);
+$("guardarConfig").addEventListener("click", validarDispositivo);
 $("escanearNFC").addEventListener("click", leerNFC);
 $("consultar").addEventListener("click", consultarEquipo);
 
 document.querySelectorAll(".canjear").forEach(b => {
-  b.addEventListener("click", () => {
-    canjearPremio(b.dataset.premio);
-  });
+  b.addEventListener("click", () => canjearPremio(b.dataset.premio));
 });
 
 $("limpiar").addEventListener("click", () => {
   equipoActual = null;
   tokenActual = null;
-
   $("tokenTarjeta").value = "";
   $("datosEquipo").hidden = true;
-
   mostrarMensaje("Listo para consultar otro grupo.");
+});
+
+window.addEventListener("offline", () => {
+  actualizarConexion();
 });
 
 window.addEventListener("online", () => {
   actualizarConexion();
-  cargarConfig();
+  mostrarMensaje("Conexión recuperada. Debes autorizar nuevamente el puesto.");
 });
-
-window.addEventListener("offline", actualizarConexion);
 
 bloquearPuesto();
 actualizarConexion();
-cargarConfig();
 </script>
 </body>
 </html>
