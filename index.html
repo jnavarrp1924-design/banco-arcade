@@ -9,20 +9,19 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
       --fondo: #080f1e;
-      --panel: #101c30;
       --azul: #1769bd;
-      --azul-claro: #3289e8;
+      --azul-claro: #3997f5;
       --rojo: #bd2638;
-      --rojo-claro: #e04450;
-      --texto: #f3f5fa;
-      --texto-suave: #a6b2c5;
+      --rojo-claro: #ed5260;
+      --texto: #f5f6fa;
+      --suave: #a6b2c5;
     }
 
     * {
@@ -32,129 +31,116 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 25px 15px;
+      padding: 22px 14px 30px;
       font-family: 'Outfit', sans-serif;
       color: var(--texto);
       background:
-        radial-gradient(ellipse at 5% 12%, #17477c55, transparent 35%),
-        radial-gradient(ellipse at 95% 80%, #8f1e3040, transparent 38%),
+        radial-gradient(ellipse at 10% 15%, #17477c66, transparent 35%),
+        radial-gradient(ellipse at 95% 80%, #8f1e3050, transparent 38%),
         linear-gradient(145deg, #080f1e, #0c1729 55%, #080d18);
       position: relative;
       overflow-x: hidden;
     }
 
-    /* Fondo geométrico estilo arcade */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.15;
+      opacity: .13;
       background-image:
         linear-gradient(135deg, transparent 48%, #3474ae 49%, transparent 50%),
         linear-gradient(45deg, transparent 48%, #a82d42 49%, transparent 50%);
       background-size: 85px 85px, 115px 115px;
-      mask-image: linear-gradient(to bottom, black, transparent 85%);
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      width: 340px;
-      height: 340px;
-      border: 1px solid #2867a522;
-      border-radius: 50%;
-      top: 25%;
-      right: -245px;
-      box-shadow:
-        0 0 0 25px #2867a510,
-        0 0 0 50px #2867a508;
-      pointer-events: none;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
     }
 
     main {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 510px;
+      max-width: 530px;
       margin: 0 auto;
     }
 
     .encabezado {
       text-align: center;
-      padding: 25px 5px 30px;
+      padding: 25px 3px 30px;
     }
 
     .etiqueta {
       display: inline-block;
-      color: #91a8c8;
-      font-size: 11px;
-      font-weight: 700;
+      color: #b6c7df;
+      font-size: 12px;
+      font-weight: 800;
       letter-spacing: 3px;
       text-transform: uppercase;
-      margin-bottom: 17px;
-      padding: 8px 13px;
-      border: 1px solid #344d6b;
+      margin-bottom: 19px;
+      padding: 9px 17px;
+      border: 1px solid #456184;
       border-radius: 30px;
-      background: #14223988;
+      background: linear-gradient(100deg, #142b49, #1b263d);
+      box-shadow: 0 5px 20px #0004;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(30px, 8vw, 44px);
-      line-height: 1.04;
-      font-weight: 900;
-      letter-spacing: -1.5px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(58px, 14vw, 82px);
+      line-height: .88;
+      font-weight: 400;
+      letter-spacing: 1px;
       text-transform: uppercase;
+      text-shadow: 0 5px 24px #0008;
     }
 
     h1 span {
       display: block;
-      color: #e34a55;
-      margin-top: 5px;
+      margin-top: 8px;
+      color: #e44755;
+      text-shadow: 0 3px 22px #bd263855;
     }
 
     .subrayado {
-      width: 115px;
-      height: 4px;
-      margin: 18px auto 0;
+      width: 145px;
+      height: 5px;
+      margin: 20px auto 0;
       border-radius: 10px;
       background: linear-gradient(90deg, var(--rojo), var(--azul-claro));
       transform: rotate(-2deg);
+      box-shadow: 0 0 15px #327ed955;
     }
 
     .grupo {
       text-align: center;
-      margin: 10px 0 27px;
+      margin: 12px 0 27px;
     }
 
     .grupo small {
       display: block;
-      color: var(--texto-suave);
+      color: #8fa8c8;
       font-size: 12px;
-      letter-spacing: 5px;
-      font-weight: 700;
-      margin-bottom: 8px;
+      letter-spacing: 6px;
+      font-weight: 800;
+      margin-bottom: 7px;
     }
 
     .grupo h2 {
       margin: 0;
-      font-size: clamp(27px, 7vw, 36px);
-      font-weight: 800;
-      letter-spacing: 0.3px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(38px, 9vw, 48px);
+      letter-spacing: 1.5px;
+      line-height: 1;
       overflow-wrap: anywhere;
-      text-shadow: 0 3px 18px #00000055;
+      text-shadow: 0 3px 18px #0008;
     }
 
     .panel {
-      background:
-        linear-gradient(145deg, #142239ee, #0b1628f5);
-      border: 1px solid #263a57;
-      border-radius: 25px;
-      padding: 23px 13px;
-      box-shadow:
-        0 18px 45px #00000055,
-        inset 0 1px 0 #ffffff0b;
+      background: linear-gradient(145deg, #142239f5, #0b1628f7);
+      border: 1px solid #2b405e;
+      border-radius: 27px;
+      padding: 23px 12px;
+      box-shadow: 0 18px 45px #0007, inset 0 1px 0 #ffffff0c;
       position: relative;
       overflow: hidden;
     }
@@ -166,7 +152,7 @@
       left: 15%;
       width: 70%;
       height: 1px;
-      background: linear-gradient(90deg, transparent, #7da8d655, transparent);
+      background: linear-gradient(90deg, transparent, #7da8d677, transparent);
     }
 
     #estado {
@@ -175,7 +161,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      color: #a9bad2;
+      color: #b5c5dc;
       font-size: 14px;
       text-align: center;
       margin: 0 0 19px;
@@ -206,85 +192,113 @@
 
     .tarjeta {
       position: relative;
+      isolation: isolate;
       min-width: 0;
-      min-height: 245px;
-      padding: 22px 9px 20px;
-      border-radius: 21px;
+      min-height: 255px;
+      padding: 22px 8px 20px;
+      border-radius: 23px;
       text-align: center;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 12px 28px #0005;
+    }
+
+    .tarjeta > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Textura decorativa de las tarjetas */
+    .tarjeta::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      opacity: .35;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          transparent 0px,
+          transparent 13px,
+          #ffffff0b 14px,
+          transparent 16px
+        );
     }
 
     .tarjeta::after {
       content: "";
       position: absolute;
-      width: 180px;
-      height: 75px;
-      bottom: -45px;
-      right: -35px;
+      z-index: 0;
+      width: 220px;
+      height: 115px;
+      bottom: -75px;
+      right: -45px;
       border-radius: 50%;
       transform: rotate(-20deg);
-      opacity: 0.45;
     }
 
     .dinero {
-      background: linear-gradient(155deg, #102e55, #0b1b32 75%);
-      border: 1px solid #176bc1;
-      box-shadow: inset 0 0 28px #176bc122;
+      background:
+        radial-gradient(circle at 50% 15%, #287acb88, transparent 42%),
+        linear-gradient(150deg, #174c83, #0b1b32 78%);
+      border: 1px solid #3289e8;
+      box-shadow: inset 0 0 35px #3289e833, 0 12px 28px #0005;
     }
 
     .dinero::after {
-      background: #176bc1;
+      background: #2379cc;
+      box-shadow: 0 0 45px #3289e855;
     }
 
     .tickets {
-      background: linear-gradient(155deg, #4b1928, #211522 75%);
-      border: 1px solid #bd3044;
-      box-shadow: inset 0 0 28px #bd304422;
+      background:
+        radial-gradient(circle at 50% 15%, #b9364c88, transparent 42%),
+        linear-gradient(150deg, #6a2639, #241522 78%);
+      border: 1px solid #dc4657;
+      box-shadow: inset 0 0 35px #e0445033, 0 12px 28px #0005;
     }
 
     .tickets::after {
-      background: #bd3044;
+      background: #b82c43;
+      box-shadow: 0 0 45px #e0445055;
     }
 
     .icono {
-      width: 66px;
-      height: 66px;
-      margin-bottom: 15px;
-      position: relative;
-      z-index: 1;
+      width: 76px;
+      height: 76px;
+      margin-bottom: 13px;
+      filter: drop-shadow(0 5px 8px #0006);
     }
 
     .rotulo {
-      color: #aebbd0;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      margin-bottom: 14px;
+      color: #d1d9e6;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      margin-bottom: 13px;
     }
 
     .valor {
-      position: relative;
-      z-index: 1;
-      font-size: clamp(25px, 6.5vw, 36px);
+      font-size: clamp(25px, 6.5vw, 37px);
       font-weight: 900;
-      letter-spacing: -1px;
+      letter-spacing: -1.5px;
       overflow-wrap: anywhere;
+      text-shadow: 0 3px 12px #0005;
     }
 
     .unidad {
-      color: #8ca6c8;
+      color: #a9c8ec;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 3px;
       margin-top: 8px;
     }
 
     .tickets .valor {
-      font-size: 58px;
+      font-size: 62px;
     }
 
     .confirmacion {
@@ -292,7 +306,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      color: #aabbd0;
+      color: #b7c6d9;
       font-size: 13px;
       text-align: center;
       margin: 24px 0 3px;
@@ -306,22 +320,22 @@
       height: 25px;
       border: 1px solid #6686ac;
       border-radius: 50%;
-      color: #b9d4f4;
+      color: #c8e1ff;
       flex-shrink: 0;
     }
 
     .pie {
       text-align: center;
-      color: #61748e;
+      color: #7186a3;
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2px;
+      font-weight: 700;
+      letter-spacing: 3px;
       margin-top: 25px;
     }
 
     @media (max-width: 360px) {
       .panel {
-        padding: 17px 9px;
+        padding: 17px 8px;
       }
 
       .datos {
@@ -329,8 +343,8 @@
       }
 
       .tarjeta {
-        min-height: 215px;
-        padding: 17px 6px;
+        min-height: 220px;
+        padding: 17px 5px;
       }
 
       .rotulo {
@@ -340,6 +354,11 @@
       .valor {
         font-size: 24px;
       }
+
+      .icono {
+        width: 62px;
+        height: 62px;
+      }
     }
   </style>
 </head>
@@ -347,7 +366,7 @@
 <body>
   <main>
     <header class="encabezado">
-      <div class="etiqueta">Vive el reto · Construye tu historia</div>
+      <div class="etiqueta">VIVE DESDE TU RAÍZ</div>
 
       <h1>
         Tu raíz es
@@ -375,7 +394,7 @@
             <svg class="icono" viewBox="0 0 64 64"
                  fill="none" xmlns="http://www.w3.org/2000/svg">
               <ellipse cx="25" cy="17" rx="17" ry="8"
-                       stroke="#75b8ff" stroke-width="3"/>
+                       stroke="#9bd0ff" stroke-width="3"/>
               <path d="M8 17v25c0 5 8 9 17 9s17-4 17-9V17"
                     stroke="#75b8ff" stroke-width="3"/>
               <path d="M8 29c0 5 8 9 17 9s17-4 17-9"
@@ -383,7 +402,7 @@
               <path d="M8 40c0 5 8 9 17 9"
                     stroke="#75b8ff" stroke-width="3"/>
               <circle cx="45" cy="43" r="15"
-                      fill="#123d70" stroke="#8bc5ff" stroke-width="3"/>
+                      fill="#123d70" stroke="#b5dcff" stroke-width="3"/>
               <path d="M49 37c-2-3-9-3-9 1 0 5 10 2 10 7 0 4-7 6-11 2M45 34v19"
                     stroke="#d9edff" stroke-width="2"
                     stroke-linecap="round"/>
@@ -398,8 +417,8 @@
             <svg class="icono" viewBox="0 0 64 64"
                  fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 17h40v10a6 6 0 0 0 0 12v10H12V39a6 6 0 0 0 0-12V17Z"
-                    fill="#6e2434" stroke="#ff7a85" stroke-width="3"/>
-              <path d="M32 20v25" stroke="#ff9ba3"
+                    fill="#7c293b" stroke="#ff9aa3" stroke-width="3"/>
+              <path d="M32 20v25" stroke="#ffb1b8"
                     stroke-width="2" stroke-dasharray="3 4"/>
               <path d="m22 32 7 7 14-15"
                     stroke="#ffe1e3" stroke-width="3"
@@ -473,9 +492,6 @@
         data.tickets;
 
       document.getElementById("consulta").hidden = false;
-
-      // Se oculta el estado superior para evitar repetir
-      // el mensaje de consulta realizada correctamente.
       document.getElementById("estado").style.display = "none";
     }
 
