@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,27 +21,14 @@
       background: #1e293b;
       border-radius: 16px;
     }
-    input, button {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-    button {
-      background: #38bdf8;
-      color: #082f49;
-      font-weight: bold;
-      cursor: pointer;
-    }
     .dato {
       font-size: 22px;
       font-weight: bold;
       margin: 12px;
     }
-    #estado { color: #bae6fd; }
+    #estado {
+      color: #bae6fd;
+    }
   </style>
 </head>
 <body>
@@ -48,19 +36,20 @@
     <h1>🌱 Tu raíz es nuestra raíz</h1>
     <p>Sistema de grupos y recompensas</p>
     <p id="estado">Conectando...</p>
+
     <section id="consulta" hidden>
       <h2 id="nombre"></h2>
-      <p>Monedas</p>
-      <div class="dato" id="monedas">0</div>
-      <p>Puntos</p>
-      <div class="dato" id="puntos">0</div>
+
+      <p>Dinero</p>
+      <div class="dato" id="dinero">0</div>
+
       <p>Tickets</p>
       <div class="dato" id="tickets">0</div>
     </section>
   </main>
 
   <script>
-  const SUPABASE_URL = "https://ecuxshgbftpnurcfviir.supabase.co";
+    const SUPABASE_URL = "https://ecuxshgbftpnurcfviir.supabase.co";
     const SUPABASE_KEY = "sb_publishable_r8DPVtISS2k6_YKrA21Ydw_ujwqMDbr";
 
     const supabaseClient = window.supabase.createClient(
@@ -87,11 +76,11 @@
       );
 
       if (error) {
-  document.getElementById("estado").textContent =
-    "Error: " + error.message;
-  console.error(error);
-  return;
-}
+        document.getElementById("estado").textContent =
+          "Error: " + error.message;
+        console.error(error);
+        return;
+      }
 
       if (!data || data.error) {
         document.getElementById("estado").textContent =
@@ -100,10 +89,10 @@
       }
 
       document.getElementById("nombre").textContent = data.nombre;
-      document.getElementById("monedas").textContent =
+      document.getElementById("dinero").textContent =
         data.saldo_monedas;
-      document.getElementById("puntos").textContent = data.puntos;
-      document.getElementById("tickets").textContent = data.tickets;
+      document.getElementById("tickets").textContent =
+        data.tickets;
 
       document.getElementById("consulta").hidden = false;
       document.getElementById("estado").textContent =
