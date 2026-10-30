@@ -4,10 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2457d6">
   <title>Estación de juego</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       padding: 20px;
@@ -15,10 +19,12 @@
       background: #f2f4f8;
       color: #202938;
     }
+
     main {
       max-width: 480px;
       margin: auto;
     }
+
     section {
       background: white;
       padding: 20px;
@@ -26,13 +32,16 @@
       border-radius: 14px;
       box-shadow: 0 2px 8px #00000012;
     }
+
     h1 { font-size: 24px; margin-top: 0; }
     h2 { font-size: 18px; margin-top: 0; }
+
     label {
       display: block;
       font-weight: bold;
       margin: 14px 0 6px;
     }
+
     input {
       width: 100%;
       padding: 13px;
@@ -40,6 +49,7 @@
       border-radius: 8px;
       font-size: 16px;
     }
+
     button {
       width: 100%;
       padding: 14px;
@@ -50,75 +60,151 @@
       color: white;
       font-size: 16px;
       font-weight: bold;
+      cursor: pointer;
     }
+
     button.secondary { background: #475569; }
-    button:disabled { opacity: .5; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
     .status {
       padding: 12px;
       border-radius: 8px;
       background: #e8edf5;
       margin: 12px 0;
       font-size: 14px;
+      overflow-wrap: anywhere;
     }
-    .small { font-size: 13px; color: #596579; }
+
+    .small {
+      font-size: 13px;
+      color: #596579;
+    }
+
     .hidden { display: none; }
     .count { font-weight: bold; }
+
+    .operation {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      background: #f2f4f8;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
   </style>
 </head>
+
 <body>
 <main>
+
   <section>
     <h1>Estación de juego</h1>
-    <div id="conexion" class="status">Comprobando conexión...</div>
-    <p class="small">Operaciones pendientes: <span id="pendientes" class="count">0</span></p>
+
+    <div id="conexion" class="status">
+      Comprobando conexión...
+    </div>
+
+    <p class="small">
+      Operaciones pendientes:
+      <span id="pendientes" class="count">0</span>
+    </p>
   </section>
 
   <section id="configuracion">
     <h2>Configurar esta estación</h2>
+
     <label for="nombreBase">Nombre o número de la base</label>
     <input id="nombreBase" placeholder="Ej. Base 101">
 
     <label for="tokenEstacion">Credencial de esta estación</label>
-    <input id="tokenEstacion" type="password" placeholder="Token de la estación">
+    <input
+      id="tokenEstacion"
+      type="password"
+      autocomplete="off"
+      placeholder="Token de la estación"
+    >
 
     <button id="guardarConfig">Guardar configuración</button>
-    <p class="small">La configuración se guarda en este teléfono. No compartas su credencial.</p>
+
+    <p class="small">
+      La configuración se guarda en este teléfono.
+      No compartas su credencial.
+    </p>
   </section>
 
   <section id="operacion" class="hidden">
     <h2 id="tituloBase">Base</h2>
 
-    <label for="tokenTarjeta">Token de la tarjeta del grupo</label>
-    <input id="tokenTarjeta" placeholder="Escanea la tarjeta o pega su token">
+    <label for="tokenTarjeta">Tarjeta del grupo</label>
+    <input
+      id="tokenTarjeta"
+      placeholder="Escanea la tarjeta o pega su token"
+      autocomplete="off"
+    >
 
-    <button id="leerNfc" class="secondary">Leer tarjeta NFC</button>
+    <button id="leerNfc" class="secondary">
+      Leer tarjeta NFC
+    </button>
 
     <label for="tickets">Tickets obtenidos por el grupo</label>
-    <input id="tickets" type="number" min="0" step="1" placeholder="Ej. 25">
+    <input
+      id="tickets"
+      type="number"
+      min="0"
+      step="1"
+      placeholder="Ej. 25"
+    >
 
     <button id="registrar">Registrar cobro y tickets</button>
-    <div id="mensaje" class="status">Esperando una tarjeta.</div>
-    <button id="sincronizar" class="secondary">Sincronizar pendientes</button>
-    <button id="cambiarConfig" class="secondary">Cambiar configuración</button>
+
+    <div id="mensaje" class="status">
+      Esperando una tarjeta.
+    </div>
+
+    <button id="sincronizar" class="secondary">
+      Sincronizar pendientes
+    </button>
+
+    <button id="cambiarConfig" class="secondary">
+      Cambiar configuración
+    </button>
   </section>
 
   <section>
     <h2>Estado de operaciones</h2>
-    <div id="listaPendientes" class="small">No hay operaciones pendientes.</div>
+    <div id="listaPendientes" class="small">
+      No hay operaciones pendientes.
+    </div>
   </section>
+
 </main>
 
 <script>
-const SUPABASE_URL = "https://ecuxshgbftpnurcfviir.supabase.co";
-const SUPABASE_KEY = "sb_publishable_r8DPVtISS2k6_YKrA21Ydw_ujwqMDbr";
+"use strict";
+
+// ======================================
+// 1. CONEXIÓN CON SUPABASE
+// ======================================
+
+const SUPABASE_URL =
+  "https://ecuxshgbftpnurcfviir.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_r8DPVtISS2k6_YKrA21Ydw_ujwqMDbr";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
+// ======================================
+// 2. CONFIGURACIÓN Y ALMACENAMIENTO
+// ======================================
+
 const CLAVE_CONFIG = "arcade_lider_config";
-const CLAVE_COLA = "arcade_lider_pendientes";
+
+const DB_NAME = "banco_arcade_local";
+const STORE_NAME = "operaciones";
 
 const $ = id => document.getElementById(id);
 
@@ -130,52 +216,116 @@ function leerConfig() {
   }
 }
 
-function leerCola() {
-  try {
-    return JSON.parse(localStorage.getItem(CLAVE_COLA)) || [];
-  } catch {
-    return [];
-  }
+// ======================================
+// 3. BASE DE DATOS LOCAL INDEXEDDB
+// ======================================
+
+function abrirDB() {
+  return new Promise((resolve, reject) => {
+    const solicitud = indexedDB.open(DB_NAME, 1);
+
+    solicitud.onupgradeneeded = () => {
+      const db = solicitud.result;
+
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, {
+          keyPath: "solicitud_id"
+        });
+      }
+    };
+
+    solicitud.onsuccess = () => resolve(solicitud.result);
+    solicitud.onerror = () => reject(solicitud.error);
+  });
 }
 
-function guardarCola(cola) {
-  localStorage.setItem(CLAVE_COLA, JSON.stringify(cola));
-  mostrarCola();
+async function guardarOperacion(operacion) {
+  const db = await abrirDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+
+    tx.objectStore(STORE_NAME).put(operacion);
+
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
+
+    tx.onabort = () => {
+      db.close();
+      reject(tx.error);
+    };
+  });
 }
 
-function mostrarCola() {
-  const cola = leerCola();
-  $("pendientes").textContent = cola.length;
+async function leerOperaciones() {
+  const db = await abrirDB();
 
-  if (!cola.length) {
-    $("listaPendientes").textContent = "No hay operaciones pendientes.";
-    return;
-  }
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const solicitud = tx.objectStore(STORE_NAME).getAll();
 
-  $("listaPendientes").innerHTML = cola.map((op, i) =>
-    `<p>Operación ${i + 1}: ${op.estado || "Pendiente"}</p>`
-  ).join("");
+    solicitud.onsuccess = () => {
+      const datos = solicitud.result || [];
+
+      datos.sort((a, b) => a.creado_en - b.creado_en);
+
+      db.close();
+      resolve(datos);
+    };
+
+    solicitud.onerror = () => {
+      db.close();
+      reject(solicitud.error);
+    };
+  });
 }
 
-function actualizarConexion() {
-  $("conexion").textContent = navigator.onLine
-    ? "Con conexión a internet"
-    : "Sin conexión. Las operaciones se guardarán pendientes.";
+async function eliminarOperacion(id) {
+  const db = await abrirDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+
+    tx.objectStore(STORE_NAME).delete(id);
+
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
+  });
 }
+
+// ======================================
+// 4. CONFIGURACIÓN DE LA ESTACIÓN
+// ======================================
 
 function mostrarPantalla() {
   const config = leerConfig();
+
   $("configuracion").classList.toggle("hidden", !!config);
   $("operacion").classList.toggle("hidden", !config);
 
   if (config) {
     $("tituloBase").textContent = config.nombre;
   }
-  mostrarCola();
+
   actualizarConexion();
+  mostrarCola();
 }
 
-$("guardarConfig").addEventListener("click", () => {
+$("guardarConfig").addEventListener("click", async () => {
   const nombre = $("nombreBase").value.trim();
   const token = $("tokenEstacion").value.trim();
 
@@ -184,20 +334,91 @@ $("guardarConfig").addEventListener("click", () => {
     return;
   }
 
-  localStorage.setItem(CLAVE_CONFIG, JSON.stringify({
-    nombre,
-    token
-  }));
+  if (token.length < 32) {
+    alert("La credencial no parece válida.");
+    return;
+  }
+
+  localStorage.setItem(
+    CLAVE_CONFIG,
+    JSON.stringify({ nombre, token })
+  );
 
   $("tokenEstacion").value = "";
+
   mostrarPantalla();
 });
 
 $("cambiarConfig").addEventListener("click", () => {
-  if (!confirm("¿Deseas cambiar la configuración de esta estación?")) return;
+  if (!confirm("¿Deseas cambiar la configuración de esta estación?")) {
+    return;
+  }
+
   localStorage.removeItem(CLAVE_CONFIG);
   mostrarPantalla();
 });
+
+// ======================================
+// 5. ESTADO DE CONEXIÓN
+// ======================================
+
+function actualizarConexion() {
+  $("conexion").textContent = navigator.onLine
+    ? "Con conexión a internet"
+    : "Sin conexión. Las operaciones se guardarán pendientes.";
+}
+
+window.addEventListener("online", async () => {
+  actualizarConexion();
+  await sincronizar();
+});
+
+window.addEventListener("offline", actualizarConexion);
+
+// ======================================
+// 6. MOSTRAR OPERACIONES PENDIENTES
+// ======================================
+
+async function mostrarCola() {
+  try {
+    const cola = await leerOperaciones();
+
+    $("pendientes").textContent = cola.length;
+
+    const lista = $("listaPendientes");
+    lista.replaceChildren();
+
+    if (!cola.length) {
+      lista.textContent = "No hay operaciones pendientes.";
+      return;
+    }
+
+    cola.forEach((op, indice) => {
+      const elemento = document.createElement("div");
+      elemento.className = "operation";
+
+      const titulo = document.createElement("strong");
+      titulo.textContent = `Operación ${indice + 1}`;
+
+      const estado = document.createElement("p");
+      estado.textContent = op.estado || "Pendiente";
+
+      const fecha = document.createElement("small");
+      fecha.textContent = new Date(op.creado_en).toLocaleString("es-CO");
+
+      elemento.append(titulo, estado, fecha);
+      lista.appendChild(elemento);
+    });
+
+  } catch (error) {
+    $("listaPendientes").textContent =
+      "No se pudo consultar el almacenamiento local.";
+  }
+}
+
+// ======================================
+// 7. LECTURA DE TARJETAS NFC
+// ======================================
 
 function extraerToken(valor) {
   const texto = valor.trim();
@@ -205,6 +426,7 @@ function extraerToken(valor) {
   try {
     const url = new URL(texto);
     const token = url.searchParams.get("card");
+
     if (token) return token;
   } catch {}
 
@@ -212,144 +434,252 @@ function extraerToken(valor) {
 }
 
 $("leerNfc").addEventListener("click", async () => {
+
   if (!("NDEFReader" in window)) {
-    alert("Este navegador no admite lectura NFC web. Puedes introducir el token de la tarjeta manualmente.");
+    alert(
+      "Este navegador no admite lectura NFC web. " +
+      "Puedes introducir el token de la tarjeta manualmente."
+    );
     return;
   }
 
   try {
     const lector = new NDEFReader();
+
     await lector.scan();
 
-    $("mensaje").textContent = "Acerca la tarjeta NFC al teléfono.";
+    $("mensaje").textContent =
+      "Acerca la tarjeta NFC al teléfono.";
 
     lector.onreading = event => {
+
       for (const record of event.message.records) {
+
         if (record.recordType === "url") {
           const decoder = new TextDecoder();
           const url = decoder.decode(record.data);
+
           $("tokenTarjeta").value = extraerToken(url);
-          $("mensaje").textContent = "Tarjeta leída. Introduce los tickets obtenidos.";
+
+          $("mensaje").textContent =
+            "Tarjeta leída. Introduce los tickets obtenidos.";
+
           return;
         }
 
         if (record.recordType === "text") {
-          const decoder = new TextDecoder(record.encoding || "utf-8");
-          $("tokenTarjeta").value = extraerToken(decoder.decode(record.data));
-          $("mensaje").textContent = "Tarjeta leída. Introduce los tickets obtenidos.";
+          const decoder = new TextDecoder(
+            record.encoding || "utf-8"
+          );
+
+          $("tokenTarjeta").value =
+            extraerToken(decoder.decode(record.data));
+
+          $("mensaje").textContent =
+            "Tarjeta leída. Introduce los tickets obtenidos.";
+
           return;
         }
       }
-      $("mensaje").textContent = "No se encontró un token en la tarjeta.";
+
+      $("mensaje").textContent =
+        "No se encontró un token en la tarjeta.";
     };
+
   } catch (error) {
-    $("mensaje").textContent = "No fue posible iniciar la lectura NFC: " + error.message;
+    $("mensaje").textContent =
+      "No fue posible iniciar la lectura NFC: " + error.message;
   }
 });
 
+// ======================================
+// 8. GUARDAR COBRO Y TICKETS
+// ======================================
+
 $("registrar").addEventListener("click", async () => {
+
   const config = leerConfig();
-  const tarjeta = extraerToken($("tokenTarjeta").value);
+
+  const tarjeta = extraerToken(
+    $("tokenTarjeta").value
+  );
+
   const tickets = Number($("tickets").value);
 
   if (!config) return;
+
   if (!tarjeta || tarjeta.length < 32) {
-    alert("Lee una tarjeta válida o introduce su token.");
+    alert("Introduce una tarjeta válida.");
     return;
   }
+
   if (!Number.isInteger(tickets) || tickets < 0) {
     alert("Introduce una cantidad válida de tickets.");
     return;
   }
 
-  const operacion = {
-    solicitud_id: crypto.randomUUID(),
-    token_estacion: config.token,
-    token_tarjeta: tarjeta,
-    tickets,
-    estado: "Pendiente de sincronización"
-  };
+  $("registrar").disabled = true;
 
-  const cola = leerCola();
-  cola.push(operacion);
-  guardarCola(cola);
+  try {
+    const operacion = {
+      solicitud_id: crypto.randomUUID(),
+      token_estacion: config.token,
+      token_tarjeta: tarjeta,
+      tickets: tickets,
+      estado: "Pendiente de confirmación del servidor",
+      creado_en: Date.now()
+    };
 
-  $("tokenTarjeta").value = "";
-  $("tickets").value = "";
-  $("mensaje").textContent = "Operación guardada. Enviando al servidor...";
+    // Primero se guarda localmente.
+    await guardarOperacion(operacion);
 
-  await sincronizar();
+    $("tokenTarjeta").value = "";
+    $("tickets").value = "";
+
+    $("mensaje").textContent =
+      "Operación guardada localmente. Todavía no es oficial.";
+
+    await mostrarCola();
+
+    // Si hay internet, se intenta sincronizar.
+    if (navigator.onLine) {
+      await sincronizar();
+    }
+
+  } catch (error) {
+    $("mensaje").textContent =
+      "No se pudo guardar la operación: " + error.message;
+
+  } finally {
+    $("registrar").disabled = false;
+  }
 });
 
+// ======================================
+// 9. SINCRONIZAR CON SUPABASE
+// ======================================
+
+let sincronizacionEnCurso = false;
+
 async function sincronizar() {
-  if (!navigator.onLine) {
-    $("mensaje").textContent = "Sin internet. La operación permanece guardada.";
+
+  if (!navigator.onLine || sincronizacionEnCurso) {
     return;
   }
 
-  let cola = leerCola();
+  if (!leerConfig()) {
+    return;
+  }
 
-  while (cola.length) {
-    const op = cola[0];
-    op.estado = "Sincronizando";
-    guardarCola(cola);
+  sincronizacionEnCurso = true;
+  $("sincronizar").disabled = true;
 
-    try {
-      const { data: cobro, error: errorCobro } =
-        await supabaseClient.rpc("cobrar_base", {
-          p_token_estacion: op.token_estacion,
-          p_token_tarjeta: op.token_tarjeta,
-          p_solicitud_id: op.solicitud_id
-        });
+  try {
 
-      if (errorCobro) throw errorCobro;
+    let cola = await leerOperaciones();
 
-      const { data: registro, error: errorTickets } =
-        await supabaseClient.rpc("registrar_puntos", {
-          p_token_estacion: op.token_estacion,
-          p_movimiento_id: cobro.movimiento_id,
-          p_puntos: op.tickets
-        });
+    while (cola.length && navigator.onLine) {
 
-      if (errorTickets) throw errorTickets;
+      const op = cola[0];
 
-      cola.shift();
-      guardarCola(cola);
-      $("mensaje").textContent =
-        "Operación confirmada. Tickets registrados: " +
-        registro.tickets_registrados +
-        ". Tickets acumulados: " +
-        registro.tickets_acumulados + ".";
+      op.estado = "Sincronizando";
+      await guardarOperacion(op);
+      await mostrarCola();
 
-    } catch (error) {
-      op.estado = "Pendiente: " + (error.message || "Error de sincronización");
-      guardarCola(cola);
-      $("mensaje").textContent =
-        "No se pudo confirmar la operación. Sigue guardada para revisión o reintento: " +
-        (error.message || "Error desconocido");
-      break;
+      try {
+
+        // PRIMERA OPERACIÓN: COBRAR LA BASE.
+
+        const { data: cobro, error: errorCobro } =
+          await supabaseClient.rpc("cobrar_base", {
+            p_token_estacion: op.token_estacion,
+            p_token_tarjeta: op.token_tarjeta,
+            p_solicitud_id: op.solicitud_id
+          });
+
+        if (errorCobro) throw errorCobro;
+
+        // SEGUNDA OPERACIÓN: REGISTRAR LOS TICKETS.
+
+        const { data: registro, error: errorTickets } =
+          await supabaseClient.rpc("registrar_puntos", {
+            p_token_estacion: op.token_estacion,
+            p_movimiento_id: cobro.movimiento_id,
+            p_puntos: op.tickets
+          });
+
+        if (errorTickets) throw errorTickets;
+
+        // SOLO SE ELIMINA CUANDO AMBAS OPERACIONES
+        // HAN SIDO CONFIRMADAS POR EL SERVIDOR.
+
+        await eliminarOperacion(op.solicitud_id);
+
+        $("mensaje").textContent =
+          "Operación confirmada por el servidor. " +
+          "Tickets registrados: " +
+          registro.tickets_registrados +
+          ". Tickets acumulados: " +
+          registro.tickets_acumulados + ".";
+
+      } catch (error) {
+
+        op.estado =
+          "Pendiente de revisión: " +
+          (error.message || "Error de sincronización");
+
+        await guardarOperacion(op);
+
+        $("mensaje").textContent =
+          "Operación no confirmada. Permanece guardada. " +
+          (error.message || "Error desconocido");
+
+        break;
+      }
+
+      cola = await leerOperaciones();
+      await mostrarCola();
     }
 
-    cola = leerCola();
+  } catch (error) {
+
+    $("mensaje").textContent =
+      "Error de almacenamiento o sincronización: " + error.message;
+
+  } finally {
+
+    sincronizacionEnCurso = false;
+    $("sincronizar").disabled = false;
+
+    await mostrarCola();
   }
 }
 
 $("sincronizar").addEventListener("click", sincronizar);
-window.addEventListener("online", () => {
-  actualizarConexion();
-  sincronizar();
-});
-window.addEventListener("offline", actualizarConexion);
 
-mostrarPantalla();
-mostrarCola();
+// ======================================
+// 10. INICIO Y MODO SIN CONEXIÓN
+// ======================================
+
+async function iniciarAplicacion() {
+  mostrarPantalla();
+
   if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("Modo sin conexión preparado"))
-      .catch(error => console.error("Error al activar modo sin conexión:", error));
-  });
+    try {
+      await navigator.serviceWorker.register("./sw.js");
+      console.log("Modo sin conexión preparado.");
+    } catch (error) {
+      console.error("Error al activar modo sin conexión:", error);
+    }
+  }
+
+  if (navigator.onLine) {
+    await sincronizar();
+  }
 }
+
+iniciarAplicacion();
+
 </script>
 </body>
 </html>
