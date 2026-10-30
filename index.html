@@ -4,48 +4,361 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080f1e">
   <title>Tu raíz es nuestra raíz</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
+    :root {
+      --fondo: #080f1e;
+      --panel: #101c30;
+      --azul: #1769bd;
+      --azul-claro: #3289e8;
+      --rojo: #bd2638;
+      --rojo-claro: #e04450;
+      --texto: #f3f5fa;
+      --texto-suave: #a6b2c5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #101827;
-      color: white;
-      text-align: center;
-      padding: 30px 15px;
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px 16px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--texto);
+      background:
+        radial-gradient(ellipse at 5% 10%, #12366a55, transparent 40%),
+        radial-gradient(ellipse at 100% 85%, #8f1e3040, transparent 38%),
+        linear-gradient(145deg, #080f1e, #0c1729 55%, #080d18);
     }
+
     main {
-      max-width: 420px;
-      margin: 40px auto;
-      padding: 25px;
-      background: #1e293b;
-      border-radius: 16px;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
     }
-    .dato {
-      font-size: 22px;
+
+    .encabezado {
+      text-align: center;
+      padding: 24px 8px 30px;
+    }
+
+    .etiqueta {
+      color: #91a8c8;
+      font-size: 11px;
       font-weight: bold;
-      margin: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 15px;
     }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(29px, 8vw, 43px);
+      line-height: 1.08;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      text-transform: uppercase;
+    }
+
+    h1 span {
+      display: block;
+      color: #e34a55;
+      margin-top: 5px;
+    }
+
+    .subrayado {
+      width: 125px;
+      height: 4px;
+      margin: 17px auto 0;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--rojo), var(--azul-claro));
+      transform: rotate(-2deg);
+    }
+
+    .grupo {
+      text-align: center;
+      margin: 12px 0 28px;
+    }
+
+    .grupo small {
+      display: block;
+      color: var(--texto-suave);
+      font-size: 12px;
+      letter-spacing: 5px;
+      font-weight: bold;
+      margin-bottom: 9px;
+    }
+
+    .grupo h2 {
+      margin: 0;
+      font-size: clamp(25px, 7vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      overflow-wrap: anywhere;
+    }
+
+    .panel {
+      background: linear-gradient(145deg, #142239, #0d182a);
+      border: 1px solid #263a57;
+      border-radius: 25px;
+      padding: 22px 16px;
+      box-shadow: 0 18px 45px #00000055;
+    }
+
     #estado {
-      color: #bae6fd;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #a9bad2;
+      font-size: 14px;
+      text-align: center;
+      margin: 0 0 20px;
+    }
+
+    .indicador {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 9px;
+      border-radius: 50%;
+      background: #4095e8;
+      box-shadow: 0 0 12px #4095e8;
+    }
+
+    #consulta {
+      display: block;
+    }
+
+    #consulta[hidden] {
+      display: none;
+    }
+
+    .datos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px;
+    }
+
+    .tarjeta {
+      position: relative;
+      min-width: 0;
+      min-height: 235px;
+      padding: 23px 12px 20px;
+      border-radius: 21px;
+      text-align: center;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tarjeta::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 75px;
+      bottom: -45px;
+      right: -35px;
+      border-radius: 50%;
+      transform: rotate(-20deg);
+      opacity: 0.45;
+    }
+
+    .dinero {
+      background: linear-gradient(155deg, #102e55, #0b1b32 75%);
+      border: 1px solid #176bc1;
+      box-shadow: inset 0 0 28px #176bc122;
+    }
+
+    .dinero::after {
+      background: #176bc1;
+    }
+
+    .tickets {
+      background: linear-gradient(155deg, #4b1928, #211522 75%);
+      border: 1px solid #bd3044;
+      box-shadow: inset 0 0 28px #bd304422;
+    }
+
+    .tickets::after {
+      background: #bd3044;
+    }
+
+    .icono {
+      width: 62px;
+      height: 62px;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rotulo {
+      color: #aebbd0;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      margin-bottom: 15px;
+    }
+
+    .valor {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(25px, 6.5vw, 34px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      overflow-wrap: anywhere;
+    }
+
+    .unidad {
+      color: #8ca6c8;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      margin-top: 8px;
+    }
+
+    .tickets .valor {
+      font-size: 55px;
+    }
+
+    .confirmacion {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #aabbd0;
+      font-size: 13px;
+      text-align: center;
+      margin: 24px 0 3px;
+    }
+
+    .check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 25px;
+      height: 25px;
+      border: 1px solid #6686ac;
+      border-radius: 50%;
+      color: #b9d4f4;
+      flex-shrink: 0;
+    }
+
+    .pie {
+      text-align: center;
+      color: #61748e;
+      font-size: 11px;
+      letter-spacing: 1px;
+      margin-top: 25px;
+    }
+
+    @media (max-width: 360px) {
+      .panel {
+        padding: 17px 11px;
+      }
+
+      .datos {
+        gap: 9px;
+      }
+
+      .tarjeta {
+        min-height: 210px;
+        padding: 18px 8px;
+      }
+
+      .rotulo {
+        letter-spacing: 2px;
+      }
     }
   </style>
 </head>
+
 <body>
   <main>
-    <h1>🌱 Tu raíz es nuestra raíz</h1>
-    <p>Sistema de grupos y recompensas</p>
-    <p id="estado">Conectando...</p>
+    <header class="encabezado">
+      <div class="etiqueta">Sistema de grupos y recompensas</div>
 
-    <section id="consulta" hidden>
-      <h2 id="nombre"></h2>
+      <h1>
+        Tu raíz es
+        <span>nuestra raíz</span>
+      </h1>
 
-      <p>Dinero</p>
-      <div class="dato" id="dinero">0</div>
+      <div class="subrayado"></div>
+    </header>
 
-      <p>Tickets</p>
-      <div class="dato" id="tickets">0</div>
+    <section class="grupo">
+      <small>GRUPO</small>
+      <h2 id="nombre">Tu grupo</h2>
     </section>
+
+    <section class="panel">
+      <p id="estado">
+        <span class="indicador"></span>
+        Esperando una tarjeta NFC...
+      </p>
+
+      <section id="consulta" hidden>
+        <div class="datos">
+
+          <article class="tarjeta dinero">
+            <svg class="icono" viewBox="0 0 64 64"
+                 fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="25" cy="17" rx="17" ry="8"
+                       stroke="#75b8ff" stroke-width="3"/>
+              <path d="M8 17v25c0 5 8 9 17 9s17-4 17-9V17"
+                    stroke="#75b8ff" stroke-width="3"/>
+              <path d="M8 29c0 5 8 9 17 9s17-4 17-9"
+                    stroke="#75b8ff" stroke-width="3"/>
+              <path d="M8 40c0 5 8 9 17 9"
+                    stroke="#75b8ff" stroke-width="3"/>
+              <circle cx="45" cy="43" r="15"
+                      fill="#123d70" stroke="#8bc5ff" stroke-width="3"/>
+              <path d="M49 37c-2-3-9-3-9 1 0 5 10 2 10 7 0 4-7 6-11 2M45 34v19"
+                    stroke="#d9edff" stroke-width="2"
+                    stroke-linecap="round"/>
+            </svg>
+
+            <div class="rotulo">DINERO</div>
+            <div class="valor" id="dinero">$0</div>
+            <div class="unidad">COP</div>
+          </article>
+
+          <article class="tarjeta tickets">
+            <svg class="icono" viewBox="0 0 64 64"
+                 fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 17h40v10a6 6 0 0 0 0 12v10H12V39a6 6 0 0 0 0-12V17Z"
+                    fill="#6e2434" stroke="#ff7a85" stroke-width="3"/>
+              <path d="M32 20v25" stroke="#ff9ba3"
+                    stroke-width="2" stroke-dasharray="3 4"/>
+              <path d="m22 32 7 7 14-15"
+                    stroke="#ffe1e3" stroke-width="3"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+
+            <div class="rotulo">TICKETS</div>
+            <div class="valor" id="tickets">0</div>
+          </article>
+
+        </div>
+
+        <div class="confirmacion">
+          <span class="check">✓</span>
+          Consulta realizada correctamente.
+        </div>
+      </section>
+    </section>
+
+    <footer class="pie">
+      TU RAÍZ ES NUESTRA RAÍZ
+    </footer>
   </main>
 
   <script>
@@ -89,8 +402,10 @@
       }
 
       document.getElementById("nombre").textContent = data.nombre;
-     document.getElementById("dinero").textContent =
-  "$" + Number(data.monedas).toLocaleString("es-CO") + " COP";
+
+      document.getElementById("dinero").textContent =
+        "$" + Number(data.monedas).toLocaleString("es-CO");
+
       document.getElementById("tickets").textContent =
         data.tickets;
 
