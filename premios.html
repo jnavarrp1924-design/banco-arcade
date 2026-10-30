@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Puesto de premios</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+      color: #222;
+    }
+    main {
+      max-width: 520px;
+      margin: auto;
+    }
+    section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    h1, h2 { margin-top: 0; }
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #bbb; }
+    button {
+      border: 0;
+      background: #174ea6;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+    .premio {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .saldo {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    #mensaje {
+      white-space: pre-wrap;
+      font-weight: bold;
+    }
+    .secundario { background: #555; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Puesto de premios</h1>
+
+  <section>
+    <h2>Configuración del puesto</h2>
+    <label for="nombrePuesto">Nombre del puesto</label>
+    <input id="nombrePuesto" placeholder="Puesto central de premios">
+
+    <label for="tokenEstacion">Token del dispositivo</label>
+    <input id="tokenEstacion" type="password" placeholder="Token de este teléfono">
+
+    <button id="guardarConfig">Guardar configuración</button>
+    <p id="estadoConexion">Comprobando conexión...</p>
+  </section>
+
+  <section>
+    <h2>Identificar grupo</h2>
+    <button id="escanearNFC">Leer tarjeta NFC</button>
+    <label for="tokenTarjeta">O introducir código de tarjeta</label>
+    <input id="tokenTarjeta" placeholder="Código de la tarjeta">
+    <button id="consultar">Consultar tickets</button>
+  </section>
+
+  <section id="datosEquipo" hidden>
+    <h2 id="nombreEquipo">Grupo</h2>
+    <p>Tickets disponibles</p>
+    <div class="saldo" id="saldoTickets">0</div>
+
+    <h2>Premios disponibles</h2>
+
+    <div class="premio">
+      <strong>Premio Oro</strong>
+      <p>100 tickets</p>
+      <button class="canjear" data-premio="ORO">Canjear premio Oro</button>
+    </div>
+
+    <div class="premio">
+      <strong>Premio Plata</strong>
+      <p>50 tickets</p>
+      <button class="canjear" data-premio="PLATA">Canjear premio Plata</button>
+    </div>
+
+    <div class="premio">
+      <strong>Premio Bronce</strong>
+      <p>30 tickets</p>
+      <button class="canjear" data-premio="BRONCE">Canjear premio Bronce</button>
+    </div>
+
+    <button id="limpiar" class="secundario">Consultar otro grupo</button>
+  </section>
+
+  <section>
+    <p id="mensaje">Listo para comenzar.</p>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://ecuxshgbftpnurcfviir.supabase.co";
+const SUPABASE_KEY = "sb_publishable_r8DPVtISS2k6_YKrA21Ydw_ujwqMDbr";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const $ = id => document.getElementById(id);
+
+let equipoActual = null;
+let tokenActual = null;
+let procesando = false;
+
+function leerConfig() {
+  try {
+    return JSON.parse(localStorage.getItem("arcade_premios_config"));
+  } catch {
+    return null;
+  }
+}
+
+function mostrarMensaje(texto) {
+  $("mensaje").textContent = texto;
+}
+
+function actualizarConexion() {
+  $("estadoConexion").textContent = navigator.onLine
+    ? "Con conexión a internet"
+    : "Sin conexión: no se pueden realizar canjes";
+}
+
+function guardarConfig() {
+  const nombre = $("nombrePuesto").value.trim();
+  const token = $("tokenEstacion").value.trim();
+
+  if (!nombre || !token) {
+    mostrarMensaje("Escribe el nombre y el token del puesto.");
+    return;
+  }
+
+  localStorage.setItem("arcade_premios_config", JSON.stringify({
+    nombre,
+    token
+  }));
+
+  mostrarMensaje("Configuración guardada en este teléfono.");
+}
+
+function cargarConfig() {
+  const config = leerConfig();
+
+  if (config) {
+    $("nombrePuesto").value = config.nombre || "";
+    $("tokenEstacion").value = config.token || "";
+  }
+}
+
+function extraerToken(texto) {
+  try {
+    const url = new URL(texto);
+    return url.searchParams.get("card") || texto;
+  } catch {
+    return texto;
+  }
+}
+
+async function leerNFC() {
+  if (!("NDEFReader" in window)) {
+    mostrarMensaje("Este navegador no permite leer NFC. Introduce el código manualmente.");
+    return;
+  }
+
+  try {
+    const lector = new NDEFReader();
+    await lector.scan();
+
+    mostrarMensaje("Acerca la tarjeta NFC al teléfono.");
+
+    lector.onreading = event => {
+      for (const record of event.message.records) {
+        if (record.recordType === "url") {
+          const decoder = new TextDecoder();
+          const url = decoder.decode(record.data);
+          const token = extraerToken(url);
+
+          $("tokenTarjeta").value = token;
+          consultarEquipo();
+          return;
+        }
+
+        if (record.recordType === "text") {
+          const decoder = new TextDecoder(record.encoding || "utf-8");
+          $("tokenTarjeta").value = extraerToken(
+            decoder.decode(record.data)
+          );
+          consultarEquipo();
+          return;
+        }
+      }
+
+      mostrarMensaje("La tarjeta no contiene un código reconocido.");
+    };
+  } catch (error) {
+    mostrarMensaje("No fue posible leer NFC: " + error.message);
+  }
+}
+
+async function consultarEquipo() {
+  if (!navigator.onLine) {
+    mostrarMensaje("Necesitas conexión a internet para consultar los tickets.");
+    return;
+  }
+
+  const token = $("tokenTarjeta").value.trim();
+
+  if (!token) {
+    mostrarMensaje("Primero lee una tarjeta o introduce su código.");
+    return;
+  }
+
+  try {
+    mostrarMensaje("Consultando grupo...");
+
+    const { data, error } = await supabaseClient.rpc(
+      "consultar_equipo",
+      { p_token_tarjeta: token }
+    );
+
+    if (error) throw error;
+
+    const equipo = Array.isArray(data) ? data[0] : data;
+
+    if (!equipo || !equipo.equipo_id) {
+      throw new Error("No se encontró un grupo válido.");
+    }
+
+    equipoActual = equipo;
+    tokenActual = token;
+
+    $("nombreEquipo").textContent = equipo.nombre || equipo.equipo_id;
+    $("saldoTickets").textContent = equipo.tickets;
+    $("datosEquipo").hidden = false;
+
+    mostrarMensaje("Grupo consultado correctamente.");
+  } catch (error) {
+    equipoActual = null;
+    tokenActual = null;
+    $("datosEquipo").hidden = true;
+    mostrarMensaje("No se pudo consultar el grupo: " + error.message);
+  }
+}
+
+async function canjearPremio(premioId) {
+  if (procesando) return;
+
+  if (!navigator.onLine) {
+    mostrarMensaje("Sin conexión. No se puede confirmar un canje.");
+    return;
+  }
+
+  const config = leerConfig();
+
+  if (!config || !config.token) {
+    mostrarMensaje("Primero configura este puesto.");
+    return;
+  }
+
+  if (!equipoActual || !tokenActual) {
+    mostrarMensaje("Primero consulta un grupo.");
+    return;
+  }
+
+  const nombres = {
+    ORO: "Premio Oro",
+    PLATA: "Premio Plata",
+    BRONCE: "Premio Bronce"
+  };
+
+  if (!confirm(
+    "¿Confirmas el canje de " + nombres[premioId] +
+    " para " + equipoActual.nombre + "?"
+  )) return;
+
+  procesando = true;
+  document.querySelectorAll(".canjear").forEach(b => b.disabled = true);
+
+  try {
+    mostrarMensaje("Procesando canje...");
+
+    const solicitudId = crypto.randomUUID();
+
+    const { data, error } = await supabaseClient.rpc(
+      "canjear_premio",
+      {
+        p_token_estacion: config.token,
+        p_token_tarjeta: tokenActual,
+        p_premio_id: premioId,
+        p_solicitud_id: solicitudId
+      }
+    );
+
+    if (error) throw error;
+
+    const resultado = Array.isArray(data) ? data[0] : data;
+
+    const { data: consulta, error: errorConsulta } =
+      await supabaseClient.rpc("consultar_equipo", {
+        p_token_tarjeta: tokenActual
+      });
+
+    if (errorConsulta) throw errorConsulta;
+
+    equipoActual = Array.isArray(consulta) ? consulta[0] : consulta;
+
+    $("saldoTickets").textContent = equipoActual.tickets;
+
+    mostrarMensaje(
+      "Canje confirmado: " + nombres[premioId] +
+      "\nTickets restantes: " + equipoActual.tickets
+    );
+  } catch (error) {
+    mostrarMensaje(
+      "No se pudo confirmar el canje.\n" + error.message +
+      "\nConsulta nuevamente los tickets antes de intentar otra vez."
+    );
+  } finally {
+    procesando = false;
+    document.querySelectorAll(".canjear").forEach(b => b.disabled = false);
+  }
+}
+
+$("guardarConfig").addEventListener("click", guardarConfig);
+$("escanearNFC").addEventListener("click", leerNFC);
+$("consultar").addEventListener("click", consultarEquipo);
+
+document.querySelectorAll(".canjear").forEach(b => {
+  b.addEventListener("click", () => canjearPremio(b.dataset.premio));
+});
+
+$("limpiar").addEventListener("click", () => {
+  equipoActual = null;
+  tokenActual = null;
+  $("tokenTarjeta").value = "";
+  $("datosEquipo").hidden = true;
+  mostrarMensaje("Listo para consultar otro grupo.");
+});
+
+window.addEventListener("online", actualizarConexion);
+window.addEventListener("offline", actualizarConexion);
+
+cargarConfig();
+actualizarConexion();
+</script>
+</body>
+</html>
