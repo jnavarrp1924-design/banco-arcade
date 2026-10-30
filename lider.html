@@ -198,11 +198,10 @@ const supabaseClient = window.supabase.createClient(
 );
 
 // ======================================
-// 2. CONFIGURACIÓN Y ALMACENAMIENTO
+// 2. CONFIGURACIÓN
 // ======================================
 
 const CLAVE_CONFIG = "arcade_lider_config";
-
 const DB_NAME = "banco_arcade_local";
 const STORE_NAME = "operaciones";
 
@@ -304,6 +303,11 @@ async function eliminarOperacion(id) {
       db.close();
       reject(tx.error);
     };
+
+    tx.onabort = () => {
+      db.close();
+      reject(tx.error);
+    };
   });
 }
 
@@ -325,7 +329,7 @@ function mostrarPantalla() {
   mostrarCola();
 }
 
-$("guardarConfig").addEventListener("click", async () => {
+$("guardarConfig").addEventListener("click", () => {
   const nombre = $("nombreBase").value.trim();
   const token = $("tokenEstacion").value.trim();
 
@@ -556,7 +560,24 @@ $("registrar").addEventListener("click", async () => {
 });
 
 // ======================================
-// 9. SINCRONIZAR CON SUPABASE
+// 9. CLASIFICACIÓN DE ERRORES
+// ======================================
+
+function esErrorTemporal(error) {
+  const estado = Number(error?.status);
+
+  return (
+    !navigator.onLine ||
+    error instanceof TypeError ||
+    estado === 0 ||
+    estado === 408 ||
+    estado === 429 ||
+    estado >= 500
+  );
+}
+
+// ======================================
+// 10. SINCRONIZAR CON SUPABASE
 // ======================================
 
 let sincronizacionEnCurso = false;
@@ -580,7 +601,13 @@ async function sincronizar() {
 
     while (cola.length && navigator.onLine) {
 
-      const op = cola[0];
+      // Buscar la primera operación que no esté
+      // marcada como pendiente de revisión.
+      const op = cola.find(item =>
+        !String(item.estado || "").startsWith("Requiere revisión:")
+      );
+
+      if (!op) break;
 
       op.estado = "Sincronizando";
       await guardarOperacion(op);
@@ -599,6 +626,12 @@ async function sincronizar() {
 
         if (errorCobro) throw errorCobro;
 
+        if (!cobro || !cobro.movimiento_id) {
+          throw new Error(
+            "El servidor no devolvió el movimiento del cobro."
+          );
+        }
+
         // SEGUNDA OPERACIÓN: REGISTRAR LOS TICKETS.
 
         const { data: registro, error: errorTickets } =
@@ -609,6 +642,12 @@ async function sincronizar() {
           });
 
         if (errorTickets) throw errorTickets;
+
+        if (!registro) {
+          throw new Error(
+            "El servidor no confirmó el registro de tickets."
+          );
+        }
 
         // SOLO SE ELIMINA CUANDO AMBAS OPERACIONES
         // HAN SIDO CONFIRMADAS POR EL SERVIDOR.
@@ -624,16 +663,22 @@ async function sincronizar() {
 
       } catch (error) {
 
-        op.estado =
-          "Pendiente de revisión: " +
-          (error.message || "Error de sincronización");
+        if (esErrorTemporal(error)) {
+          op.estado =
+            "Pendiente de sincronización: " +
+            (error.message || "Error temporal de conexión");
+        } else {
+          op.estado =
+            "Requiere revisión: " +
+            (error.message || "El servidor rechazó la operación");
+        }
 
         await guardarOperacion(op);
 
         $("mensaje").textContent =
-          "Operación no confirmada. Permanece guardada. " +
-          (error.message || "Error desconocido");
+          op.estado + ". La operación permanece guardada.";
 
+        // No repetir la misma operación en este ciclo.
         break;
       }
 
@@ -644,7 +689,7 @@ async function sincronizar() {
   } catch (error) {
 
     $("mensaje").textContent =
-      "Error de almacenamiento o sincronización: " + error.message;
+      "Error al consultar la cola: " + error.message;
 
   } finally {
 
@@ -658,10 +703,11 @@ async function sincronizar() {
 $("sincronizar").addEventListener("click", sincronizar);
 
 // ======================================
-// 10. INICIO Y MODO SIN CONEXIÓN
+// 11. INICIO Y MODO SIN CONEXIÓN
 // ======================================
 
 async function iniciarAplicacion() {
+
   mostrarPantalla();
 
   if ("serviceWorker" in navigator) {
@@ -669,7 +715,10 @@ async function iniciarAplicacion() {
       await navigator.serviceWorker.register("./sw.js");
       console.log("Modo sin conexión preparado.");
     } catch (error) {
-      console.error("Error al activar modo sin conexión:", error);
+      console.error(
+        "Error al activar modo sin conexión:",
+        error
+      );
     }
   }
 
