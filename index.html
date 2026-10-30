@@ -87,11 +87,11 @@
       );
 
       if (error) {
-        document.getElementById("estado").textContent =
-          "No se pudo consultar el grupo.";
-        console.error(error);
-        return;
-      }
+  document.getElementById("estado").textContent =
+    "Error: " + error.message;
+  console.error(error);
+  return;
+}
 
       if (!data || data.error) {
         document.getElementById("estado").textContent =
