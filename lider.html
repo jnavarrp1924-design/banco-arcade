@@ -1,0 +1,348 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estación de juego</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f2f4f8;
+      color: #202938;
+    }
+    main {
+      max-width: 480px;
+      margin: auto;
+    }
+    section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px #00000012;
+    }
+    h1 { font-size: 24px; margin-top: 0; }
+    h2 { font-size: 18px; margin-top: 0; }
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 14px 0 6px;
+    }
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbd2dc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 8px;
+      background: #2457d6;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    button.secondary { background: #475569; }
+    button:disabled { opacity: .5; }
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      background: #e8edf5;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+    .small { font-size: 13px; color: #596579; }
+    .hidden { display: none; }
+    .count { font-weight: bold; }
+  </style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>Estación de juego</h1>
+    <div id="conexion" class="status">Comprobando conexión...</div>
+    <p class="small">Operaciones pendientes: <span id="pendientes" class="count">0</span></p>
+  </section>
+
+  <section id="configuracion">
+    <h2>Configurar esta estación</h2>
+    <label for="nombreBase">Nombre o número de la base</label>
+    <input id="nombreBase" placeholder="Ej. Base 101">
+
+    <label for="tokenEstacion">Credencial de esta estación</label>
+    <input id="tokenEstacion" type="password" placeholder="Token de la estación">
+
+    <button id="guardarConfig">Guardar configuración</button>
+    <p class="small">La configuración se guarda en este teléfono. No compartas su credencial.</p>
+  </section>
+
+  <section id="operacion" class="hidden">
+    <h2 id="tituloBase">Base</h2>
+
+    <label for="tokenTarjeta">Token de la tarjeta del grupo</label>
+    <input id="tokenTarjeta" placeholder="Escanea la tarjeta o pega su token">
+
+    <button id="leerNfc" class="secondary">Leer tarjeta NFC</button>
+
+    <label for="tickets">Tickets obtenidos por el grupo</label>
+    <input id="tickets" type="number" min="0" step="1" placeholder="Ej. 25">
+
+    <button id="registrar">Registrar cobro y tickets</button>
+    <div id="mensaje" class="status">Esperando una tarjeta.</div>
+    <button id="sincronizar" class="secondary">Sincronizar pendientes</button>
+    <button id="cambiarConfig" class="secondary">Cambiar configuración</button>
+  </section>
+
+  <section>
+    <h2>Estado de operaciones</h2>
+    <div id="listaPendientes" class="small">No hay operaciones pendientes.</div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://ecuxshgbftpnurcfviir.supabase.co";
+const SUPABASE_KEY = "sb_publishable_r8DPVtISS2k6_YKrA21Ydw_ujwqMDbr";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const CLAVE_CONFIG = "arcade_lider_config";
+const CLAVE_COLA = "arcade_lider_pendientes";
+
+const $ = id => document.getElementById(id);
+
+function leerConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_CONFIG)) || null;
+  } catch {
+    return null;
+  }
+}
+
+function leerCola() {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_COLA)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarCola(cola) {
+  localStorage.setItem(CLAVE_COLA, JSON.stringify(cola));
+  mostrarCola();
+}
+
+function mostrarCola() {
+  const cola = leerCola();
+  $("pendientes").textContent = cola.length;
+
+  if (!cola.length) {
+    $("listaPendientes").textContent = "No hay operaciones pendientes.";
+    return;
+  }
+
+  $("listaPendientes").innerHTML = cola.map((op, i) =>
+    `<p>Operación ${i + 1}: ${op.estado || "Pendiente"}</p>`
+  ).join("");
+}
+
+function actualizarConexion() {
+  $("conexion").textContent = navigator.onLine
+    ? "Con conexión a internet"
+    : "Sin conexión. Las operaciones se guardarán pendientes.";
+}
+
+function mostrarPantalla() {
+  const config = leerConfig();
+  $("configuracion").classList.toggle("hidden", !!config);
+  $("operacion").classList.toggle("hidden", !config);
+
+  if (config) {
+    $("tituloBase").textContent = config.nombre;
+  }
+  mostrarCola();
+  actualizarConexion();
+}
+
+$("guardarConfig").addEventListener("click", () => {
+  const nombre = $("nombreBase").value.trim();
+  const token = $("tokenEstacion").value.trim();
+
+  if (!nombre || !token) {
+    alert("Escribe el nombre de la base y su credencial.");
+    return;
+  }
+
+  localStorage.setItem(CLAVE_CONFIG, JSON.stringify({
+    nombre,
+    token
+  }));
+
+  $("tokenEstacion").value = "";
+  mostrarPantalla();
+});
+
+$("cambiarConfig").addEventListener("click", () => {
+  if (!confirm("¿Deseas cambiar la configuración de esta estación?")) return;
+  localStorage.removeItem(CLAVE_CONFIG);
+  mostrarPantalla();
+});
+
+function extraerToken(valor) {
+  const texto = valor.trim();
+
+  try {
+    const url = new URL(texto);
+    const token = url.searchParams.get("card");
+    if (token) return token;
+  } catch {}
+
+  return texto;
+}
+
+$("leerNfc").addEventListener("click", async () => {
+  if (!("NDEFReader" in window)) {
+    alert("Este navegador no admite lectura NFC web. Puedes introducir el token de la tarjeta manualmente.");
+    return;
+  }
+
+  try {
+    const lector = new NDEFReader();
+    await lector.scan();
+
+    $("mensaje").textContent = "Acerca la tarjeta NFC al teléfono.";
+
+    lector.onreading = event => {
+      for (const record of event.message.records) {
+        if (record.recordType === "url") {
+          const decoder = new TextDecoder();
+          const url = decoder.decode(record.data);
+          $("tokenTarjeta").value = extraerToken(url);
+          $("mensaje").textContent = "Tarjeta leída. Introduce los tickets obtenidos.";
+          return;
+        }
+
+        if (record.recordType === "text") {
+          const decoder = new TextDecoder(record.encoding || "utf-8");
+          $("tokenTarjeta").value = extraerToken(decoder.decode(record.data));
+          $("mensaje").textContent = "Tarjeta leída. Introduce los tickets obtenidos.";
+          return;
+        }
+      }
+      $("mensaje").textContent = "No se encontró un token en la tarjeta.";
+    };
+  } catch (error) {
+    $("mensaje").textContent = "No fue posible iniciar la lectura NFC: " + error.message;
+  }
+});
+
+$("registrar").addEventListener("click", async () => {
+  const config = leerConfig();
+  const tarjeta = extraerToken($("tokenTarjeta").value);
+  const tickets = Number($("tickets").value);
+
+  if (!config) return;
+  if (!tarjeta || tarjeta.length < 32) {
+    alert("Lee una tarjeta válida o introduce su token.");
+    return;
+  }
+  if (!Number.isInteger(tickets) || tickets < 0) {
+    alert("Introduce una cantidad válida de tickets.");
+    return;
+  }
+
+  const operacion = {
+    solicitud_id: crypto.randomUUID(),
+    token_estacion: config.token,
+    token_tarjeta: tarjeta,
+    tickets,
+    estado: "Pendiente de sincronización"
+  };
+
+  const cola = leerCola();
+  cola.push(operacion);
+  guardarCola(cola);
+
+  $("tokenTarjeta").value = "";
+  $("tickets").value = "";
+  $("mensaje").textContent = "Operación guardada. Enviando al servidor...";
+
+  await sincronizar();
+});
+
+async function sincronizar() {
+  if (!navigator.onLine) {
+    $("mensaje").textContent = "Sin internet. La operación permanece guardada.";
+    return;
+  }
+
+  let cola = leerCola();
+
+  while (cola.length) {
+    const op = cola[0];
+    op.estado = "Sincronizando";
+    guardarCola(cola);
+
+    try {
+      const { data: cobro, error: errorCobro } =
+        await supabaseClient.rpc("cobrar_base", {
+          p_token_estacion: op.token_estacion,
+          p_token_tarjeta: op.token_tarjeta,
+          p_solicitud_id: op.solicitud_id
+        });
+
+      if (errorCobro) throw errorCobro;
+
+      const { data: registro, error: errorTickets } =
+        await supabaseClient.rpc("registrar_puntos", {
+          p_token_estacion: op.token_estacion,
+          p_movimiento_id: cobro.movimiento_id,
+          p_puntos: op.tickets
+        });
+
+      if (errorTickets) throw errorTickets;
+
+      cola.shift();
+      guardarCola(cola);
+      $("mensaje").textContent =
+        "Operación confirmada. Tickets registrados: " +
+        registro.tickets_registrados +
+        ". Tickets acumulados: " +
+        registro.tickets_acumulados + ".";
+
+    } catch (error) {
+      op.estado = "Pendiente: " + (error.message || "Error de sincronización");
+      guardarCola(cola);
+      $("mensaje").textContent =
+        "No se pudo confirmar la operación. Sigue guardada para revisión o reintento: " +
+        (error.message || "Error desconocido");
+      break;
+    }
+
+    cola = leerCola();
+  }
+}
+
+$("sincronizar").addEventListener("click", sincronizar);
+window.addEventListener("online", () => {
+  actualizarConexion();
+  sincronizar();
+});
+window.addEventListener("offline", actualizarConexion);
+
+mostrarPantalla();
+mostrarCola();
+</script>
+</body>
+</html>
