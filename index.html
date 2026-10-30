@@ -7,6 +7,10 @@
   <meta name="theme-color" content="#080f1e">
   <title>Tu raíz es nuestra raíz</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -28,39 +32,77 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 28px 16px;
-      font-family: Arial, Helvetica, sans-serif;
+      padding: 25px 15px;
+      font-family: 'Outfit', sans-serif;
       color: var(--texto);
       background:
-        radial-gradient(ellipse at 5% 10%, #12366a55, transparent 40%),
-        radial-gradient(ellipse at 100% 85%, #8f1e3040, transparent 38%),
+        radial-gradient(ellipse at 5% 12%, #17477c55, transparent 35%),
+        radial-gradient(ellipse at 95% 80%, #8f1e3040, transparent 38%),
         linear-gradient(145deg, #080f1e, #0c1729 55%, #080d18);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Fondo geométrico estilo arcade */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.15;
+      background-image:
+        linear-gradient(135deg, transparent 48%, #3474ae 49%, transparent 50%),
+        linear-gradient(45deg, transparent 48%, #a82d42 49%, transparent 50%);
+      background-size: 85px 85px, 115px 115px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      width: 340px;
+      height: 340px;
+      border: 1px solid #2867a522;
+      border-radius: 50%;
+      top: 25%;
+      right: -245px;
+      box-shadow:
+        0 0 0 25px #2867a510,
+        0 0 0 50px #2867a508;
+      pointer-events: none;
     }
 
     main {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      max-width: 480px;
+      max-width: 510px;
       margin: 0 auto;
     }
 
     .encabezado {
       text-align: center;
-      padding: 24px 8px 30px;
+      padding: 25px 5px 30px;
     }
 
     .etiqueta {
+      display: inline-block;
       color: #91a8c8;
       font-size: 11px;
-      font-weight: bold;
-      letter-spacing: 4px;
+      font-weight: 700;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      margin-bottom: 15px;
+      margin-bottom: 17px;
+      padding: 8px 13px;
+      border: 1px solid #344d6b;
+      border-radius: 30px;
+      background: #14223988;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(29px, 8vw, 43px);
-      line-height: 1.08;
+      font-size: clamp(30px, 8vw, 44px);
+      line-height: 1.04;
       font-weight: 900;
       letter-spacing: -1.5px;
       text-transform: uppercase;
@@ -73,9 +115,9 @@
     }
 
     .subrayado {
-      width: 125px;
+      width: 115px;
       height: 4px;
-      margin: 17px auto 0;
+      margin: 18px auto 0;
       border-radius: 10px;
       background: linear-gradient(90deg, var(--rojo), var(--azul-claro));
       transform: rotate(-2deg);
@@ -83,7 +125,7 @@
 
     .grupo {
       text-align: center;
-      margin: 12px 0 28px;
+      margin: 10px 0 27px;
     }
 
     .grupo small {
@@ -91,24 +133,40 @@
       color: var(--texto-suave);
       font-size: 12px;
       letter-spacing: 5px;
-      font-weight: bold;
-      margin-bottom: 9px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     .grupo h2 {
       margin: 0;
-      font-size: clamp(25px, 7vw, 34px);
+      font-size: clamp(27px, 7vw, 36px);
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       overflow-wrap: anywhere;
+      text-shadow: 0 3px 18px #00000055;
     }
 
     .panel {
-      background: linear-gradient(145deg, #142239, #0d182a);
+      background:
+        linear-gradient(145deg, #142239ee, #0b1628f5);
       border: 1px solid #263a57;
       border-radius: 25px;
-      padding: 22px 16px;
-      box-shadow: 0 18px 45px #00000055;
+      padding: 23px 13px;
+      box-shadow:
+        0 18px 45px #00000055,
+        inset 0 1px 0 #ffffff0b;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 15%;
+      width: 70%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #7da8d655, transparent);
     }
 
     #estado {
@@ -120,7 +178,7 @@
       color: #a9bad2;
       font-size: 14px;
       text-align: center;
-      margin: 0 0 20px;
+      margin: 0 0 19px;
     }
 
     .indicador {
@@ -143,14 +201,14 @@
     .datos {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 13px;
+      gap: 12px;
     }
 
     .tarjeta {
       position: relative;
       min-width: 0;
-      min-height: 235px;
-      padding: 23px 12px 20px;
+      min-height: 245px;
+      padding: 22px 9px 20px;
       border-radius: 21px;
       text-align: center;
       overflow: hidden;
@@ -193,8 +251,8 @@
     }
 
     .icono {
-      width: 62px;
-      height: 62px;
+      width: 66px;
+      height: 66px;
       margin-bottom: 15px;
       position: relative;
       z-index: 1;
@@ -203,15 +261,15 @@
     .rotulo {
       color: #aebbd0;
       font-size: 12px;
-      font-weight: bold;
-      letter-spacing: 4px;
-      margin-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
     }
 
     .valor {
       position: relative;
       z-index: 1;
-      font-size: clamp(25px, 6.5vw, 34px);
+      font-size: clamp(25px, 6.5vw, 36px);
       font-weight: 900;
       letter-spacing: -1px;
       overflow-wrap: anywhere;
@@ -220,13 +278,13 @@
     .unidad {
       color: #8ca6c8;
       font-size: 13px;
-      font-weight: bold;
+      font-weight: 700;
       letter-spacing: 3px;
       margin-top: 8px;
     }
 
     .tickets .valor {
-      font-size: 55px;
+      font-size: 58px;
     }
 
     .confirmacion {
@@ -256,26 +314,31 @@
       text-align: center;
       color: #61748e;
       font-size: 11px;
-      letter-spacing: 1px;
+      font-weight: 600;
+      letter-spacing: 2px;
       margin-top: 25px;
     }
 
     @media (max-width: 360px) {
       .panel {
-        padding: 17px 11px;
+        padding: 17px 9px;
       }
 
       .datos {
-        gap: 9px;
+        gap: 8px;
       }
 
       .tarjeta {
-        min-height: 210px;
-        padding: 18px 8px;
+        min-height: 215px;
+        padding: 17px 6px;
       }
 
       .rotulo {
         letter-spacing: 2px;
+      }
+
+      .valor {
+        font-size: 24px;
       }
     }
   </style>
@@ -284,7 +347,7 @@
 <body>
   <main>
     <header class="encabezado">
-      <div class="etiqueta">Sistema de grupos y recompensas</div>
+      <div class="etiqueta">Vive el reto · Construye tu historia</div>
 
       <h1>
         Tu raíz es
@@ -410,8 +473,10 @@
         data.tickets;
 
       document.getElementById("consulta").hidden = false;
-      document.getElementById("estado").textContent =
-        "Consulta realizada correctamente.";
+
+      // Se oculta el estado superior para evitar repetir
+      // el mensaje de consulta realizada correctamente.
+      document.getElementById("estado").style.display = "none";
     }
 
     iniciar();
