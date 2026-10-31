@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#030914">
+<meta name="theme-color" content="#080f1e">
 <title>Tu raíz es nuestra raíz</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,12 +30,12 @@ body {
   padding:22px 15px 35px;
   color:var(--white);
   font-family:'Rajdhani',sans-serif;
-  background:#030914;
+  background:#07111f;
   overflow-x:hidden;
   position:relative;
 }
 
-/* Ondas diagonales decorativas */
+/* Ondas diagonales discretas: reemplazan la cuadrícula */
 body::before {
   content:"";
   position:fixed;
@@ -119,12 +119,20 @@ main {
   z-index:-1;
 }
 
+.kicker {
+  color:#b6c8e1;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:4px;
+  margin-bottom:12px;
+}
+
 h1 {
   margin:0;
   font-family:'Barlow Condensed',sans-serif;
   font-size:clamp(58px,14vw,78px);
-  font-weight:900;
-  line-height:.82;
+  font-weight:700;
+  line-height:.86;
   letter-spacing:-1px;
   text-transform:uppercase;
   text-shadow:0 5px 22px #0009;
@@ -134,7 +142,8 @@ h1 span {
   display:block;
   color:#681329;
   margin-top:8px;
-  text-shadow:0 1px 0 #d17b91,0 3px 0 #3b0b1a,0 7px 16px #000d,0 0 22px #68132955;
+  font-weight:700;
+  text-shadow:0 1px 0 #a94c68,0 3px 0 #3b0b1a,0 7px 16px #000d,0 0 18px #68132944;
 }
 
 .hero-line {
@@ -184,19 +193,27 @@ h1 span {
 /* PANEL PRINCIPAL */
 
 .dashboard {
-  border:1px solid #3c6794;
+  border:1px solid #6d94bd;
   border-radius:28px;
   padding:25px 17px 24px;
-  background:linear-gradient(145deg,#102d50 0%,#0b2341 48%,#07182f 100%);
-  box-shadow:0 0 0 5px #0b1b30,0 0 30px #1b4c7c35,0 22px 55px #000b,inset 0 1px 0 #a6c8f044;
+  background:linear-gradient(145deg,#0b1b31 0%,#0a192d 48%,#081426 100%);
+  box-shadow:0 0 0 5px #0a1729,0 0 30px #1b4c7c35,0 22px 55px #000b,inset 0 1px 0 #a6c8f044;
   position:relative;
   overflow:hidden;
 }
 
-.dashboard::after {
+.dashboard::before {
   content:"";
-  display:none;
+  position:absolute;
+  inset:7px;
+  border:1px solid #86a9ce66;
+  border-radius:20px;
+  clip-path:polygon(0 4%,4% 0,96% 0,100% 4%,100% 96%,96% 100%,4% 100%,0 96%);
+  pointer-events:none;
+  z-index:0;
 }
+
+.dashboard::after { content:""; display:none; }
 
 .status {
   display:flex;
@@ -256,8 +273,10 @@ h1 span {
 .card-frame {
   position:absolute;
   inset:7px;
-  border:1px solid #ffffff30;
-  border-radius:15px;
+  border:1px solid #ffffff45;
+  border-radius:12px;
+  clip-path:polygon(0 5%,5% 0,95% 0,100% 5%,100% 95%,95% 100%,5% 100%,0 95%);
+  box-shadow:inset 0 0 0 1px #ffffff20;
   pointer-events:none;
   z-index:1;
 }
@@ -297,12 +316,12 @@ h1 span {
   text-align:center;
   font-family:'Barlow Condensed',sans-serif;
   font-size:clamp(34px,7vw,49px);
-  font-weight:900;
+  font-weight:600;
   letter-spacing:-1px;
   overflow-wrap:anywhere;
   color:#f8faff;
-  -webkit-text-stroke:.45px #dce7ff;
-  text-shadow:0 1px 0 #dce6f7,0 2px 0 #9eabc1,0 3px 0 #64738c,0 4px 0 #34445d,0 6px 0 #17263d,0 9px 13px #000e,0 0 18px #a8c9ff33;
+  -webkit-text-stroke:.2px #dce7ff;
+  text-shadow:0 1px 0 #cbd8eb,0 2px 0 #71829d,0 3px 0 #34445d,0 5px 8px #000c,0 0 12px #a8c9ff22;
   transform:translateZ(20px);
 }
 
@@ -319,58 +338,54 @@ h1 span {
   border-radius:50%;
 }
 
-/* AZUL MARINO: DINERO */
+/* DINERO: AZUL MARINO MÁS OSCURO Y SOBRIO */
 
 .money-card {
   color:#edf2ff;
-  border:1px solid #6a9bd4;
-  background:linear-gradient(145deg,#123d78 0%,#092957 34%,#061936 78%,#0c2a54 100%);
-  box-shadow:
-    inset 0 2px 3px #ffffff66,
-    inset 0 -9px 18px #020b18c9,
-    0 15px 25px #000a,
-    0 3px 0 #10255f;
+  border:1px solid #54749b;
+  background:linear-gradient(145deg,#173b69 0%,#102e55 35%,#081d39 78%,#12345d 100%);
+  box-shadow:inset 0 2px 3px #ffffff55,inset 0 -9px 18px #020b18c9,0 15px 25px #000a,0 3px 0 #10255f;
 }
 
 .money-card::before {
   content:"";
   position:absolute;
   inset:0;
-  opacity:.42;
-  background:linear-gradient(135deg,#9ccaff22 0 12%,transparent 12% 68%,#9ccaff12 68% 69%,transparent 69%),radial-gradient(ellipse at 50% 20%,#7eb7ff35,transparent 66%);
+  opacity:.35;
+  background:linear-gradient(135deg,#9ccaff22 0 12%,transparent 12% 68%,#9ccaff12 68% 69%,transparent 69%),radial-gradient(ellipse at 50% 20%,#7eb7ff30,transparent 66%);
   pointer-events:none;
 }
 
-/* Detalle angular */
-
+/* Reflejo circular inferior derecho */
 .money-card::after {
   content:"";
   position:absolute;
-  width:90px;
-  height:90px;
-  top:12px;
-  right:12px;
-  border-top:2px solid #b6c9ff55;
-  border-right:2px solid #b6c9ff55;
-  border-radius:0 12px 0 0;
-  opacity:.55;
+  width:180px;
+  height:65px;
+  background:linear-gradient(90deg,#5ba8ff44,#17447711);
+  opacity:.52;
+  bottom:-30px;
+  right:-35px;
+  transform:rotate(-18deg);
+  border-radius:50%;
   pointer-events:none;
 }
 
 .money-card .card-icon {
-  background:radial-gradient(circle,#174b8a,#061a36 72%);
-  border:2px solid #83b9f2;
+  background:radial-gradient(circle,#1c416d,#091a34 72%);
+  border:2px solid #779bc3;
   box-shadow:0 0 0 5px #557f991c,0 0 22px #4778e822,inset 0 0 15px #000b;
 }
 
 .money-card .card-label {
-  background:linear-gradient(180deg,#17477e,#0b2b52 55%,#061a36);
-  border:1px solid #8db9e8;
+  background:linear-gradient(180deg,#294d75,#163354 55%,#0a1c35);
+  border:1px solid #7899bc;
 }
 
 .money-card .card-value {
   color:#f8fbff;
-  text-shadow:0 1px 0 #d5e5ff,0 2px 0 #9cb7d8,0 3px 0 #54749d,0 5px 0 #1b3c68,0 7px 0 #0b1c36,0 10px 14px #000e,0 0 18px #8dc4ff55;
+  font-weight:600;
+  text-shadow:0 1px 0 #d5e5ff,0 2px 0 #8ca5c4,0 3px 0 #425d80,0 5px 9px #000d,0 0 12px #8dc4ff33;
 }
 
 .money-card .card-unit { color:#c0d0ff; }
@@ -380,27 +395,23 @@ h1 span {
   box-shadow:0 0 12px #668bff44;
 }
 
-/* ROJO VINO OSCURO: TICKETS */
+/* TICKETS: VINO TINTO A JUEGO CON EL TÍTULO */
 
 .ticket-card {
   color:#fff0f2;
-  border:1px solid #a34b68;
-  background:linear-gradient(145deg,#782039 0%,#581329 38%,#310b1b 78%,#64162e 100%);
-  box-shadow:
-    inset 0 2px 3px #ffffff44,
-    inset 0 -9px 18px #120710c9,
-    0 15px 25px #000a,
-    0 3px 0 #461326;
+  border:1px solid #99435d;
+  background:linear-gradient(145deg,#792039 0%,#681329 35%,#390d20 78%,#681329 100%);
+  box-shadow:inset 0 2px 3px #ffffff35,inset 0 -9px 18px #120710c9,0 15px 25px #000a,0 3px 0 #461326;
 }
 
 .ticket-card::before {
   content:"";
   position:absolute;
   inset:9px;
-  border:1px dashed #f2b3c277;
+  border:1px dashed #e8a5b777;
   border-radius:14px;
-  opacity:.7;
-  background:repeating-linear-gradient(135deg,transparent 0,transparent 12px,#ffb1ba12 13px,transparent 14px);
+  opacity:.65;
+  background:repeating-linear-gradient(135deg,transparent 0,transparent 12px,#ffb1ba10 13px,transparent 14px);
   pointer-events:none;
 }
 
@@ -409,8 +420,8 @@ h1 span {
   position:absolute;
   width:180px;
   height:65px;
-  background:linear-gradient(90deg,#f05a6b55,#8f263b11);
-  opacity:.55;
+  background:linear-gradient(90deg,#b83b5b44,#68132911);
+  opacity:.5;
   bottom:-30px;
   right:-35px;
   transform:rotate(-18deg);
@@ -419,30 +430,31 @@ h1 span {
 }
 
 .ticket-card .card-icon {
-  background:radial-gradient(circle,#702039,#290b19 72%);
-  border:2px solid #bd718b;
-  box-shadow:0 0 0 5px #9439491c,0 0 22px #ad2c3d44,inset 0 0 15px #000b;
+  background:radial-gradient(circle,#681d34,#2b0b19 72%);
+  border:2px solid #a85c75;
+  box-shadow:0 0 0 5px #9439491c,0 0 22px #ad2c3d33,inset 0 0 15px #000b;
 }
 
 .ticket-card .card-label {
-  background:linear-gradient(180deg,#7d2945,#4e142b 55%,#2c0b1a);
-  border:1px solid #c17c94;
+  background:linear-gradient(180deg,#792b43,#50152a 55%,#300c1b);
+  border:1px solid #a9687e;
 }
 
 .ticket-card .card-value {
   font-family:'Barlow Condensed',sans-serif;
   font-size:76px;
   line-height:.9;
+  font-weight:600;
   color:#fff4f6;
   -webkit-text-stroke:.45px #f2c5d1;
-  text-shadow:0 1px 0 #f2c5d1,0 2px 0 #c17b91,0 3px 0 #87445c,0 5px 0 #4b1a30,0 7px 0 #2a0c19,0 10px 14px #000e,0 0 18px #d65a7c44;
+  text-shadow:0 1px 0 #f2c5d1,0 2px 0 #b77a8d,0 3px 0 #653247,0 5px 9px #000d,0 0 12px #d65a7c33;
 }
 
 .ticket-card .card-unit { color:#edb8c7; }
 
 .ticket-card .card-bottom-line {
-  background:#c46c89;
-  box-shadow:0 0 12px #be3a4d66;
+  background:#b85d7b;
+  box-shadow:0 0 12px #be3a4d55;
 }
 
 /* DETALLE INFERIOR */
@@ -524,6 +536,8 @@ h1 span {
       Esperando una tarjeta NFC...
     </p>
 
+    <!-- Las tarjetas se muestran inicialmente con valores de ejemplo.
+         Al escanear una tarjeta válida, se actualizan con los datos reales. -->
     <section id="consulta">
       <div class="values">
 
