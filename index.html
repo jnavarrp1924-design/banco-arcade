@@ -4,21 +4,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#070b12">
+<meta name="theme-color" content="#030914">
 <title>Tu raíz es nuestra raíz</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
-  --navy:#070b12;
-  --blue:#17334a;
-  --blue-light:#6d9bb8;
-  --red:#401d28;
-  --red-light:#a75a65;
-  --white:#f1f2f4;
+  --navy:#030914;
+  --blue:#071a3b;
+  --blue-light:#17365f;
+  --red:#681329;
+  --red-light:#8d1c3b;
+  --white:#f4f6fb;
   --muted:#9baec8;
 }
 
@@ -29,37 +29,38 @@ body {
   min-height:100vh;
   padding:22px 15px 35px;
   color:var(--white);
-  font-family:'Outfit',sans-serif;
-  background:
-    radial-gradient(ellipse at 0% 15%, #102236 0%, transparent 38%),
-    radial-gradient(ellipse at 100% 85%, #29131d 0%, transparent 42%),
-    linear-gradient(135deg,#05080e 0%,#0a111b 48%,#100a10 100%);
+  font-family:'Rajdhani',sans-serif;
+  background:#030914;
   overflow-x:hidden;
   position:relative;
 }
 
+/* Ondas diagonales decorativas */
 body::before {
   content:"";
   position:fixed;
-  inset:0;
+  width:520px;
+  height:520px;
+  top:-270px;
+  left:-280px;
+  border:1px solid #1d4c7c55;
+  border-radius:48%;
+  transform:rotate(28deg);
+  box-shadow:0 0 0 22px #12345a18,0 0 0 48px #12345a12,0 0 0 76px #12345a0c;
   pointer-events:none;
-  opacity:.15;
-  background:
-    repeating-linear-gradient(135deg,transparent 0px,transparent 38px,#24415d 39px,transparent 40px,transparent 78px),
-    repeating-linear-gradient(45deg,transparent 0px,transparent 58px,#642a39 59px,transparent 60px,transparent 116px);
-  mask-image:linear-gradient(to bottom,transparent,black 20%,black 75%,transparent);
 }
 
 body::after {
   content:"";
   position:fixed;
-  width:390px;
-  height:390px;
-  border:1px solid #31516a25;
-  border-radius:50%;
-  top:22%;
-  right:-290px;
-  box-shadow:0 0 0 28px #31516a0c,0 0 0 58px #31516a09,0 0 0 90px #31516a06;
+  width:420px;
+  height:420px;
+  right:-300px;
+  bottom:-285px;
+  border:1px solid #8d1c3b66;
+  border-radius:48%;
+  transform:rotate(-25deg);
+  box-shadow:0 0 0 22px #8d1c3b18,0 0 0 48px #8d1c3b12,0 0 0 76px #8d1c3b0c;
   pointer-events:none;
 }
 
@@ -78,7 +79,7 @@ main {
   justify-content:center;
   align-items:center;
   gap:9px;
-  color:#9eb6c5;
+  color:#9eb6d6;
   font-size:10px;
   font-weight:800;
   letter-spacing:3px;
@@ -114,7 +115,7 @@ main {
   transform:translateX(-50%);
   background:#174c83;
   filter:blur(75px);
-  opacity:.22;
+  opacity:.3;
   z-index:-1;
 }
 
@@ -131,19 +132,18 @@ h1 {
 
 h1 span {
   display:block;
-  color:#91414d;
+  color:#681329;
   margin-top:8px;
-  text-shadow:0 3px 0 #3b1720,0 7px 20px #000;
+  text-shadow:0 1px 0 #d17b91,0 3px 0 #3b0b1a,0 7px 16px #000d,0 0 22px #68132955;
 }
 
 .hero-line {
   width:100px;
-  height:4px;
+  height:5px;
   margin:19px auto 0;
-  background:linear-gradient(90deg,#527f9d,#843542);
+  background:linear-gradient(90deg,#28639b,#681329);
   border-radius:8px;
   transform:skewX(-25deg);
-  box-shadow:0 0 12px #345b782c;
 }
 
 /* IDENTIFICACIÓN DEL GRUPO */
@@ -177,34 +177,25 @@ h1 span {
   width:65px;
   height:3px;
   margin:11px auto 0;
-  background:#547f9a;
+  background:var(--blue-light);
   border-radius:5px;
 }
 
 /* PANEL PRINCIPAL */
 
 .dashboard {
-  border:1px solid #293746;
-  border-radius:25px;
-  padding:17px 12px 19px;
-  background:linear-gradient(145deg,#111d2aee,#090f17f5);
-  box-shadow:0 20px 50px #0009,inset 0 1px 0 #ffffff0b;
+  border:1px solid #3c6794;
+  border-radius:28px;
+  padding:25px 17px 24px;
+  background:linear-gradient(145deg,#102d50 0%,#0b2341 48%,#07182f 100%);
+  box-shadow:0 0 0 5px #0b1b30,0 0 30px #1b4c7c35,0 22px 55px #000b,inset 0 1px 0 #a6c8f044;
   position:relative;
   overflow:hidden;
 }
 
 .dashboard::after {
-  content:"ARCADE";
-  position:absolute;
-  right:-8px;
-  top:0;
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:66px;
-  font-weight:900;
-  letter-spacing:5px;
-  color:#ffffff;
-  opacity:.025;
-  pointer-events:none;
+  content:"";
+  display:none;
 }
 
 .status {
@@ -223,8 +214,8 @@ h1 span {
   width:8px;
   height:8px;
   border-radius:50%;
-  background:#527e9d;
-  box-shadow:0 0 12px #527e9d;
+  background:#4b9df0;
+  box-shadow:0 0 12px #4b9df0;
   flex-shrink:0;
 }
 
@@ -233,13 +224,13 @@ h1 span {
 .values {
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:14px;
-  perspective:1000px;
+  gap:16px;
+  perspective:1200px;
 }
 
 .value-card {
   min-width:0;
-  height:290px;
+  height:345px;
   position:relative;
   border-radius:21px;
   overflow:hidden;
@@ -247,7 +238,7 @@ h1 span {
   flex-direction:column;
   align-items:center;
   justify-content:space-between;
-  padding:18px 9px;
+  padding:22px 10px;
   isolation:isolate;
   transform-style:preserve-3d;
   transition:transform .35s ease,box-shadow .35s ease;
@@ -262,33 +253,16 @@ h1 span {
   z-index:2;
 }
 
-/* DETALLES COMUNES 3D */
-
-.value-card .card-frame {
+.card-frame {
   position:absolute;
   inset:7px;
-  border:1px solid #ffffff25;
+  border:1px solid #ffffff30;
   border-radius:15px;
   pointer-events:none;
   z-index:1;
 }
 
-.card-top {
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:9px;
-  font-weight:800;
-  letter-spacing:2px;
-  opacity:.75;
-}
-
-.card-number {
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:14px;
-  letter-spacing:1px;
-}
+/* DETALLES COMUNES */
 
 .card-icon {
   width:104px;
@@ -300,8 +274,8 @@ h1 span {
 }
 
 .card-icon svg {
-  width:86px;
-  height:86px;
+  width:82px;
+  height:82px;
   filter:drop-shadow(0 9px 5px #0009);
 }
 
@@ -310,10 +284,10 @@ h1 span {
   text-align:center;
   padding:7px 15px;
   border-radius:6px;
-  font-size:12px;
-  font-weight:900;
+  font-size:13px;
+  font-weight:700;
   letter-spacing:3px;
-  color:#e7edf1;
+  color:#f3f4f8;
   box-shadow:0 5px 8px #0008,inset 0 1px 1px #ffffff55;
   transform:translateZ(18px);
 }
@@ -321,18 +295,22 @@ h1 span {
 .card-value {
   width:100%;
   text-align:center;
-  font-size:clamp(24px,6vw,35px);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(34px,7vw,49px);
   font-weight:900;
-  letter-spacing:-1.5px;
+  letter-spacing:-1px;
   overflow-wrap:anywhere;
-  text-shadow:0 2px 0 #64717b,0 4px 0 #26313b,0 7px 9px #000c;
+  color:#f8faff;
+  -webkit-text-stroke:.45px #dce7ff;
+  text-shadow:0 1px 0 #dce6f7,0 2px 0 #9eabc1,0 3px 0 #64738c,0 4px 0 #34445d,0 6px 0 #17263d,0 9px 13px #000e,0 0 18px #a8c9ff33;
   transform:translateZ(20px);
 }
 
 .card-unit {
-  font-size:9px;
-  font-weight:800;
-  letter-spacing:2px;
+  font-family:'Rajdhani',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:3px;
 }
 
 .card-bottom-line {
@@ -341,86 +319,88 @@ h1 span {
   border-radius:50%;
 }
 
-/* TARJETA DINERO: AZUL METÁLICO */
+/* AZUL MARINO: DINERO */
 
 .money-card {
-  color:#e8f0f5;
-  border:1px solid #718b9d;
-  background:linear-gradient(145deg,#526c7e 0%,#1a3448 30%,#091725 78%,#30495a 100%);
+  color:#edf2ff;
+  border:1px solid #6a9bd4;
+  background:linear-gradient(145deg,#123d78 0%,#092957 34%,#061936 78%,#0c2a54 100%);
   box-shadow:
-    inset 0 2px 3px #ffffff55,
+    inset 0 2px 3px #ffffff66,
     inset 0 -9px 18px #020b18c9,
     0 15px 25px #000a,
-    0 3px 0 #263d4d;
+    0 3px 0 #10255f;
 }
 
 .money-card::before {
   content:"";
   position:absolute;
   inset:0;
-  opacity:.35;
-  background:
-    repeating-linear-gradient(135deg,transparent 0,transparent 9px,#c0d8e318 10px,transparent 11px,transparent 20px),
-    radial-gradient(ellipse at 50% 35%,#5e9cbd35,transparent 65%);
+  opacity:.42;
+  background:linear-gradient(135deg,#9ccaff22 0 12%,transparent 12% 68%,#9ccaff12 68% 69%,transparent 69%),radial-gradient(ellipse at 50% 20%,#7eb7ff35,transparent 66%);
   pointer-events:none;
 }
+
+/* Detalle angular */
 
 .money-card::after {
   content:"";
   position:absolute;
-  width:180px;
-  height:180px;
-  border:1px solid #a9d7ff44;
-  border-radius:50%;
-  top:-80px;
-  right:-90px;
-  box-shadow:0 0 0 12px #9acfff10,0 0 0 26px #9acfff09,0 0 0 43px #9acfff06;
+  width:90px;
+  height:90px;
+  top:12px;
+  right:12px;
+  border-top:2px solid #b6c9ff55;
+  border-right:2px solid #b6c9ff55;
+  border-radius:0 12px 0 0;
+  opacity:.55;
   pointer-events:none;
 }
 
-.money-card .card-top { color:#c3d4df; }
-
 .money-card .card-icon {
-  background:radial-gradient(circle,#315c77,#102536 72%);
-  border:2px solid #668da5;
-  box-shadow:0 0 0 5px #557f991c,0 0 22px #3981a32a,inset 0 0 15px #000b;
+  background:radial-gradient(circle,#174b8a,#061a36 72%);
+  border:2px solid #83b9f2;
+  box-shadow:0 0 0 5px #557f991c,0 0 22px #4778e822,inset 0 0 15px #000b;
 }
 
 .money-card .card-label {
-  background:linear-gradient(180deg,#607887,#263b49 55%,#172834);
-  border:1px solid #91a6b2;
+  background:linear-gradient(180deg,#17477e,#0b2b52 55%,#061a36);
+  border:1px solid #8db9e8;
 }
 
-.money-card .card-value { color:#f0f4f6; }
+.money-card .card-value {
+  color:#f8fbff;
+  text-shadow:0 1px 0 #d5e5ff,0 2px 0 #9cb7d8,0 3px 0 #54749d,0 5px 0 #1b3c68,0 7px 0 #0b1c36,0 10px 14px #000e,0 0 18px #8dc4ff55;
+}
 
-.money-card .card-unit { color:#a9c3d3; }
+.money-card .card-unit { color:#c0d0ff; }
 
 .money-card .card-bottom-line {
-  background:#608da8;
-  box-shadow:0 0 10px #5395b944;
+  background:#7796b8;
+  box-shadow:0 0 12px #668bff44;
 }
 
-/* TARJETA TICKETS: ROJO BORGOÑA METÁLICO */
+/* ROJO VINO OSCURO: TICKETS */
 
 .ticket-card {
-  color:#f4e8e9;
-  border:1px solid #95616a;
-  background:linear-gradient(145deg,#78444c 0%,#46232d 35%,#180f17 78%,#44202b 100%);
+  color:#fff0f2;
+  border:1px solid #a34b68;
+  background:linear-gradient(145deg,#782039 0%,#581329 38%,#310b1b 78%,#64162e 100%);
   box-shadow:
-    inset 0 2px 3px #ffffff38,
+    inset 0 2px 3px #ffffff44,
     inset 0 -9px 18px #120710c9,
     0 15px 25px #000a,
-    0 3px 0 #3b2028;
+    0 3px 0 #461326;
 }
 
 .ticket-card::before {
   content:"";
   position:absolute;
   inset:9px;
-  border:1px dashed #e9a7ae77;
+  border:1px dashed #f2b3c277;
   border-radius:14px;
   opacity:.7;
-  background:repeating-linear-gradient(135deg,transparent 0,transparent 12px,#ffb1ba10 13px,transparent 14px);
+  background:repeating-linear-gradient(135deg,transparent 0,transparent 12px,#ffb1ba12 13px,transparent 14px);
   pointer-events:none;
 }
 
@@ -429,7 +409,7 @@ h1 span {
   position:absolute;
   width:180px;
   height:65px;
-  background:linear-gradient(90deg,#f05a6b44,#8f263b11);
+  background:linear-gradient(90deg,#f05a6b55,#8f263b11);
   opacity:.55;
   bottom:-30px;
   right:-35px;
@@ -438,32 +418,31 @@ h1 span {
   pointer-events:none;
 }
 
-.ticket-card .card-top { color:#e2b6bb; }
-
 .ticket-card .card-icon {
-  background:radial-gradient(circle,#6b3541,#24131c 72%);
-  border:2px solid #a66b75;
-  box-shadow:0 0 0 5px #9439491c,0 0 22px #ad2c3d24,inset 0 0 15px #000b;
+  background:radial-gradient(circle,#702039,#290b19 72%);
+  border:2px solid #bd718b;
+  box-shadow:0 0 0 5px #9439491c,0 0 22px #ad2c3d44,inset 0 0 15px #000b;
 }
 
 .ticket-card .card-label {
-  background:linear-gradient(180deg,#94545e,#522b35 55%,#2d1922);
-  border:1px solid #b77b83;
+  background:linear-gradient(180deg,#7d2945,#4e142b 55%,#2c0b1a);
+  border:1px solid #c17c94;
 }
 
 .ticket-card .card-value {
   font-family:'Barlow Condensed',sans-serif;
-  font-size:72px;
+  font-size:76px;
   line-height:.9;
-  color:#f5e5e6;
-  text-shadow:0 2px 0 #98646a,0 4px 0 #48232d,0 7px 9px #000c;
+  color:#fff4f6;
+  -webkit-text-stroke:.45px #f2c5d1;
+  text-shadow:0 1px 0 #f2c5d1,0 2px 0 #c17b91,0 3px 0 #87445c,0 5px 0 #4b1a30,0 7px 0 #2a0c19,0 10px 14px #000e,0 0 18px #d65a7c44;
 }
 
-.ticket-card .card-unit { color:#d2a0a6; }
+.ticket-card .card-unit { color:#edb8c7; }
 
 .ticket-card .card-bottom-line {
-  background:#99515d;
-  box-shadow:0 0 10px #be3a4d55;
+  background:#c46c89;
+  box-shadow:0 0 12px #be3a4d66;
 }
 
 /* DETALLE INFERIOR */
@@ -494,56 +473,29 @@ h1 span {
 .footer {
   margin-top:23px;
   text-align:center;
-  color:#687e8d;
+  color:#687e9c;
   font-size:10px;
   font-weight:800;
   letter-spacing:3px;
 }
 
-/* ADAPTACIÓN A CELULARES */
-
 @media(max-width:420px) {
   body { padding:17px 10px 25px; }
-
-  .dashboard { padding:14px 8px; }
-
+  .dashboard { padding:18px 10px; }
   .values { gap:9px; }
-
-  .value-card {
-    height:260px;
-    padding:15px 6px;
-  }
-
-  .card-icon {
-    width:82px;
-    height:82px;
-  }
-
-  .card-icon svg {
-    width:70px;
-    height:70px;
-  }
-
+  .value-card { height:300px; padding:15px 6px; }
+  .card-icon { width:82px; height:82px; }
+  .card-icon svg { width:70px; height:70px; }
   .card-value { font-size:25px; }
-
   .ticket-card .card-value { font-size:62px; }
-
-  .card-label {
-    min-width:0;
-    padding:6px 12px;
-    font-size:10px;
-  }
-
-  .card-unit {
-    font-size:8px;
-    letter-spacing:1px;
-  }
+  .card-label { min-width:0; padding:6px 12px; font-size:10px; }
+  .card-unit { font-size:8px; letter-spacing:1px; }
 }
 
 @media(max-width:340px) {
-  .value-card { height:235px; }
-  .card-icon { width:68px;height:68px; }
-  .card-icon svg { width:58px;height:58px; }
+  .value-card { height:270px; }
+  .card-icon { width:68px; height:68px; }
+  .card-icon svg { width:58px; height:58px; }
   .card-value { font-size:22px; }
   .ticket-card .card-value { font-size:55px; }
 }
@@ -572,45 +524,28 @@ h1 span {
       Esperando una tarjeta NFC...
     </p>
 
-    <!-- Las tarjetas muestran valores de ejemplo hasta consultar una tarjeta -->
     <section id="consulta">
       <div class="values">
 
         <!-- TARJETA DINERO -->
         <article class="value-card money-card">
           <div class="card-frame"></div>
-
-          <div class="card-top">
-            <span>RECURSOS</span>
-            <span class="card-number">01</span>
-          </div>
-
           <div class="card-icon">
             <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="25" cy="17" rx="17" ry="8" fill="#D49A43" stroke="#FFE2A0" stroke-width="2"/>
-              <path d="M8 17v25c0 5 8 9 17 9s17-4 17-9V17" fill="#A66B25" stroke="#DCA954" stroke-width="2"/>
-              <path d="M8 29c0 5 8 9 17 9s17-4 17-9" stroke="#F5CB78" stroke-width="2"/>
-              <path d="M8 40c0 5 8 9 17 9" stroke="#F5CB78" stroke-width="2"/>
-              <circle cx="45" cy="43" r="15" fill="#D69A36" stroke="#FFE5A5" stroke-width="2"/>
-              <path d="M49 37c-2-3-9-3-9 1 0 5 10 2 10 7 0 4-7 6-11 2M45 34v19" stroke="#FFF0C5" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="32" cy="32" r="22" fill="#173b9a" stroke="#d8e2ff" stroke-width="2.5"/>
+              <circle cx="32" cy="32" r="17" stroke="#8daaff" stroke-width="1.5"/>
+              <path d="M39 23C36 19 25 20 25 26C25 33 39 29 39 37C39 44 27 46 23 40M32 17V47" stroke="#f0f3ff" stroke-width="3" stroke-linecap="round"/>
             </svg>
           </div>
-
           <div class="card-label">DINERO</div>
           <div class="card-value" id="dinero">$100.000</div>
-          <div class="card-unit">PESOS COLOMBIANOS</div>
+          <div class="card-unit">COP</div>
           <div class="card-bottom-line"></div>
         </article>
 
         <!-- TARJETA TICKETS -->
         <article class="value-card ticket-card">
           <div class="card-frame"></div>
-
-          <div class="card-top">
-            <span>RECOMPENSAS</span>
-            <span class="card-number">02</span>
-          </div>
-
           <div class="card-icon">
             <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 17h40v10a6 6 0 0 0 0 12v10H12V39a6 6 0 0 0 0-12V17Z" fill="#A83C4A" stroke="#F08B91" stroke-width="2.5"/>
@@ -618,15 +553,13 @@ h1 span {
               <path d="m32 25 2.5 5 5.5 1-4 4 1 6-5-3-5 3 1-6-4-4 5.5-1 2.5-5Z" fill="#FFE0D2"/>
             </svg>
           </div>
-
           <div class="card-label">TICKETS</div>
           <div class="card-value" id="tickets">0</div>
-          <div class="card-unit">TUS RECOMPENSAS</div>
+          <div class="card-unit">TUS TICKETS</div>
           <div class="card-bottom-line"></div>
         </article>
 
       </div>
-
       <div class="success">
         <span class="check">✓</span>
         Consulta realizada correctamente.
