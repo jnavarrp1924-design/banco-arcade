@@ -2,397 +2,460 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080f1e">
-  <title>Tu raíz es nuestra raíz</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080f1e">
+<title>Tu raíz es nuestra raíz</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy:#080f1e;
+  --blue:#1769bd;
+  --blue-light:#4b9df0;
+  --red:#bd2638;
+  --red-light:#ef5965;
+  --white:#f4f6fb;
+  --muted:#9baec8;
+}
 
-  <style>
-    :root {
-      --fondo: #080f1e;
-      --azul: #1769bd;
-      --azul-claro: #3997f5;
-      --rojo: #bd2638;
-      --rojo-claro: #ed5260;
-      --texto: #f5f6fa;
-      --suave: #a6b2c5;
-    }
+* { box-sizing:border-box; }
 
-    * {
-      box-sizing: border-box;
-    }
+body {
+  margin:0;
+  min-height:100vh;
+  padding:22px 15px 35px;
+  color:var(--white);
+  font-family:'Outfit',sans-serif;
+  background:
+    radial-gradient(ellipse at 10% 15%,#17477c55,transparent 35%),
+    radial-gradient(ellipse at 95% 75%,#9d263b40,transparent 38%),
+    #080f1e;
+  overflow-x:hidden;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      padding: 22px 14px 30px;
-      font-family: 'Outfit', sans-serif;
-      color: var(--texto);
-      background:
-        radial-gradient(ellipse at 10% 15%, #17477c66, transparent 35%),
-        radial-gradient(ellipse at 95% 80%, #8f1e3050, transparent 38%),
-        linear-gradient(145deg, #080f1e, #0c1729 55%, #080d18);
-      position: relative;
-      overflow-x: hidden;
-    }
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.12;
+  background-image:
+    linear-gradient(30deg,transparent 48%,#4b9df0 49%,transparent 50%),
+    linear-gradient(150deg,transparent 48%,#ef5965 49%,transparent 50%);
+  background-size:95px 95px;
+  mask-image:linear-gradient(to bottom,black,transparent 90%);
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: .13;
-      background-image:
-        linear-gradient(135deg, transparent 48%, #3474ae 49%, transparent 50%),
-        linear-gradient(45deg, transparent 48%, #a82d42 49%, transparent 50%);
-      background-size: 85px 85px, 115px 115px;
-      mask-image: linear-gradient(to bottom, black, transparent 90%);
-    }
+main {
+  width:100%;
+  max-width:510px;
+  margin:auto;
+  position:relative;
+  z-index:1;
+}
 
-    main {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 530px;
-      margin: 0 auto;
-    }
+/* ENCABEZADO TIPO MARQUESINA */
 
-    .encabezado {
-      text-align: center;
-      padding: 25px 3px 30px;
-    }
+.topline {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:9px;
+  color:#9eb6d6;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:3px;
+  margin:8px 0 23px;
+}
 
-    .etiqueta {
-      display: inline-block;
-      color: #b6c7df;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 19px;
-      padding: 9px 17px;
-      border: 1px solid #456184;
-      border-radius: 30px;
-      background: linear-gradient(100deg, #142b49, #1b263d);
-      box-shadow: 0 5px 20px #0004;
-    }
+.topline::before,
+.topline::after {
+  content:"";
+  height:1px;
+  flex:1;
+  max-width:55px;
+  background:linear-gradient(90deg,transparent,#46658b);
+}
 
-    h1 {
-      margin: 0;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(58px, 14vw, 82px);
-      line-height: .88;
-      font-weight: 400;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-shadow: 0 5px 24px #0008;
-    }
+.topline::after {
+  background:linear-gradient(90deg,#46658b,transparent);
+}
 
-    h1 span {
-      display: block;
-      margin-top: 8px;
-      color: #e44755;
-      text-shadow: 0 3px 22px #bd263855;
-    }
+.hero {
+  text-align:center;
+  position:relative;
+  padding:10px 0 22px;
+}
 
-    .subrayado {
-      width: 145px;
-      height: 5px;
-      margin: 20px auto 0;
-      border-radius: 10px;
-      background: linear-gradient(90deg, var(--rojo), var(--azul-claro));
-      transform: rotate(-2deg);
-      box-shadow: 0 0 15px #327ed955;
-    }
+.hero::before {
+  content:"";
+  position:absolute;
+  width:220px;
+  height:110px;
+  left:50%;
+  top:0;
+  transform:translateX(-50%);
+  background:#174c83;
+  filter:blur(75px);
+  opacity:.3;
+  z-index:-1;
+}
 
-    .grupo {
-      text-align: center;
-      margin: 12px 0 27px;
-    }
+.kicker {
+  color:#b6c8e1;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:4px;
+  margin-bottom:12px;
+}
 
-    .grupo small {
-      display: block;
-      color: #8fa8c8;
-      font-size: 12px;
-      letter-spacing: 6px;
-      font-weight: 800;
-      margin-bottom: 7px;
-    }
+h1 {
+  margin:0;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(58px,14vw,78px);
+  font-weight:900;
+  line-height:.82;
+  letter-spacing:-1px;
+  text-transform:uppercase;
+  text-shadow:0 5px 22px #0009;
+}
 
-    .grupo h2 {
-      margin: 0;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(38px, 9vw, 48px);
-      letter-spacing: 1.5px;
-      line-height: 1;
-      overflow-wrap: anywhere;
-      text-shadow: 0 3px 18px #0008;
-    }
+h1 span {
+  display:block;
+  color:var(--red-light);
+  margin-top:8px;
+}
 
-    .panel {
-      background: linear-gradient(145deg, #142239f5, #0b1628f7);
-      border: 1px solid #2b405e;
-      border-radius: 27px;
-      padding: 23px 12px;
-      box-shadow: 0 18px 45px #0007, inset 0 1px 0 #ffffff0c;
-      position: relative;
-      overflow: hidden;
-    }
+.hero-line {
+  width:100px;
+  height:5px;
+  margin:19px auto 0;
+  background:linear-gradient(90deg,var(--blue-light),var(--red-light));
+  border-radius:8px;
+  transform:skewX(-25deg);
+}
 
-    .panel::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 15%;
-      width: 70%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #7da8d677, transparent);
-    }
+/* IDENTIFICACIÓN DEL GRUPO */
 
-    #estado {
-      min-height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      color: #b5c5dc;
-      font-size: 14px;
-      text-align: center;
-      margin: 0 0 19px;
-    }
+.group-block {
+  margin:18px 0 25px;
+  text-align:center;
+  position:relative;
+}
 
-    .indicador {
-      width: 9px;
-      height: 9px;
-      flex: 0 0 9px;
-      border-radius: 50%;
-      background: #4095e8;
-      box-shadow: 0 0 12px #4095e8;
-    }
+.group-label {
+  color:#91a9c8;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:5px;
+  margin-bottom:5px;
+}
 
-    #consulta {
-      display: block;
-    }
+.group-name {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(38px,10vw,51px);
+  font-weight:800;
+  text-transform:uppercase;
+  line-height:1;
+  letter-spacing:1px;
+  overflow-wrap:anywhere;
+  text-shadow:0 4px 18px #0008;
+}
 
-    #consulta[hidden] {
-      display: none;
-    }
+.group-underline {
+  width:65px;
+  height:3px;
+  margin:11px auto 0;
+  background:var(--blue-light);
+  border-radius:5px;
+}
 
-    .datos {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+/* PANEL PRINCIPAL */
 
-    .tarjeta {
-      position: relative;
-      isolation: isolate;
-      min-width: 0;
-      min-height: 255px;
-      padding: 22px 8px 20px;
-      border-radius: 23px;
-      text-align: center;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 28px #0005;
-    }
+.dashboard {
+  border:1px solid #30445f;
+  border-radius:25px;
+  padding:17px 12px 19px;
+  background:
+    linear-gradient(145deg,#15243aee,#0b1628f5);
+  box-shadow:0 20px 50px #0007;
+  position:relative;
+  overflow:hidden;
+}
 
-    .tarjeta > * {
-      position: relative;
-      z-index: 2;
-    }
+.dashboard::after {
+  content:"ARCADE";
+  position:absolute;
+  right:-8px;
+  top:0;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:66px;
+  font-weight:900;
+  letter-spacing:5px;
+  color:#ffffff;
+  opacity:.025;
+  pointer-events:none;
+}
 
-    /* Textura decorativa de las tarjetas */
-    .tarjeta::before {
-      content: "";
-      position: absolute;
-      z-index: 0;
-      inset: 0;
-      opacity: .35;
-      background:
-        repeating-linear-gradient(
-          135deg,
-          transparent 0px,
-          transparent 13px,
-          #ffffff0b 14px,
-          transparent 16px
-        );
-    }
+.status {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-height:39px;
+  margin:0 0 14px;
+  color:#afc0d8;
+  font-size:13px;
+  text-align:center;
+}
 
-    .tarjeta::after {
-      content: "";
-      position: absolute;
-      z-index: 0;
-      width: 220px;
-      height: 115px;
-      bottom: -75px;
-      right: -45px;
-      border-radius: 50%;
-      transform: rotate(-20deg);
-    }
+.status-dot {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#4b9df0;
+  box-shadow:0 0 12px #4b9df0;
+  flex-shrink:0;
+}
 
-    .dinero {
-      background:
-        radial-gradient(circle at 50% 15%, #287acb88, transparent 42%),
-        linear-gradient(150deg, #174c83, #0b1b32 78%);
-      border: 1px solid #3289e8;
-      box-shadow: inset 0 0 35px #3289e833, 0 12px 28px #0005;
-    }
+#consulta[hidden] { display:none; }
 
-    .dinero::after {
-      background: #2379cc;
-      box-shadow: 0 0 45px #3289e855;
-    }
+/* CONTENEDOR DE VALORES */
 
-    .tickets {
-      background:
-        radial-gradient(circle at 50% 15%, #b9364c88, transparent 42%),
-        linear-gradient(150deg, #6a2639, #241522 78%);
-      border: 1px solid #dc4657;
-      box-shadow: inset 0 0 35px #e0445033, 0 12px 28px #0005;
-    }
+.values {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
 
-    .tickets::after {
-      background: #b82c43;
-      box-shadow: 0 0 45px #e0445055;
-    }
+.value-card {
+  min-width:0;
+  height:252px;
+  position:relative;
+  border-radius:20px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:17px 8px;
+  isolation:isolate;
+  box-shadow:0 12px 25px #0005;
+}
 
-    .icono {
-      width: 76px;
-      height: 76px;
-      margin-bottom: 13px;
-      filter: drop-shadow(0 5px 8px #0006);
-    }
+.value-card > * {
+  position:relative;
+  z-index:2;
+}
 
-    .rotulo {
-      color: #d1d9e6;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 4px;
-      margin-bottom: 13px;
-    }
+/* TARJETA DINERO */
 
-    .valor {
-      font-size: clamp(25px, 6.5vw, 37px);
-      font-weight: 900;
-      letter-spacing: -1.5px;
-      overflow-wrap: anywhere;
-      text-shadow: 0 3px 12px #0005;
-    }
+.money-card {
+  border:1px solid #3289e8;
+  background:
+    radial-gradient(circle at 50% 35%,#287acb55,transparent 50%),
+    linear-gradient(150deg,#123c69,#0b1a30);
+}
 
-    .unidad {
-      color: #a9c8ec;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 3px;
-      margin-top: 8px;
-    }
+.money-card::before {
+  content:"";
+  position:absolute;
+  width:190px;
+  height:190px;
+  border:1px solid #68aaf044;
+  border-radius:50%;
+  top:-70px;
+  right:-80px;
+  box-shadow:
+    0 0 0 17px #68aaf011,
+    0 0 0 34px #68aaf00b;
+}
 
-    .tickets .valor {
-      font-size: 62px;
-    }
+.money-card::after {
+  content:"";
+  position:absolute;
+  width:180px;
+  height:65px;
+  background:#1d69ad;
+  opacity:.35;
+  bottom:-30px;
+  left:-35px;
+  transform:rotate(-18deg);
+  border-radius:50%;
+}
 
-    .confirmacion {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      color: #b7c6d9;
-      font-size: 13px;
-      text-align: center;
-      margin: 24px 0 3px;
-    }
+/* TARJETA TICKETS */
 
-    .check {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 25px;
-      height: 25px;
-      border: 1px solid #6686ac;
-      border-radius: 50%;
-      color: #c8e1ff;
-      flex-shrink: 0;
-    }
+.ticket-card {
+  border:1px solid #d74658;
+  background:
+    radial-gradient(circle at 50% 35%,#bd304c55,transparent 50%),
+    linear-gradient(150deg,#542034,#211522);
+}
 
-    .pie {
-      text-align: center;
-      color: #7186a3;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      margin-top: 25px;
-    }
+.ticket-card::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.18;
+  background:repeating-linear-gradient(
+    135deg,
+    transparent 0,
+    transparent 13px,
+    #ff9ca6 14px,
+    transparent 16px
+  );
+}
 
-    @media (max-width: 360px) {
-      .panel {
-        padding: 17px 8px;
-      }
+.ticket-card::after {
+  content:"";
+  position:absolute;
+  width:180px;
+  height:65px;
+  background:#bd3044;
+  opacity:.35;
+  bottom:-30px;
+  right:-35px;
+  transform:rotate(-18deg);
+  border-radius:50%;
+}
 
-      .datos {
-        gap: 8px;
-      }
+/* ICONOS */
 
-      .tarjeta {
-        min-height: 220px;
-        padding: 17px 5px;
-      }
+.icon-wrap {
+  width:80px;
+  height:80px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:10px;
+  border-radius:23px;
+  background:#ffffff0c;
+  border:1px solid #ffffff19;
+  box-shadow:0 8px 18px #0003;
+}
 
-      .rotulo {
-        letter-spacing: 2px;
-      }
+.icon-wrap svg {
+  width:58px;
+  height:58px;
+  filter:drop-shadow(0 4px 7px #0007);
+}
 
-      .valor {
-        font-size: 24px;
-      }
+.label {
+  color:#c1cee0;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:4px;
+  margin-bottom:12px;
+}
 
-      .icono {
-        width: 62px;
-        height: 62px;
-      }
-    }
-  </style>
+.amount {
+  font-size:clamp(25px,6.5vw,35px);
+  font-weight:900;
+  letter-spacing:-1.5px;
+  text-shadow:0 3px 12px #0007;
+  overflow-wrap:anywhere;
+  text-align:center;
+}
+
+.currency {
+  color:#9fc5ee;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:3px;
+  margin-top:7px;
+}
+
+.ticket-number {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:72px;
+  line-height:.9;
+  font-weight:800;
+  text-shadow:0 4px 15px #0008;
+}
+
+/* DETALLE INFERIOR */
+
+.success {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  color:#b7c6d9;
+  font-size:13px;
+  text-align:center;
+  margin:23px 0 2px;
+}
+
+.check {
+  width:25px;
+  height:25px;
+  border:1px solid #6686ac;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#c8e1ff;
+  flex-shrink:0;
+}
+
+.footer {
+  margin-top:23px;
+  text-align:center;
+  color:#687e9c;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:3px;
+}
+
+@media(max-width:360px) {
+  body { padding:17px 10px 25px; }
+  .dashboard { padding:14px 8px; }
+  .values { gap:8px; }
+  .value-card { height:220px; padding:12px 5px; }
+  .icon-wrap { width:67px; height:67px; }
+  .icon-wrap svg { width:50px; height:50px; }
+  .amount { font-size:23px; }
+  .ticket-number { font-size:62px; }
+  .label { letter-spacing:2px; }
+}
+</style>
 </head>
 
 <body>
-  <main>
-    <header class="encabezado">
-      <div class="etiqueta">VIVE DESDE TU RAÍZ</div>
+<main>
 
-      <h1>
-        Tu raíz es
-        <span>nuestra raíz</span>
-      </h1>
+  <div class="topline">VIVE DESDE TU RAÍZ</div>
 
-      <div class="subrayado"></div>
-    </header>
+  <header class="hero">
+    <div class="kicker">TU HISTORIA COMIENZA AQUÍ</div>
+    <h1>Tu raíz es <span>nuestra raíz</span></h1>
+    <div class="hero-line"></div>
+  </header>
 
-    <section class="grupo">
-      <small>GRUPO</small>
-      <h2 id="nombre">Tu grupo</h2>
-    </section>
+  <section class="group-block">
+    <div class="group-label">EQUIPO</div>
+    <div class="group-name" id="nombre">Tu grupo</div>
+    <div class="group-underline"></div>
+  </section>
 
-    <section class="panel">
-      <p id="estado">
-        <span class="indicador"></span>
-        Esperando una tarjeta NFC...
-      </p>
+  <section class="dashboard">
+    <p class="status" id="estado">
+      <span class="status-dot"></span>
+      Esperando una tarjeta NFC...
+    </p>
 
-      <section id="consulta" hidden>
-        <div class="datos">
+    <section id="consulta" hidden>
+      <div class="values">
 
-          <article class="tarjeta dinero">
-            <svg class="icono" viewBox="0 0 64 64"
-                 fill="none" xmlns="http://www.w3.org/2000/svg">
+        <article class="value-card money-card">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 64 64" fill="none"
+                 xmlns="http://www.w3.org/2000/svg">
               <ellipse cx="25" cy="17" rx="17" ry="8"
                        stroke="#9bd0ff" stroke-width="3"/>
               <path d="M8 17v25c0 5 8 9 17 9s17-4 17-9V17"
@@ -407,15 +470,16 @@
                     stroke="#d9edff" stroke-width="2"
                     stroke-linecap="round"/>
             </svg>
+          </div>
+          <div class="label">DINERO</div>
+          <div class="amount" id="dinero">$0</div>
+          <div class="currency">COP</div>
+        </article>
 
-            <div class="rotulo">DINERO</div>
-            <div class="valor" id="dinero">$0</div>
-            <div class="unidad">COP</div>
-          </article>
-
-          <article class="tarjeta tickets">
-            <svg class="icono" viewBox="0 0 64 64"
-                 fill="none" xmlns="http://www.w3.org/2000/svg">
+        <article class="value-card ticket-card">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 64 64" fill="none"
+                 xmlns="http://www.w3.org/2000/svg">
               <path d="M12 17h40v10a6 6 0 0 0 0 12v10H12V39a6 6 0 0 0 0-12V17Z"
                     fill="#7c293b" stroke="#ff9aa3" stroke-width="3"/>
               <path d="M32 20v25" stroke="#ffb1b8"
@@ -424,78 +488,76 @@
                     stroke="#ffe1e3" stroke-width="3"
                     stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+          </div>
+          <div class="label">TICKETS</div>
+          <div class="ticket-number" id="tickets">0</div>
+        </article>
 
-            <div class="rotulo">TICKETS</div>
-            <div class="valor" id="tickets">0</div>
-          </article>
+      </div>
 
-        </div>
-
-        <div class="confirmacion">
-          <span class="check">✓</span>
-          Consulta realizada correctamente.
-        </div>
-      </section>
+      <div class="success">
+        <span class="check">✓</span>
+        Consulta realizada correctamente.
+      </div>
     </section>
+  </section>
 
-    <footer class="pie">
-      TU RAÍZ ES NUESTRA RAÍZ
-    </footer>
-  </main>
+  <footer class="footer">TU RAÍZ ES NUESTRA RAÍZ</footer>
+</main>
 
-  <script>
-    const SUPABASE_URL = "https://ecuxshgbftpnurcfviir.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_r8DPVtISS2k6_YKrA21Ydw_ujwqMDbr";
+<script>
+const SUPABASE_URL = "https://ecuxshgbftpnurcfviir.supabase.co";
+const SUPABASE_KEY = "sb_publishable_r8DPVtISS2k6_YKrA21Ydw_ujwqMDbr";
 
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-    async function iniciar() {
-      const token = new URLSearchParams(window.location.search)
-        .get("card");
+async function iniciar() {
+  const token = new URLSearchParams(window.location.search)
+    .get("card");
 
-      if (!token) {
-        document.getElementById("estado").textContent =
-          "Esperando una tarjeta NFC.";
-        return;
-      }
+  if (!token) {
+    document.getElementById("estado").textContent =
+      "Esperando una tarjeta NFC.";
+    return;
+  }
 
-      document.getElementById("estado").textContent =
-        "Consultando grupo...";
+  document.getElementById("estado").textContent =
+    "Consultando grupo...";
 
-      const { data, error } = await supabaseClient.rpc(
-        "consultar_equipo",
-        { p_token_tarjeta: token }
-      );
+  const { data, error } = await supabaseClient.rpc(
+    "consultar_equipo",
+    { p_token_tarjeta: token }
+  );
 
-      if (error) {
-        document.getElementById("estado").textContent =
-          "Error: " + error.message;
-        console.error(error);
-        return;
-      }
+  if (error) {
+    document.getElementById("estado").textContent =
+      "Error: " + error.message;
+    console.error(error);
+    return;
+  }
 
-      if (!data || data.error) {
-        document.getElementById("estado").textContent =
-          "Tarjeta no válida o inactiva.";
-        return;
-      }
+  if (!data || data.error) {
+    document.getElementById("estado").textContent =
+      "Tarjeta no válida o inactiva.";
+    return;
+  }
 
-      document.getElementById("nombre").textContent = data.nombre;
+  document.getElementById("nombre").textContent = data.nombre;
 
-      document.getElementById("dinero").textContent =
-        "$" + Number(data.monedas).toLocaleString("es-CO");
+  document.getElementById("dinero").textContent =
+    "$" + Number(data.monedas).toLocaleString("es-CO");
 
-      document.getElementById("tickets").textContent =
-        data.tickets;
+  document.getElementById("tickets").textContent =
+    data.tickets;
 
-      document.getElementById("consulta").hidden = false;
-      document.getElementById("estado").style.display = "none";
-    }
+  document.getElementById("consulta").hidden = false;
+  document.getElementById("estado").style.display = "none";
+}
 
-    iniciar();
-  </script>
+iniciar();
+</script>
 </body>
 </html>
