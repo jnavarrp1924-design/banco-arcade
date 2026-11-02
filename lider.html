@@ -1,182 +1,125 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#2457d6">
+  <meta name="theme-color" content="#123b2a">
   <title>Estación de juego</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background: #f2f4f8;
-      color: #202938;
-    }
-
-    main {
-      max-width: 480px;
-      margin: auto;
-    }
-
-    section {
-      background: white;
-      padding: 20px;
-      margin-bottom: 16px;
-      border-radius: 14px;
-      box-shadow: 0 2px 8px #00000012;
-    }
-
-    h1 { font-size: 24px; margin-top: 0; }
-    h2 { font-size: 18px; margin-top: 0; }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin: 14px 0 6px;
-    }
-
-    input {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #cbd2dc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border: 0;
-      border-radius: 8px;
-      background: #2457d6;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button.secondary { background: #475569; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-
-    .status {
-      padding: 12px;
-      border-radius: 8px;
-      background: #e8edf5;
-      margin: 12px 0;
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .small {
-      font-size: 13px;
-      color: #596579;
-    }
-
-    .hidden { display: none; }
-    .count { font-weight: bold; }
-
-    .operation {
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      background: #f2f4f8;
-      font-size: 13px;
-      overflow-wrap: anywhere;
-    }
+    :root { color-scheme: dark; --green:#1d754b; --green2:#2eaa6c; --yellow:#f2c94c; --ink:#07130f; --panel:#101f19; --muted:#a9b9af; }
+    body { margin:0; min-height:100vh; padding:26px 16px 40px; font-family:'Rajdhani',Arial,sans-serif; color:#f3f8f3; background:radial-gradient(ellipse at 12% 8%,#17452f88,transparent 34%),radial-gradient(ellipse at 92% 82%,#5b4a1680,transparent 30%),linear-gradient(145deg,#07130f,#0b1914 55%,#10180f); }
+    body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.16; background:repeating-radial-gradient(ellipse at 80% 20%,transparent 0 42px,#7aa98b22 43px 44px,transparent 45px 82px); }
+    main { position:relative; z-index:1; width:min(100%,560px); margin:0 auto; }
+    .topline { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+    .brand { display:flex; align-items:center; gap:11px; }
+    .brand-mark { width:43px; height:43px; display:grid; place-items:center; border-radius:13px; color:#142015; font-size:25px; background:linear-gradient(145deg,#ffe98a,#d5a91f); box-shadow:inset 0 2px 3px #fff9,0 6px 18px #0008; }
+    .eyebrow { color:#b8c9bd; font-size:11px; letter-spacing:2.5px; font-weight:700; text-transform:uppercase; }
+    .brand-name { font-family:'Barlow Condensed',sans-serif; font-size:24px; line-height:1; font-weight:800; letter-spacing:1px; }
+    .brand-name span { color:var(--yellow); }
+    .station-tag { border:1px solid #7a9b76; border-radius:999px; padding:7px 11px; color:#d7e5d7; font-size:12px; letter-spacing:1px; text-transform:uppercase; background:#14271d; }
+    .hero { position:relative; overflow:hidden; padding:23px; border:1px solid #4e936b; border-radius:22px; margin-bottom:15px; background:linear-gradient(135deg,#1b593b 0%,#123b2a 48%,#0b261b 100%); box-shadow:inset 0 2px 3px #ffffff38,inset 0 -14px 25px #020b08aa,0 18px 35px #0008; }
+    .hero:after { content:""; position:absolute; width:220px; height:95px; right:-55px; bottom:-45px; border-radius:50%; transform:rotate(-20deg); background:linear-gradient(90deg,#e5c34b55,#e5c34b00); }
+    .hero-kicker { color:#d8e8d9; font-size:12px; letter-spacing:3px; font-weight:700; text-transform:uppercase; }
+    h1 { margin:5px 0 4px; font-family:'Barlow Condensed',sans-serif; font-size:clamp(34px,8vw,46px); line-height:.98; letter-spacing:.5px; text-transform:uppercase; }
+    h1 span { color:#ffdf69; }
+    .hero p { margin:8px 0 0; color:#d0e1d3; font-size:16px; }
+    .dashboard { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:15px; }
+    .metric { position:relative; overflow:hidden; min-height:91px; padding:14px 16px; border-radius:16px; border:1px solid #66866d; background:linear-gradient(145deg,#1b3023,#101d16 75%); box-shadow:inset 0 2px 3px #ffffff20,inset 0 -8px 15px #0008,0 8px 18px #0005; }
+    .metric.pending { border-color:#a58a37; background:linear-gradient(145deg,#51451d,#2b2815 78%); }
+    .metric-label { color:#b9c9bb; font-size:12px; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; }
+    .metric.pending .metric-label { color:#f3df9a; }
+    .metric-value { display:block; margin-top:2px; font-family:'Barlow Condensed',sans-serif; font-size:35px; line-height:1; font-weight:700; color:#f5f8f2; }
+    .metric.pending .metric-value { color:#ffdf69; }
+    section { padding:20px; margin-bottom:15px; border-radius:20px; border:1px solid #344c3c; background:linear-gradient(150deg,#17271e,#0e1a14 80%); box-shadow:inset 0 1px 2px #ffffff12,0 12px 26px #0006; }
+    h2 { margin:0 0 5px; font-family:'Barlow Condensed',sans-serif; font-size:25px; line-height:1.1; letter-spacing:.5px; text-transform:uppercase; }
+    .section-intro { margin:0 0 16px; color:var(--muted); font-size:14px; }
+    .step-label { display:flex; align-items:center; gap:8px; margin:17px 0 7px; color:#e6eee7; font-size:15px; font-weight:700; }
+    .step-number { display:inline-grid; place-items:center; width:23px; height:23px; border-radius:7px; background:linear-gradient(145deg,#f9df78,#c49b28); color:#172016; font-size:13px; font-weight:800; }
+    input { width:100%; min-height:48px; padding:12px 14px; border:1px solid #506957; border-radius:11px; outline:none; background:#09150f; color:#f5f8f4; font:600 16px 'Rajdhani',sans-serif; box-shadow:inset 0 3px 8px #0007; }
+    input::placeholder { color:#75877a; }
+    input:focus { border-color:#e5c34b; box-shadow:0 0 0 3px #e5c34b25,inset 0 3px 8px #0007; }
+    button { width:100%; min-height:49px; padding:13px 16px; margin-top:12px; border:1px solid #f5dc79; border-radius:12px; color:#172016; background:linear-gradient(180deg,#ffe98b 0%,#e4bd42 55%,#b88c20 100%); box-shadow:inset 0 2px 2px #fff9,0 5px 0 #725a1c,0 9px 16px #0006; font:800 16px 'Rajdhani',sans-serif; letter-spacing:.4px; cursor:pointer; transition:transform .15s,filter .15s; }
+    button:active { transform:translateY(3px); box-shadow:inset 0 2px 2px #fff9,0 2px 0 #725a1c,0 5px 10px #0006; }
+    button.secondary { color:#e9f5eb; border-color:#548b68; background:linear-gradient(180deg,#347b50,#1c5637 65%,#123b27); box-shadow:inset 0 2px 2px #ffffff35,0 5px 0 #0a2b1b,0 9px 16px #0006; }
+    button:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .status { padding:12px 14px; border:1px solid #46634e; border-radius:11px; background:#0b1911; color:#d8e6da; margin:13px 0; font-size:14px; line-height:1.35; overflow-wrap:anywhere; }
+    #conexion { margin:0; }
+    .small { color:#9eafa2; font-size:13px; line-height:1.4; }
+    .hidden { display:none !important; }
+    .count { font-weight:800; color:#ffdf69; }
+    .operation { padding:12px 13px; margin:9px 0; border-radius:11px; border:1px solid #344c3c; background:linear-gradient(135deg,#1a2b20,#101b15); color:#dce8de; font-size:13px; overflow-wrap:anywhere; }
+    .operation p { margin:5px 0; color:#f2d46b; }
+    .queue-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .queue-head h2 { margin:0; }
+    .queue-icon { color:#ffdf69; font-size:23px; }
+    .security-note { margin:13px 0 0; padding-top:12px; border-top:1px solid #304438; }
+    .footer { padding:8px 0 0; text-align:center; color:#718477; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
+    @media (max-width:420px) { body { padding:18px 12px 30px; } .hero { padding:20px; } section { padding:17px; } .station-tag { font-size:10px; } }
   </style>
 </head>
 
 <body>
 <main>
-
-  <section>
-    <h1>Estación de juego</h1>
-
-    <div id="conexion" class="status">
-      Comprobando conexión...
+  <div class="topline">
+    <div class="brand">
+      <div class="brand-mark">✦</div>
+      <div><div class="eyebrow">Banco</div><div class="brand-name">ARCADE <span>• BASES</span></div></div>
     </div>
+    <div class="station-tag">Líder de base</div>
+  </div>
 
-    <p class="small">
-      Operaciones pendientes:
-      <span id="pendientes" class="count">0</span>
-    </p>
-  </section>
+  <header class="hero">
+    <div class="hero-kicker">Movimiento · Juego · Equipo</div>
+    <h1>Estación de <span>juego</span></h1>
+    <p>Registra los cobros y los tickets obtenidos por cada grupo.</p>
+  </header>
+
+  <div class="dashboard">
+    <div class="metric"><div class="metric-label">Conectividad</div><div id="conexion" class="metric-value" style="font-size:19px;line-height:1.3">Comprobando...</div></div>
+    <div class="metric pending"><div class="metric-label">Operaciones pendientes</div><span id="pendientes" class="metric-value count">0</span></div>
+  </div>
 
   <section id="configuracion">
-    <h2>Configurar esta estación</h2>
-
-    <label for="nombreBase">Nombre o número de la base</label>
+    <h2>Configurar estación</h2>
+    <p class="section-intro">Identifica esta base y autoriza el teléfono para registrar operaciones.</p>
+    <label class="step-label" for="nombreBase"><span class="step-number">1</span> Nombre o número de la base</label>
     <input id="nombreBase" placeholder="Ej. Base 101">
-
-    <label for="tokenEstacion">Credencial de esta estación</label>
-    <input
-      id="tokenEstacion"
-      type="password"
-      autocomplete="off"
-      placeholder="Token de la estación"
-    >
-
+    <label class="step-label" for="tokenEstacion"><span class="step-number">2</span> Credencial de esta estación</label>
+    <input id="tokenEstacion" type="password" autocomplete="off" placeholder="Token de la estación">
     <button id="guardarConfig">Guardar configuración</button>
-
-    <p class="small">
-      La configuración se guarda en este teléfono.
-      No compartas su credencial.
-    </p>
+    <p class="small security-note">La configuración se guarda en este teléfono. No compartas su credencial.</p>
   </section>
 
   <section id="operacion" class="hidden">
+    <div class="eyebrow">Estación activa</div>
     <h2 id="tituloBase">Base</h2>
+    <p class="section-intro">Escanea la tarjeta del grupo y registra el resultado de la actividad.</p>
 
-    <label for="tokenTarjeta">Tarjeta del grupo</label>
-    <input
-      id="tokenTarjeta"
-      placeholder="Escanea la tarjeta o pega su token"
-      autocomplete="off"
-    >
+    <label class="step-label" for="tokenTarjeta"><span class="step-number">1</span> Identificar grupo</label>
+    <input id="tokenTarjeta" placeholder="Escanea la tarjeta o pega su token" autocomplete="off">
+    <button id="leerNfc" class="secondary">◉ &nbsp; Leer tarjeta NFC</button>
 
-    <button id="leerNfc" class="secondary">
-      Leer tarjeta NFC
-    </button>
-
-    <label for="tickets">Tickets obtenidos por el grupo</label>
-    <input
-      id="tickets"
-      type="number"
-      min="0"
-      step="1"
-      placeholder="Ej. 25"
-    >
+    <label class="step-label" for="tickets"><span class="step-number">2</span> Tickets obtenidos por el grupo</label>
+    <input id="tickets" type="number" min="0" step="1" placeholder="Ej. 25">
 
     <button id="registrar">Registrar cobro y tickets</button>
+    <div id="mensaje" class="status">Esperando una tarjeta.</div>
 
-    <div id="mensaje" class="status">
-      Esperando una tarjeta.
-    </div>
-
-    <button id="sincronizar" class="secondary">
-      Sincronizar pendientes
-    </button>
-
-    <button id="cambiarConfig" class="secondary">
-      Cambiar configuración
-    </button>
+    <button id="sincronizar" class="secondary">↻ &nbsp; Sincronizar pendientes</button>
+    <button id="cambiarConfig" class="secondary">Cambiar configuración de esta base</button>
   </section>
 
   <section>
-    <h2>Estado de operaciones</h2>
-    <div id="listaPendientes" class="small">
-      No hay operaciones pendientes.
-    </div>
+    <div class="queue-head"><h2>Estado de operaciones</h2><span class="queue-icon">◷</span></div>
+    <p class="section-intro">Aquí puedes revisar los registros que aún no se han confirmado con el servidor.</p>
+    <div id="listaPendientes" class="small">No hay operaciones pendientes.</div>
   </section>
-
+  <div class="footer">Banco Arcade · Nuestra raíz</div>
 </main>
 
 <script>
