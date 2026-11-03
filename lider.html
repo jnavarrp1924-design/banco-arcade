@@ -4,60 +4,71 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#123b2a">
-  <title>Estación de juego</title>
+  <title>Bases de tickets</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
     * { box-sizing: border-box; }
-    :root { color-scheme: dark; --green:#1d754b; --green2:#2eaa6c; --yellow:#f2c94c; --ink:#07130f; --panel:#101f19; --muted:#a9b9af; }
-    body { margin:0; min-height:100vh; padding:26px 16px 40px; font-family:'Rajdhani',Arial,sans-serif; color:#f3f8f3; background:radial-gradient(ellipse at 12% 8%,#17452f88,transparent 34%),radial-gradient(ellipse at 92% 82%,#5b4a1680,transparent 30%),linear-gradient(145deg,#07130f,#0b1914 55%,#10180f); }
-    body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.16; background:repeating-radial-gradient(ellipse at 80% 20%,transparent 0 42px,#7aa98b22 43px 44px,transparent 45px 82px); }
+    :root { color-scheme: dark; --green:#456b55; --green2:#66836b; --yellow:#c5ad68; --ink:#111b16; --panel:#202b24; --muted:#b7c0b8; }
+    body { margin:0; min-height:100vh; padding:26px 16px 40px; font-family:'Manrope',Arial,sans-serif; color:#edf1ec; background:radial-gradient(ellipse at 14% 10%,#456b5570,transparent 34%),radial-gradient(ellipse at 88% 76%,#8a784044,transparent 30%),radial-gradient(ellipse at 52% 48%,#526b4a24,transparent 48%),linear-gradient(135deg,#0c1510 0%,#17231b 48%,#20271e 100%); background-attachment:fixed; }
+    body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.32; background:radial-gradient(ellipse at 18% 28%,transparent 0 70px,#c5ad6812 71px 73px,transparent 74px 112px),radial-gradient(ellipse at 83% 18%,transparent 0 95px,#8da18b18 96px 98px,transparent 99px 145px),linear-gradient(125deg,transparent 0 35%,#d3c58a08 35.2% 35.5%,transparent 35.7% 68%,#8da18b0b 68.2% 68.5%,transparent 68.7%); }
+    body:after { content:""; position:fixed; inset:0; pointer-events:none; opacity:.18; background:repeating-linear-gradient(145deg,transparent 0 54px,#d8dfd508 55px,#d8dfd508 56px,transparent 57px 108px),conic-gradient(from 210deg at 75% 55%,transparent 0 18%,#c5ad6808 19%,transparent 21% 45%,#9eb49a0a 46%,transparent 49%); mix-blend-mode:screen; }
     main { position:relative; z-index:1; width:min(100%,560px); margin:0 auto; }
     .topline { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
     .brand { display:flex; align-items:center; gap:11px; }
-    .brand-mark { width:43px; height:43px; display:grid; place-items:center; border-radius:13px; color:#142015; font-size:25px; background:linear-gradient(145deg,#ffe98a,#d5a91f); box-shadow:inset 0 2px 3px #fff9,0 6px 18px #0008; }
-    .eyebrow { color:#b8c9bd; font-size:11px; letter-spacing:2.5px; font-weight:700; text-transform:uppercase; }
-    .brand-name { font-family:'Barlow Condensed',sans-serif; font-size:24px; line-height:1; font-weight:800; letter-spacing:1px; }
+    .brand-mark { display:none; }
+    .eyebrow { color:#c1c9c0; font-size:11px; letter-spacing:2px; font-weight:800; text-transform:uppercase; }
+    .brand-name { font-family:'Oswald',sans-serif; font-size:22px; line-height:1; font-weight:600; letter-spacing:1.5px; }
     .brand-name span { color:var(--yellow); }
-    .station-tag { border:1px solid #7a9b76; border-radius:999px; padding:7px 11px; color:#d7e5d7; font-size:12px; letter-spacing:1px; text-transform:uppercase; background:#14271d; }
-    .hero { position:relative; overflow:hidden; padding:23px; border:1px solid #4e936b; border-radius:22px; margin-bottom:15px; background:linear-gradient(135deg,#1b593b 0%,#123b2a 48%,#0b261b 100%); box-shadow:inset 0 2px 3px #ffffff38,inset 0 -14px 25px #020b08aa,0 18px 35px #0008; }
-    .hero:after { content:""; position:absolute; width:220px; height:95px; right:-55px; bottom:-45px; border-radius:50%; transform:rotate(-20deg); background:linear-gradient(90deg,#e5c34b55,#e5c34b00); }
-    .hero-kicker { color:#d8e8d9; font-size:12px; letter-spacing:3px; font-weight:700; text-transform:uppercase; }
-    h1 { margin:5px 0 4px; font-family:'Barlow Condensed',sans-serif; font-size:clamp(34px,8vw,46px); line-height:.98; letter-spacing:.5px; text-transform:uppercase; }
-    h1 span { color:#ffdf69; }
-    .hero p { margin:8px 0 0; color:#d0e1d3; font-size:16px; }
-    .dashboard { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:15px; }
-    .metric { position:relative; overflow:hidden; min-height:91px; padding:14px 16px; border-radius:16px; border:1px solid #66866d; background:linear-gradient(145deg,#1b3023,#101d16 75%); box-shadow:inset 0 2px 3px #ffffff20,inset 0 -8px 15px #0008,0 8px 18px #0005; }
-    .metric.pending { border-color:#a58a37; background:linear-gradient(145deg,#51451d,#2b2815 78%); }
+    .station-tag { border:1px solid #8b947f; border-radius:7px; padding:8px 12px; color:#e0e5dc; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; background:linear-gradient(145deg,#29372c,#1a251e); }
+    .hero { position:relative; overflow:hidden; isolation:isolate; padding:23px; border:1px solid #718574; border-radius:15px; margin-bottom:15px; background:radial-gradient(ellipse at 88% 10%,#9b95632b,transparent 45%),linear-gradient(135deg,#354f3d 0%,#263c2e 48%,#19291f 100%); box-shadow:inset 0 2px 3px #ffffff38,inset 0 -14px 25px #020b08aa,0 18px 35px #0008; }
+    .hero:after { content:""; position:absolute; width:220px; height:95px; right:-55px; bottom:-45px; border-radius:50%; transform:rotate(-20deg); background:linear-gradient(90deg,#c5ad6844,#c5ad6800); }
+    .hero-kicker { color:#d5ddd3; font-size:12px; letter-spacing:3px; font-weight:700; text-transform:uppercase; }
+    h1 { margin:5px 0 4px; font-family:'Oswald',sans-serif; font-size:clamp(32px,7vw,42px); line-height:.98; letter-spacing:.5px; text-transform:uppercase; }
+    h1 span { color:#d2bd7d; }
+    .hero p { margin:8px 0 0; color:#d1d9d0; font-size:14px; line-height:1.6; }
+    .dashboard { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+    .metric { position:relative; overflow:hidden; isolation:isolate; min-height:91px; padding:16px; border-radius:16px; border:1px solid #647466; background:radial-gradient(ellipse at 18% 0%,#a8c0a51c,transparent 48%),linear-gradient(145deg,#354b3a 0%,#26382c 42%,#17251c 100%); box-shadow:inset 0 2px 2px #ffffff2b,inset 0 -12px 20px #0009,0 4px 0 #111b14,0 13px 24px #0008; }
+    .metric:before { content:""; position:absolute; z-index:-1; width:135px; height:135px; right:-45px; top:-76px; border-radius:50%; border:1px solid #d6dfc51c; box-shadow:0 0 0 12px #d6dfc508,0 0 0 26px #d6dfc506,0 0 28px #0005; }
+    .metric:after { content:""; position:absolute; z-index:-1; left:-24px; bottom:-43px; width:145px; height:65px; border-radius:50%; transform:rotate(-18deg); background:linear-gradient(90deg,#8ba58a24,transparent); }
+    .metric.pending { border-color:#8c8058; background:radial-gradient(ellipse at 18% 0%,#e3cd8526,transparent 48%),linear-gradient(145deg,#575039 0%,#3d3929 48%,#29271e 100%); box-shadow:inset 0 2px 2px #fff3,inset 0 -12px 20px #0009,0 4px 0 #211f17,0 13px 24px #0008; }
+    .metric.pending:before { border-color:#e1ce9a25; box-shadow:0 0 0 12px #e1ce9a09,0 0 0 26px #e1ce9a06,0 0 28px #0005; }
+    .metric.pending:after { background:linear-gradient(90deg,#d4bd7930,transparent); }
     .metric-label { color:#b9c9bb; font-size:12px; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; }
     .metric.pending .metric-label { color:#f3df9a; }
-    .metric-value { display:block; margin-top:2px; font-family:'Barlow Condensed',sans-serif; font-size:35px; line-height:1; font-weight:700; color:#f5f8f2; }
-    .metric.pending .metric-value { color:#ffdf69; }
-    section { padding:20px; margin-bottom:15px; border-radius:20px; border:1px solid #344c3c; background:linear-gradient(150deg,#17271e,#0e1a14 80%); box-shadow:inset 0 1px 2px #ffffff12,0 12px 26px #0006; }
-    h2 { margin:0 0 5px; font-family:'Barlow Condensed',sans-serif; font-size:25px; line-height:1.1; letter-spacing:.5px; text-transform:uppercase; }
+    .metric-value { display:block; margin-top:2px; font-family:'Oswald',sans-serif; font-size:32px; line-height:1; font-weight:700; color:#f5f8f2; }
+    .metric.pending .metric-value { color:#d4bf82; }
+    section { position:relative; isolation:isolate; overflow:hidden; padding:21px; margin-bottom:17px; border-radius:20px; border:1px solid #647768; background:radial-gradient(ellipse at 8% 0%,#91aa8b20,transparent 42%),radial-gradient(ellipse at 100% 100%,#8b80501a,transparent 40%),linear-gradient(145deg,#2d4032 0%,#223328 45%,#17241c 100%); box-shadow:inset 0 2px 3px #ffffff20,inset 0 -15px 24px #050d08a8,0 4px 0 #111b14,0 15px 30px #0008; }
+    section:before { content:""; position:absolute; z-index:-1; width:220px; height:220px; right:-112px; top:-145px; border-radius:50%; border:1px solid #d8e2d31c; box-shadow:0 0 0 15px #d8e2d308,0 0 0 32px #d8e2d306,0 0 0 52px #d8e2d304; pointer-events:none; }
+    section:after { content:""; position:absolute; z-index:-1; left:-60px; bottom:-75px; width:220px; height:115px; border-radius:50%; transform:rotate(-17deg); background:linear-gradient(90deg,#8ca58a1b,transparent); pointer-events:none; }
+    h2 { margin:0 0 5px; font-family:'Oswald',sans-serif; font-size:23px; line-height:1.1; letter-spacing:.5px; text-transform:uppercase; }
     .section-intro { margin:0 0 16px; color:var(--muted); font-size:14px; }
+    .queue-head + .section-intro { margin-top:0; margin-bottom:19px; }
     .step-label { display:flex; align-items:center; gap:8px; margin:17px 0 7px; color:#e6eee7; font-size:15px; font-weight:700; }
     .step-number { display:inline-grid; place-items:center; width:23px; height:23px; border-radius:7px; background:linear-gradient(145deg,#f9df78,#c49b28); color:#172016; font-size:13px; font-weight:800; }
-    input { width:100%; min-height:48px; padding:12px 14px; border:1px solid #506957; border-radius:11px; outline:none; background:#09150f; color:#f5f8f4; font:600 16px 'Rajdhani',sans-serif; box-shadow:inset 0 3px 8px #0007; }
+    input { width:100%; min-height:48px; padding:12px 14px; border:1px solid #506957; border-radius:11px; outline:none; background:#09150f; color:#f5f8f4; font:600 14px 'Manrope',sans-serif; box-shadow:inset 0 3px 8px #0007; }
     input::placeholder { color:#75877a; }
-    input:focus { border-color:#e5c34b; box-shadow:0 0 0 3px #e5c34b25,inset 0 3px 8px #0007; }
-    button { width:100%; min-height:49px; padding:13px 16px; margin-top:12px; border:1px solid #f5dc79; border-radius:12px; color:#172016; background:linear-gradient(180deg,#ffe98b 0%,#e4bd42 55%,#b88c20 100%); box-shadow:inset 0 2px 2px #fff9,0 5px 0 #725a1c,0 9px 16px #0006; font:800 16px 'Rajdhani',sans-serif; letter-spacing:.4px; cursor:pointer; transition:transform .15s,filter .15s; }
-    button:active { transform:translateY(3px); box-shadow:inset 0 2px 2px #fff9,0 2px 0 #725a1c,0 5px 10px #0006; }
-    button.secondary { color:#e9f5eb; border-color:#548b68; background:linear-gradient(180deg,#347b50,#1c5637 65%,#123b27); box-shadow:inset 0 2px 2px #ffffff35,0 5px 0 #0a2b1b,0 9px 16px #0006; }
+    input:focus { border-color:#c5ad68; box-shadow:0 0 0 3px #c5ad6825,inset 0 3px 8px #0007; }
+    button { width:100%; min-height:49px; padding:13px 16px; margin-top:12px; border:1px solid #d4c18b; border-radius:9px; color:#20251d; background:linear-gradient(180deg,#d7c58f 0%,#bba66b 58%,#96814c 100%); box-shadow:inset 0 2px 2px #fff8,0 3px 0 #655b3d,0 8px 15px #0005; font:800 13px 'Manrope',sans-serif; letter-spacing:.4px; cursor:pointer; transition:transform .15s,filter .15s; }
+    button:active { transform:translateY(3px); box-shadow:inset 0 2px 2px #fff8,0 1px 0 #655b3d,0 4px 9px #0006; }
+    button.secondary { color:#e9f5eb; border-color:#718675; background:linear-gradient(180deg,#58745d,#405d49 65%,#2c4435); box-shadow:inset 0 2px 2px #ffffff25,0 3px 0 #203729,0 8px 15px #0006; }
     button:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-    .status { padding:12px 14px; border:1px solid #46634e; border-radius:11px; background:#0b1911; color:#d8e6da; margin:13px 0; font-size:14px; line-height:1.35; overflow-wrap:anywhere; }
+    .status { padding:12px 14px; border:1px solid #586c5b; border-radius:9px; background:linear-gradient(145deg,#17251b,#101a14); color:#d8e6da; margin:13px 0; font-size:14px; line-height:1.35; overflow-wrap:anywhere; }
     #conexion { margin:0; }
     .small { color:#9eafa2; font-size:13px; line-height:1.4; }
     .hidden { display:none !important; }
-    .count { font-weight:800; color:#ffdf69; }
-    .operation { padding:12px 13px; margin:9px 0; border-radius:11px; border:1px solid #344c3c; background:linear-gradient(135deg,#1a2b20,#101b15); color:#dce8de; font-size:13px; overflow-wrap:anywhere; }
-    .operation p { margin:5px 0; color:#f2d46b; }
-    .queue-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .count { font-weight:800; color:#d4bf82; }
+    .operation { position:relative; overflow:hidden; padding:13px 14px; margin:10px 0; border-radius:12px; border:1px solid #536b57; background:radial-gradient(ellipse at 100% 0%,#a6b99a18,transparent 48%),linear-gradient(145deg,#354a38,#25372a 58%,#19261e); box-shadow:inset 0 1px 2px #ffffff20,inset 0 -7px 13px #0007,0 3px 0 #142017,0 8px 15px #0006; color:#dce8de; font-size:13px; overflow-wrap:anywhere; }
+    .operation p { margin:5px 0; color:#cbbb83; }
+    .queue-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
     .queue-head h2 { margin:0; }
-    .queue-icon { color:#ffdf69; font-size:23px; }
+    .queue-icon { color:#d4bf82; font-size:23px; }
     .security-note { margin:13px 0 0; padding-top:12px; border-top:1px solid #304438; }
+    .charge-notice { position:relative; overflow:hidden; margin:14px 0 17px; padding:14px 15px 14px 17px; border:1px solid #bda96d; border-left:4px solid #d4bf82; border-radius:12px; color:#f1e7c8; background:radial-gradient(ellipse at 100% 0%,#d9c17c26,transparent 55%),linear-gradient(145deg,#51482f,#383323 58%,#28271f); box-shadow:inset 0 2px 2px #ffffff20,inset 0 -8px 14px #0008,0 4px 0 #211f17,0 10px 20px #0007; font-size:13px; line-height:1.55; }
+    .charge-notice strong { display:block; margin-bottom:4px; color:#f3d98c; font-size:12px; letter-spacing:1px; text-transform:uppercase; }
+    .charge-notice span { color:#fff5d9; font-weight:800; }
     .footer { padding:8px 0 0; text-align:center; color:#718477; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
     @media (max-width:420px) { body { padding:18px 12px 30px; } .hero { padding:20px; } section { padding:17px; } .station-tag { font-size:10px; } }
   </style>
@@ -67,16 +78,15 @@
 <main>
   <div class="topline">
     <div class="brand">
-      <div class="brand-mark">✦</div>
-      <div><div class="eyebrow">Banco</div><div class="brand-name">ARCADE <span>• BASES</span></div></div>
+      <div><div class="brand-name">BASES <span>DE TICKETS</span></div></div>
     </div>
     <div class="station-tag">Líder de base</div>
   </div>
 
   <header class="hero">
-    <div class="hero-kicker">Movimiento · Juego · Equipo</div>
+    <div class="hero-kicker">Gestión · Registro · Seguimiento</div>
     <h1>Estación de <span>juego</span></h1>
-    <p>Registra los cobros y los tickets obtenidos por cada grupo.</p>
+    <p>Identifica al grupo, registra los tickets obtenidos y confirma el cobro de su participación en la base.</p>
   </header>
 
   <div class="dashboard">
@@ -92,13 +102,14 @@
     <label class="step-label" for="tokenEstacion"><span class="step-number">2</span> Credencial de esta estación</label>
     <input id="tokenEstacion" type="password" autocomplete="off" placeholder="Token de la estación">
     <button id="guardarConfig">Guardar configuración</button>
-    <p class="small security-note">La configuración se guarda en este teléfono. No compartas su credencial.</p>
+    <p class="small security-note">La configuración se guarda en este teléfono. No compartas tu credencial.</p>
   </section>
 
   <section id="operacion" class="hidden">
     <div class="eyebrow">Estación activa</div>
     <h2 id="tituloBase">Base</h2>
-    <p class="section-intro">Escanea la tarjeta del grupo y registra el resultado de la actividad.</p>
+    <p class="section-intro">Identifica al grupo para hacer el cobro de tu base, luego registra los tickets obtenidos.</p>
+    <div class="charge-notice"><strong>Importante · Descuento de dinero</strong>Al escanear el NFC se identifica al grupo. <span>El dinero se descuenta cuando pulsas «Registrar cobro y tickets»</span> y la operación es confirmada por el servidor. Escanear por sí solo no realiza el descuento.</div>
 
     <label class="step-label" for="tokenTarjeta"><span class="step-number">1</span> Identificar grupo</label>
     <input id="tokenTarjeta" placeholder="Escanea la tarjeta o pega su token" autocomplete="off">
@@ -119,7 +130,7 @@
     <p class="section-intro">Aquí puedes revisar los registros que aún no se han confirmado con el servidor.</p>
     <div id="listaPendientes" class="small">No hay operaciones pendientes.</div>
   </section>
-  <div class="footer">Banco Arcade · Nuestra raíz</div>
+  <div class="footer">TÚ RAÍZ ES NUESTRA RAÍZ</div>
 </main>
 
 <script>
@@ -409,7 +420,7 @@ $("leerNfc").addEventListener("click", async () => {
           $("tokenTarjeta").value = extraerToken(url);
 
           $("mensaje").textContent =
-            "Tarjeta leída. Introduce los tickets obtenidos.";
+            "Tarjeta leída. El grupo quedó identificado. Introduce los tickets y pulsa «Registrar cobro y tickets» para aplicar el descuento.";
 
           return;
         }
@@ -423,7 +434,7 @@ $("leerNfc").addEventListener("click", async () => {
             extraerToken(decoder.decode(record.data));
 
           $("mensaje").textContent =
-            "Tarjeta leída. Introduce los tickets obtenidos.";
+            "Tarjeta leída. El grupo quedó identificado. Introduce los tickets y pulsa «Registrar cobro y tickets» para aplicar el descuento.";
 
           return;
         }
