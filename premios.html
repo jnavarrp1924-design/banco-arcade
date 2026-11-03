@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Banco Arcade | Puesto de premios</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +22,9 @@
       --borde: rgba(255, 166, 79, .22);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Rajdhani', sans-serif;
@@ -44,13 +47,14 @@
       inset: 0;
       pointer-events: none;
       opacity: .22;
-      background: repeating-linear-gradient(
-        135deg,
-        transparent 0,
-        transparent 75px,
-        rgba(255, 180, 100, .06) 76px,
-        transparent 78px
-      );
+      background:
+        repeating-linear-gradient(
+          135deg,
+          transparent 0,
+          transparent 75px,
+          rgba(255, 180, 100, .06) 76px,
+          transparent 78px
+        );
       z-index: 0;
     }
 
@@ -102,10 +106,14 @@
       text-transform: uppercase;
       margin: 0;
       color: #fff3e5;
-      text-shadow: 0 3px 0 #793b19, 0 7px 22px rgba(232, 117, 36, .3);
+      text-shadow:
+        0 3px 0 #793b19,
+        0 7px 22px rgba(232, 117, 36, .3);
     }
 
-    .titulo-acento { color: var(--naranja-claro); }
+    .titulo-acento {
+      color: var(--naranja-claro);
+    }
 
     .subtitulo {
       color: var(--texto-suave);
@@ -126,7 +134,8 @@
 
     section {
       position: relative;
-      background: linear-gradient(145deg, rgba(58, 35, 22, .96), rgba(25, 18, 14, .98));
+      background:
+        linear-gradient(145deg, rgba(58, 35, 22, .96), rgba(25, 18, 14, .98));
       border: 1px solid var(--borde);
       border-radius: 18px;
       padding: 22px;
@@ -184,7 +193,9 @@
       box-shadow: 0 0 0 3px rgba(232, 117, 36, .13);
     }
 
-    input::placeholder { color: #8f7d6d; }
+    input::placeholder {
+      color: #8f7d6d;
+    }
 
     button {
       width: 100%;
@@ -239,7 +250,9 @@
     }
 
     .secundario:hover:not(:disabled) {
-      box-shadow: 0 7px 0 #211912, 0 12px 22px rgba(0, 0, 0, .3);
+      box-shadow:
+        0 7px 0 #211912,
+        0 12px 22px rgba(0, 0, 0, .3);
     }
 
     #estadoConexion {
@@ -343,9 +356,7 @@
       height: 1px;
       flex: 1;
       background: linear-gradient(90deg, transparent, var(--naranja));
-    }
-
-    .encabezado-premios::after {
+    }    .encabezado-premios::after {
       background: linear-gradient(90deg, var(--naranja), transparent);
     }
 
@@ -441,7 +452,9 @@
       text-transform: uppercase;
     }
 
-    [hidden] { display: none !important; }
+    [hidden] {
+      display: none !important;
+    }
 
     @media (max-width: 420px) {
       body { padding: 16px 12px 30px; }
@@ -457,7 +470,7 @@
   <header>
     <div class="marca">Tu raíz es nuestra raíz</div>
     <h1>Zona de <span class="titulo-acento">premios</span></h1>
-    <p class="subtitulo">Canjea y reclama tickets de equipos · Carga dinero</p>
+    <p class="subtitulo">Canjea tickets de equipos · Carga dinero</p>
     <div class="linea-decorativa"></div>
   </header>
 
@@ -465,13 +478,10 @@
     <h2>Autorización del puesto</h2>
 
     <label for="nombrePuesto">Nombre del puesto</label>
-    <input id="nombrePuesto" placeholder="Puesto central de premios">
+    <input id="nombrePuesto" autocomplete="off"
+      placeholder="Calasanz 1557 o Calasanz 1648">
 
-    <label for="tokenEstacion">Token del dispositivo</label>
-    <input id="tokenEstacion" type="password"
-      placeholder="Token autorizado de este teléfono">
-
-    <button id="guardarConfig">Validar y autorizar dispositivo</button>
+    <button id="guardarConfig">Validar y entrar</button>
 
     <p id="estadoConexion">Comprobando conexión...</p>
   </section>
@@ -484,11 +494,10 @@
     <label for="tokenTarjeta">O introducir código de tarjeta</label>
     <input id="tokenTarjeta" placeholder="Código de la tarjeta">
 
-    <button id="consultar">Consultar tickets</button>
+    <button id="consultar">Consultar equipo</button>
 
     <div id="datosEquipo" hidden>
       <h2 id="nombreEquipo">Grupo</h2>
-
       <p>Tickets disponibles</p>
       <div class="saldo" id="saldoTickets">0</div>
 
@@ -499,20 +508,9 @@
 
       <div class="recarga-panel">
         <h3>Cargar dinero al equipo</h3>
-        <p class="ayuda-recarga">
-          Ingresa el monto que deseas agregar al saldo del equipo.
-        </p>
-
-        <label for="montoRecarga">Monto de la recarga (COP)</label>
-        <input
-          id="montoRecarga"
-          type="number"
-          min="1"
-          step="1"
-          inputmode="numeric"
-          placeholder="Ejemplo: 10000"
-        >
-
+        <p class="ayuda-recarga">Ingresa el valor autorizado y confirma la recarga. Esta operación aumenta el saldo del equipo y queda registrada.</p>
+        <label for="montoRecarga">Valor que se va a cargar (COP)</label>
+        <input id="montoRecarga" type="number" min="1" step="1" inputmode="numeric" placeholder="Ej. 10000">
         <button id="recargarSaldo">Confirmar carga de dinero</button>
       </div>
 
@@ -549,15 +547,10 @@ const $ = id => document.getElementById(id);
 
 let equipoActual = null;
 let tokenActual = null;
-let tokenAutorizado = null;
 let nombreAutorizado = null;
 let dispositivoAutorizado = false;
 let procesando = false;
 let premiosDisponibles = [];
-
-function mostrarMensaje(texto) {
-  $("mensaje").textContent = texto;
-}
 
 function formatoPesos(valor) {
   return new Intl.NumberFormat("es-CO", {
@@ -567,9 +560,12 @@ function formatoPesos(valor) {
   }).format(Number(valor) || 0);
 }
 
+function mostrarMensaje(texto) {
+  $("mensaje").textContent = texto;
+}
+
 function bloquearPuesto() {
   dispositivoAutorizado = false;
-  tokenAutorizado = null;
   nombreAutorizado = null;
   equipoActual = null;
   tokenActual = null;
@@ -577,7 +573,6 @@ function bloquearPuesto() {
   $("zonaPremios").hidden = true;
   $("datosEquipo").hidden = true;
   $("tokenTarjeta").value = "";
-  $("tokenEstacion").value = "";
 }
 
 function actualizarConexion() {
@@ -689,48 +684,42 @@ function mostrarPremios() {
 
 async function validarDispositivo() {
   const nombre = $("nombrePuesto").value.trim();
-  const token = $("tokenEstacion").value.trim();
 
-  if (!nombre || !token) {
-    mostrarMensaje("Escribe el nombre y el token del dispositivo.");
+  if (!nombre) {
+    mostrarMensaje("Escribe el nombre autorizado del puesto.");
     return;
   }
 
   if (!navigator.onLine) {
-    mostrarMensaje("Necesitas conexión para autorizar el dispositivo.");
+    mostrarMensaje("Necesitas conexión para validar el puesto.");
     return;
-  }
-
-  bloquearPuesto();
-  mostrarMensaje("Validando dispositivo...");
+  }  bloquearPuesto();
+  mostrarMensaje("Validando puesto...");
 
   try {
     const { data, error } = await supabaseClient.rpc(
-      "validar_dispositivo_premios",
-      { p_token_estacion: token }
+      "validar_puesto_premios",
+      { p_nombre: nombre }
     );
 
     if (error) throw error;
 
     if (data !== true) {
-      mostrarMensaje("Dispositivo no autorizado.");
+      mostrarMensaje("Nombre de puesto no autorizado.");
       return;
     }
 
-    tokenAutorizado = token;
     nombreAutorizado = nombre;
     dispositivoAutorizado = true;
-
-    $("tokenEstacion").value = "";
     $("zonaPremios").hidden = false;
 
     await cargarPremios();
 
-    mostrarMensaje("Dispositivo autorizado: " + nombreAutorizado);
+    mostrarMensaje("Puesto autorizado: " + nombreAutorizado);
 
   } catch (error) {
     bloquearPuesto();
-    mostrarMensaje("No se pudo autorizar el dispositivo: " + error.message);
+    mostrarMensaje("No se pudo validar el puesto: " + error.message);
   }
 }
 
@@ -796,7 +785,7 @@ async function leerNFC() {
 /* CONSULTAR GRUPO */
 
 async function consultarEquipo() {
-  if (!dispositivoAutorizado || !tokenAutorizado) {
+  if (!dispositivoAutorizado || !nombreAutorizado) {
     bloquearPuesto();
     mostrarMensaje("Debes autorizar el dispositivo nuevamente.");
     return;
@@ -820,7 +809,7 @@ async function consultarEquipo() {
     const { data, error } = await supabaseClient.rpc(
       "consultar_equipo_premios",
       {
-        p_token_estacion: tokenAutorizado,
+        p_nombre_puesto: nombreAutorizado,
         p_token_tarjeta: token
       }
     );
@@ -859,7 +848,7 @@ async function consultarEquipo() {
 async function recargarSaldo() {
   if (procesando) return;
 
-  if (!dispositivoAutorizado || !tokenAutorizado) {
+  if (!dispositivoAutorizado || !nombreAutorizado) {
     bloquearPuesto();
     mostrarMensaje("Debes autorizar el dispositivo nuevamente.");
     return;
@@ -876,7 +865,6 @@ async function recargarSaldo() {
   }
 
   const monto = Number($("montoRecarga").value);
-
   if (!Number.isSafeInteger(monto) || monto <= 0) {
     mostrarMensaje("Escribe un valor entero mayor que cero para la recarga.");
     return;
@@ -895,11 +883,10 @@ async function recargarSaldo() {
     mostrarMensaje("Procesando recarga de dinero...");
 
     const solicitudId = crypto.randomUUID();
-
     const { data, error } = await supabaseClient.rpc(
       "recargar_saldo_premios",
       {
-        p_token_estacion: tokenAutorizado,
+        p_nombre_puesto: nombreAutorizado,
         p_token_tarjeta: tokenActual,
         p_monto: monto,
         p_solicitud_id: solicitudId
@@ -909,7 +896,6 @@ async function recargarSaldo() {
     if (error) throw error;
 
     const resultado = Array.isArray(data) ? data[0] : data;
-
     if (!resultado || resultado.monedas_restantes === undefined) {
       throw new Error("La recarga fue enviada, pero la respuesta no contiene el nuevo saldo. Consulta nuevamente el equipo.");
     }
@@ -917,7 +903,6 @@ async function recargarSaldo() {
     equipoActual.monedas = resultado.monedas_restantes;
     $("saldoDinero").textContent = formatoPesos(resultado.monedas_restantes);
     $("montoRecarga").value = "";
-
     mostrarMensaje(
       "Recarga confirmada: " + formatoPesos(monto) +
       "\nNuevo saldo: " + formatoPesos(resultado.monedas_restantes)
@@ -940,7 +925,7 @@ async function recargarSaldo() {
 async function canjearPremio(premio) {
   if (procesando) return;
 
-  if (!dispositivoAutorizado || !tokenAutorizado) {
+  if (!dispositivoAutorizado || !nombreAutorizado) {
     bloquearPuesto();
     mostrarMensaje("Debes autorizar el dispositivo nuevamente.");
     return;
@@ -982,7 +967,7 @@ async function canjearPremio(premio) {
     const { error } = await supabaseClient.rpc(
       "canjear_premio",
       {
-        p_token_estacion: tokenAutorizado,
+        p_nombre_puesto: nombreAutorizado,
         p_token_tarjeta: tokenActual,
         p_premio_id: premio.id,
         p_solicitud_id: solicitudId
