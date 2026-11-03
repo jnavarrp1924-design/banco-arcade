@@ -96,13 +96,11 @@
 
   <section id="configuracion">
     <h2>Configurar estación</h2>
-    <p class="section-intro">Identifica esta base y autoriza el teléfono para registrar operaciones.</p>
-    <label class="step-label" for="nombreBase"><span class="step-number">1</span> Nombre o número de la base</label>
-    <input id="nombreBase" placeholder="Ej. Base 101">
-    <label class="step-label" for="tokenEstacion"><span class="step-number">2</span> Credencial de esta estación</label>
-    <input id="tokenEstacion" type="password" autocomplete="off" placeholder="Token de la estación">
-    <button id="guardarConfig">Guardar configuración</button>
-    <p class="small security-note">La configuración se guarda en este teléfono. No compartas tu credencial.</p>
+    <p class="section-intro">Introduce el código secreto para identificar y autorizar esta base.</p>
+    <label class="step-label" for="tokenEstacion"><span class="step-number">1</span> Código secreto de esta estación</label>
+    <input id="tokenEstacion" type="password" autocomplete="off" placeholder="Introduce el código secreto">
+    <button id="guardarConfig">Autenticar base</button>
+    <p class="small security-note">El nombre de la base se obtiene automáticamente desde Supabase. La credencial se guarda en este teléfono. No la compartas.</p>
   </section>
 
   <section id="operacion" class="hidden">
@@ -269,26 +267,58 @@ async function eliminarOperacion(id) {
 // 4. CONFIGURACIÓN DE LA ESTACIÓN
 // ======================================
 
-function mostrarPantalla() {
+async function autenticarEstacion(token) {
+  const { data, error } = await supabaseClient.rpc("autenticar_base_lider", {
+    p_token_estacion: token
+  });
+
+  if (error) throw error;
+  if (!data || !data.base_id || !data.nombre) {
+    throw new Error("Supabase no devolvió los datos de la base.");
+  }
+
+  return data;
+}
+
+async function actualizarNombreBase() {
+  const config = leerConfig();
+  if (!config) return;
+
+  try {
+    const base = await autenticarEstacion(config.token);
+    config.base_id = base.base_id;
+    config.nombre = base.nombre;
+    localStorage.setItem(CLAVE_CONFIG, JSON.stringify(config));
+    $("tituloBase").textContent = base.nombre;
+  } catch (error) {
+    $("tituloBase").textContent = "Base sin verificar";
+    $("mensaje").textContent = "No se pudo verificar la estación: " + error.message;
+    $("configuracion").classList.remove("hidden");
+    $("operacion").classList.add("hidden");
+    localStorage.removeItem(CLAVE_CONFIG);
+  }
+}
+
+async function mostrarPantalla() {
   const config = leerConfig();
 
   $("configuracion").classList.toggle("hidden", !!config);
   $("operacion").classList.toggle("hidden", !config);
 
   if (config) {
-    $("tituloBase").textContent = config.nombre;
+    $("tituloBase").textContent = config.nombre || "Verificando base...";
+    await actualizarNombreBase();
   }
 
   actualizarConexion();
   mostrarCola();
 }
 
-$("guardarConfig").addEventListener("click", () => {
-  const nombre = $("nombreBase").value.trim();
+$("guardarConfig").addEventListener("click", async () => {
   const token = $("tokenEstacion").value.trim();
 
-  if (!nombre || !token) {
-    alert("Escribe el nombre de la base y su credencial.");
+  if (!token) {
+    alert("Introduce el código secreto de la estación.");
     return;
   }
 
@@ -297,14 +327,24 @@ $("guardarConfig").addEventListener("click", () => {
     return;
   }
 
-  localStorage.setItem(
-    CLAVE_CONFIG,
-    JSON.stringify({ nombre, token })
-  );
+  const boton = $("guardarConfig");
+  boton.disabled = true;
+  boton.textContent = "Verificando...";
 
-  $("tokenEstacion").value = "";
-
-  mostrarPantalla();
+  try {
+    const base = await autenticarEstacion(token);
+    localStorage.setItem(
+      CLAVE_CONFIG,
+      JSON.stringify({ token, base_id: base.base_id, nombre: base.nombre })
+    );
+    $("tokenEstacion").value = "";
+    await mostrarPantalla();
+  } catch (error) {
+    alert("No fue posible autenticar la base: " + error.message);
+  } finally {
+    boton.disabled = false;
+    boton.textContent = "Autenticar base";
+  }
 });
 
 $("cambiarConfig").addEventListener("click", () => {
