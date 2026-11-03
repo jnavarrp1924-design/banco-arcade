@@ -1,13 +1,15 @@
 
-const CACHE_NAME = "banco-arcade-v2";
+const CACHE_NAME = "banco-arcade-v3";
 
 const ARCHIVOS = [
   "./",
   "./index.html",
   "./lider.html",
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  "./lider_nfc_ios.html",
+  "./premios.html"
 ];
 
+// Instalar la nueva versión
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -16,50 +18,77 @@ self.addEventListener("install", event => {
   );
 });
 
+// Activar la nueva versión y eliminar cachés antiguas
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+    caches.keys()
+      .then(keys =>
+        Promise.all(
+          keys
+            .filter(key => key.startsWith("banco-arcade-") && key !== CACHE_NAME)
+            .map(key => caches.delete(key))
+        )
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim())
   );
 });
 
+// Interceptar solicitudes
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
+  const request = event.request;
 
-  const url = new URL(event.request.url);
+  if (request.method !== "GET") return;
 
-  const esLocal = url.origin === self.location.origin;
-  const esSupabaseCDN =
-    url.origin === "https://cdn.jsdelivr.net";
+  const url = new URL(request.url);
 
-  if (!esLocal && !esSupabaseCDN) return;
+  // No interceptar Supabase ni otros servicios externos.
+  if (url.origin !== self.location.origin) return;
 
+  // Las páginas HTML siempre consultan primero la versión publicada.
+  if (
+    request.mode === "navigate" ||
+    request.destination === "document"
+  ) {
+    event.respondWith(
+      fetch(request)
+        .then(async response => {
+          if (response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, response.clone());
+          }
+
+          return response;
+        })
+        .catch(async () => {
+          const guardado = await caches.match(request);
+
+          if (guardado) return guardado;
+
+          return caches.match("./index.html");
+        })
+    );
+
+    return;
+  }
+
+  // Para recursos locales distintos de HTML:
+  // primero se intenta obtener la versión de internet.
   event.respondWith(
-    caches.match(event.request).then(async guardado => {
-      if (guardado) return guardado;
-
-      try {
-        const respuesta = await fetch(event.request);
-
-        if (respuesta.ok) {
-          const copia = respuesta.clone();
+    fetch(request)
+      .then(async response => {
+        if (response.ok) {
           const cache = await caches.open(CACHE_NAME);
-          await cache.put(event.request, copia);
+          await cache.put(request, response.clone());
         }
 
-        return respuesta;
-      } catch (error) {
-        if (esLocal) {
-          return caches.match("./lider.html");
-        }
+        return response;
+      })
+      .catch(async () => {
+        const guardado = await caches.match(request);
 
-        throw error;
-      }
-    })
+        if (guardado) return guardado;
+
+        return Response.error();
+      })
   );
 });
