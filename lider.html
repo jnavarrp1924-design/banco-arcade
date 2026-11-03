@@ -467,8 +467,10 @@ async function actualizarNombreBase() {
     localStorage.removeItem(CLAVE_CONFIG);
   }
 }
-
 async function mostrarPantalla() {
+  // Mostrar conectividad inmediatamente.
+  actualizarConexion();
+
   const config = leerConfig();
 
   $("configuracion").classList.toggle("hidden", !!config);
@@ -476,10 +478,13 @@ async function mostrarPantalla() {
 
   if (config) {
     $("tituloBase").textContent = config.nombre || "Verificando base...";
-    await actualizarNombreBase();
+
+    // No bloquear el inicio de la aplicación esperando a Supabase.
+    actualizarNombreBase().catch(error => {
+      console.error("Error verificando la estación:", error);
+    });
   }
 
-  actualizarConexion();
   await mostrarCola();
   await mostrarParticipacionActiva();
 }
