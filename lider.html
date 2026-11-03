@@ -412,7 +412,6 @@
       color:#cbbb83;
     }
 
-    /* Botón para eliminar operaciones que requieren revisión */
     .operation .delete-operation {
       width:auto;
       min-height:36px;
@@ -492,6 +491,22 @@
       text-transform:uppercase;
     }
 
+    /* Pantalla bloqueada durante una transacción */
+    body.transaccion-activa #configuracion,
+    body.transaccion-activa #controlesEscaneo,
+    body.transaccion-activa #sincronizar,
+    body.transaccion-activa #cambiarConfig {
+      display:none !important;
+    }
+
+    body.transaccion-activa #panelTickets {
+      display:block !important;
+    }
+
+    body.transaccion-activa #operacion {
+      border-color:#c5ad68;
+    }
+
     @media(max-width:420px) {
       body { padding:18px 12px 30px; }
       .hero { padding:20px; }
@@ -550,24 +565,27 @@
   <section id="operacion" class="hidden">
     <div class="eyebrow">Estación activa</div>
     <h2 id="tituloBase">Base</h2>
-    <p class="section-intro">Acerca la tarjeta NFC del grupo. El cobro se hará automáticamente.</p>
 
-    <div class="charge-notice">
-      <strong>Funcionamiento automático</strong>
-      Al escanear una tarjeta válida,
-      <span>se descuenta inmediatamente el costo de esta base</span>.
-      Los tickets se registran después de terminar el juego.
+    <div id="controlesEscaneo">
+      <p class="section-intro">Acerca la tarjeta NFC del grupo. El cobro se hará automáticamente.</p>
+
+      <div class="charge-notice">
+        <strong>Funcionamiento automático</strong>
+        Al escanear una tarjeta válida,
+        <span>se descuenta inmediatamente el costo de esta base</span>.
+        Los tickets se registran después de terminar el juego.
+      </div>
+
+      <label class="step-label" for="tokenTarjeta">
+        <span class="step-number">1</span>
+        Identificar grupo
+      </label>
+
+      <input id="tokenTarjeta" placeholder="Escanea la tarjeta o pega su token" autocomplete="off">
+
+      <button id="leerNfc" class="secondary">◉ &nbsp; Activar lectura NFC</button>
+      <button id="procesarManual" class="secondary">Procesar tarjeta introducida</button>
     </div>
-
-    <label class="step-label" for="tokenTarjeta">
-      <span class="step-number">1</span>
-      Identificar grupo
-    </label>
-
-    <input id="tokenTarjeta" placeholder="Escanea la tarjeta o pega su token" autocomplete="off">
-
-    <button id="leerNfc" class="secondary">◉ &nbsp; Activar lectura NFC</button>
-    <button id="procesarManual" class="secondary">Procesar tarjeta introducida</button>
 
     <div id="mensaje" class="status">Esperando una tarjeta.</div>
 
@@ -588,7 +606,7 @@
     <button id="cambiarConfig" class="secondary">Cambiar configuración de esta base</button>
   </section>
 
-  <section>
+  <section id="seccionCola">
     <div class="queue-head">
       <h2>Estado de operaciones</h2>
       <span class="queue-icon">◷</span>
@@ -635,6 +653,7 @@ const $ = id => document.getElementById(id);
 let sincronizacionEnCurso = false;
 let lecturaNfcActiva = false;
 let procesamientoTarjeta = false;
+let registroTicketsEnCurso = false;
 
 function leerConfig() {
   try {
@@ -764,7 +783,113 @@ async function eliminarOperacion(id) {
 }
 
 // ======================================
-// 4. AUTENTICACIÓN DE LA ESTACIÓN
+// 4. PARTICIPACIÓN ACTIVA Y BLOQUEO
+// ======================================
+
+async function obtenerParticipacionActiva() {
+  const cola = await leerOperaciones();
+
+  return cola.find(op =>
+    op.fase === "esperando_tickets" ||
+    op.fase === "cobro_pendiente" ||
+    op.fase === "tickets_pendientes" ||
+    op.fase === "requiere_revision"
+  ) || null;
+}
+
+function aplicarBloqueo(transaccionActiva) {
+  document.body.classList.toggle(
+    "transaccion-activa",
+    Boolean(transaccionActiva)
+  );
+
+  // Bloqueo adicional de controles, incluso si algún elemento
+  // vuelve a mostrarse por una actualización de pantalla.
+  const controles = [
+    "tokenTarjeta",
+    "leerNfc",
+    "procesarManual",
+    "sincronizar",
+    "cambiarConfig",
+    "tokenEstacion",
+    "guardarConfig"
+  ];
+
+  controles.forEach(id => {
+    const elemento = $(id);
+    if (elemento) elemento.disabled = Boolean(transaccionActiva);
+  });
+
+  $("panelTickets").classList.toggle(
+    "hidden",
+    !transaccionActiva
+  );
+
+  $("configuracion").classList.toggle(
+    "hidden",
+    Boolean(transaccionActiva) || Boolean(leerConfig())
+  );
+
+  $("operacion").classList.toggle(
+    "hidden",
+    !leerConfig()
+  );
+}
+
+async function mostrarParticipacionActiva() {
+  const op = await obtenerParticipacionActiva();
+
+  aplicarBloqueo(Boolean(op));
+
+  if (!op) {
+    $("grupoActivo").textContent = "";
+    $("tickets").value = "";
+    $("mensaje").textContent = "Esperando una tarjeta.";
+    return;
+  }
+
+  $("panelTickets").classList.remove("hidden");
+
+  $("grupoActivo").textContent =
+    "Grupo identificado: " + (op.equipo_id || "pendiente de confirmar");
+
+  if (op.fase === "esperando_tickets") {
+    $("mensaje").textContent =
+      "Cobro confirmado. El grupo puede jugar. Al finalizar, registra los tickets.";
+
+    if (op.tickets !== null && op.tickets !== undefined) {
+      $("tickets").value = op.tickets;
+    }
+
+  } else if (op.fase === "tickets_pendientes") {
+    $("mensaje").textContent =
+      "Los tickets están guardados en este teléfono y esperan confirmación del servidor.";
+
+    if (op.tickets !== null && op.tickets !== undefined) {
+      $("tickets").value = op.tickets;
+    }
+
+  } else if (op.fase === "requiere_revision") {
+    $("mensaje").textContent =
+      "La operación requiere revisión. La estación permanece bloqueada para evitar otro cobro. " +
+      (op.estado || "");
+
+    if (op.tickets !== null && op.tickets !== undefined) {
+      $("tickets").value = op.tickets;
+    }
+
+  } else {
+    $("mensaje").textContent =
+      "El cobro está pendiente de confirmación. Puedes registrar los tickets; se enviarán cuando se confirme el cobro.";
+
+    if (op.tickets !== null && op.tickets !== undefined) {
+      $("tickets").value = op.tickets;
+    }
+  }
+}
+
+// ======================================
+// 5. AUTENTICACIÓN DE LA ESTACIÓN
 // ======================================
 
 async function autenticarEstacion(token) {
@@ -796,19 +921,32 @@ async function actualizarNombreBase() {
     $("tituloBase").textContent = base.nombre;
 
   } catch (error) {
-    $("tituloBase").textContent = "Base sin verificar";
-    $("mensaje").textContent = "No se pudo verificar la estación: " + error.message;
-    $("configuracion").classList.remove("hidden");
-    $("operacion").classList.add("hidden");
-    localStorage.removeItem(CLAVE_CONFIG);
+    // No borrar la configuración automáticamente: podría ser
+    // una caída temporal de internet con una operación pendiente.
+    $("tituloBase").textContent = config.nombre || "Base configurada";
+
+    const activa = await obtenerParticipacionActiva();
+
+    if (!activa) {
+      $("mensaje").textContent =
+        "No se pudo verificar la estación: " + error.message;
+    }
   }
 }
 
 async function mostrarPantalla() {
   const config = leerConfig();
+  const activa = await obtenerParticipacionActiva();
 
-  $("configuracion").classList.toggle("hidden", !!config);
-  $("operacion").classList.toggle("hidden", !config);
+  $("configuracion").classList.toggle(
+    "hidden",
+    Boolean(config) || Boolean(activa)
+  );
+
+  $("operacion").classList.toggle(
+    "hidden",
+    !config && !activa
+  );
 
   if (config) {
     $("tituloBase").textContent = config.nombre || "Verificando base...";
@@ -821,6 +959,13 @@ async function mostrarPantalla() {
 }
 
 $("guardarConfig").addEventListener("click", async () => {
+  const activa = await obtenerParticipacionActiva();
+
+  if (activa) {
+    alert("Hay una transacción activa. No puedes cambiar la configuración.");
+    return;
+  }
+
   const token = $("tokenEstacion").value.trim();
 
   if (!token) {
@@ -859,6 +1004,13 @@ $("guardarConfig").addEventListener("click", async () => {
 });
 
 $("cambiarConfig").addEventListener("click", async () => {
+  const activa = await obtenerParticipacionActiva();
+
+  if (activa) {
+    alert("No puedes cambiar la configuración mientras haya una transacción activa.");
+    return;
+  }
+
   const cola = await leerOperaciones();
 
   if (cola.some(op => op.fase !== "completada")) {
@@ -873,7 +1025,7 @@ $("cambiarConfig").addEventListener("click", async () => {
 });
 
 // ======================================
-// 5. CONECTIVIDAD
+// 6. CONECTIVIDAD
 // ======================================
 
 function actualizarConexion() {
@@ -888,61 +1040,6 @@ window.addEventListener("online", async () => {
 });
 
 window.addEventListener("offline", actualizarConexion);
-
-// ======================================
-// 6. PARTICIPACIÓN ACTIVA
-// ======================================
-
-async function obtenerParticipacionActiva() {
-  const cola = await leerOperaciones();
-
-  return cola.find(op =>
-    op.fase === "esperando_tickets" ||
-    op.fase === "cobro_pendiente" ||
-    op.fase === "tickets_pendientes" ||
-    op.fase === "requiere_revision"
-  ) || null;
-}
-
-async function mostrarParticipacionActiva() {
-  const op = await obtenerParticipacionActiva();
-
-  if (!op) {
-    $("panelTickets").classList.add("hidden");
-    $("grupoActivo").textContent = "";
-    return;
-  }
-
-  if (op.fase === "esperando_tickets") {
-    $("panelTickets").classList.remove("hidden");
-
-    $("grupoActivo").textContent =
-      "Grupo identificado: " + (op.equipo_id || "confirmado") +
-      ". Cobro confirmado. Movimiento: " + op.movimiento_id;
-
-    $("mensaje").textContent =
-      "Cobro realizado correctamente. Al finalizar el juego, registra los tickets.";
-
-  } else if (op.fase === "tickets_pendientes") {
-    $("panelTickets").classList.add("hidden");
-
-    $("mensaje").textContent =
-      "Los tickets ya están guardados en este teléfono y esperan confirmación del servidor.";
-
-  } else if (op.fase === "requiere_revision") {
-    $("panelTickets").classList.add("hidden");
-
-    $("mensaje").textContent =
-      "Esta operación requiere revisión. No escanees otro grupo en esta estación. " +
-      (op.estado || "");
-
-  } else {
-    $("panelTickets").classList.add("hidden");
-
-    $("mensaje").textContent =
-      "El cobro está pendiente de confirmación. No vuelvas a escanear esta tarjeta.";
-  }
-}
 
 // ======================================
 // 7. COLA DE OPERACIONES
@@ -982,7 +1079,8 @@ async function mostrarCola() {
 
       elemento.append(titulo, estado, fecha);
 
-      // El botón solo aparece en operaciones que requieren revisión.
+      // Solo las operaciones que requieren revisión pueden eliminarse.
+      // No se permite borrar una transacción activa desde esta pantalla.
       if (op.fase === "requiere_revision") {
         const botonEliminar = document.createElement("button");
 
@@ -1003,23 +1101,23 @@ async function mostrarCola() {
   }
 }
 
-// ======================================
-// 7.1. ELIMINAR OPERACIONES CON ERROR
-// ======================================
-
 $("listaPendientes").addEventListener("click", async event => {
   const boton = event.target.closest("[data-eliminar-operacion]");
 
   if (!boton) return;
 
+  const activa = await obtenerParticipacionActiva();
+
+  if (activa) {
+    alert("No se puede eliminar una operación mientras la estación está bloqueada por una transacción.");
+    return;
+  }
+
   const id = boton.dataset.eliminarOperacion;
 
   try {
     const cola = await leerOperaciones();
-
-    const operacion = cola.find(op =>
-      op.solicitud_id === id
-    );
+    const operacion = cola.find(op => op.solicitud_id === id);
 
     if (!operacion) {
       alert("La operación ya no existe.");
@@ -1027,7 +1125,6 @@ $("listaPendientes").addEventListener("click", async event => {
       return;
     }
 
-    // Protección: solo se permite eliminar operaciones con revisión.
     if (operacion.fase !== "requiere_revision") {
       alert("Solo se pueden eliminar operaciones que requieren revisión.");
       return;
@@ -1036,8 +1133,8 @@ $("listaPendientes").addEventListener("click", async event => {
     const confirmado = confirm(
       "¿Deseas eliminar esta operación del teléfono?\n\n" +
       "Esta acción no se puede deshacer.\n\n" +
-      "IMPORTANTE: eliminarla no revierte ningún movimiento que ya se haya registrado en Supabase. " +
-      "Verifica que el cobro no se haya completado antes de continuar."
+      "Eliminarla no revierte ningún movimiento registrado en Supabase. " +
+      "Verifica el estado del cobro antes de continuar."
     );
 
     if (!confirmado) return;
@@ -1048,9 +1145,7 @@ $("listaPendientes").addEventListener("click", async event => {
     await eliminarOperacion(id);
 
     $("mensaje").textContent =
-      "La operación fue eliminada del almacenamiento local. Ya puedes procesar otro grupo.";
-
-    $("tickets").value = "";
+      "La operación fue eliminada del almacenamiento local.";
 
     await mostrarCola();
     await mostrarParticipacionActiva();
@@ -1152,8 +1247,7 @@ async function procesarTarjeta(valor) {
 
     if (activa) {
       $("mensaje").textContent =
-        "Hay una participación anterior pendiente. " +
-        "Registra sus tickets o resuelve la operación antes de iniciar otra.";
+        "Ya existe una participación activa. Registra sus tickets antes de continuar.";
       return;
     }
 
@@ -1177,15 +1271,18 @@ async function procesarTarjeta(valor) {
       creado_en: Date.now()
     };
 
-    // Guardar primero para no perder la solicitud si falla la conexión.
+    // Guardar primero la solicitud para no perderla si falla la conexión.
     await guardarOperacion(operacion);
 
     $("tokenTarjeta").value = "";
-    $("panelTickets").classList.add("hidden");
+
+    // Bloquear inmediatamente todos los controles de nueva participación.
+    aplicarBloqueo(true);
+    $("panelTickets").classList.remove("hidden");
 
     $("mensaje").textContent = navigator.onLine
       ? "Tarjeta leída. Procesando cobro automático..."
-      : "Tarjeta leída sin conexión. El cobro quedó pendiente; se realizará al recuperar internet.";
+      : "Tarjeta leída sin conexión. El cobro quedó pendiente. Puedes registrar los tickets al finalizar.";
 
     await mostrarCola();
 
@@ -1206,6 +1303,7 @@ async function procesarTarjeta(valor) {
     if (operacion) {
       try {
         await guardarErrorOperacion(operacion, error);
+        await mostrarParticipacionActiva();
 
       } catch (errorLocal) {
         $("mensaje").textContent =
@@ -1230,8 +1328,6 @@ async function procesarTarjeta(valor) {
 async function procesarCobro(op) {
   if (!navigator.onLine) return;
 
-  // Recuperar siempre la misma solicitud.
-  // Nunca generar un nuevo solicitud_id al reintentar.
   const { data, error } = await supabaseClient.rpc(
     "cobrar_base",
     {
@@ -1251,14 +1347,25 @@ async function procesarCobro(op) {
 
   op.movimiento_id = data.movimiento_id;
   op.equipo_id = data.equipo_id || op.equipo_id;
-  op.fase = "esperando_tickets";
-  op.estado = "Cobro confirmado. Pendiente de registrar tickets.";
 
-  // Guardar el movimiento confirmado antes de continuar.
+  // Si ya se habían introducido tickets sin conexión,
+  // se conserva el registro de tickets pendiente.
+  if (op.tickets !== null && op.tickets !== undefined) {
+    op.fase = "tickets_pendientes";
+    op.estado = "Cobro confirmado. Registrando tickets pendientes.";
+  } else {
+    op.fase = "esperando_tickets";
+    op.estado = "Cobro confirmado. Pendiente de registrar tickets.";
+  }
+
   await guardarOperacion(op);
 
-  $("mensaje").textContent =
-    "¡Cobro realizado! El grupo ya puede jugar. Registra los tickets al finalizar.";
+  if (op.tickets !== null && op.tickets !== undefined) {
+    await procesarTickets(op);
+  } else {
+    $("mensaje").textContent =
+      "¡Cobro realizado! El grupo ya puede jugar. Registra los tickets al finalizar.";
+  }
 
   await mostrarParticipacionActiva();
   await mostrarCola();
@@ -1269,6 +1376,13 @@ async function procesarCobro(op) {
 // ======================================
 
 $("leerNfc").addEventListener("click", async () => {
+  const activa = await obtenerParticipacionActiva();
+
+  if (activa) {
+    alert("La estación está ocupada. Primero debes registrar los tickets.");
+    return;
+  }
+
   if (!("NDEFReader" in window)) {
     alert(
       "Este navegador no admite lectura NFC web. " +
@@ -1290,6 +1404,10 @@ $("leerNfc").addEventListener("click", async () => {
       "Acerca la tarjeta NFC. El cobro se realizará automáticamente.";
 
     lector.onreading = async event => {
+      if (await obtenerParticipacionActiva()) {
+        return;
+      }
+
       try {
         for (const record of event.message.records) {
           const decoder = new TextDecoder(
@@ -1330,8 +1448,15 @@ $("leerNfc").addEventListener("click", async () => {
   }
 });
 
-// Procesamiento manual como alternativa si NFC no funciona.
+// Procesamiento manual: solo disponible antes de iniciar una transacción.
 $("procesarManual").addEventListener("click", async () => {
+  const activa = await obtenerParticipacionActiva();
+
+  if (activa) {
+    alert("Ya existe una transacción activa.");
+    return;
+  }
+
   await procesarTarjeta($("tokenTarjeta").value);
 });
 
@@ -1340,59 +1465,75 @@ $("procesarManual").addEventListener("click", async () => {
 // ======================================
 
 $("registrarTickets").addEventListener("click", async () => {
-  const ticketsTexto = $("tickets").value.trim();
+  if (registroTicketsEnCurso) return;
 
-  if (ticketsTexto === "") {
-    alert("Introduce la cantidad de tickets obtenidos.");
-    return;
-  }
-
-  const tickets = Number(ticketsTexto);
-
-  if (!Number.isInteger(tickets) || tickets < 0) {
-    alert("Introduce una cantidad válida de tickets.");
-    return;
-  }
-
-  const op = await obtenerParticipacionActiva();
-
-  if (
-    !op ||
-    op.fase !== "esperando_tickets" ||
-    !op.movimiento_id
-  ) {
-    $("mensaje").textContent =
-      "No hay un cobro confirmado al cual asociar los tickets.";
-    return;
-  }
-
+  registroTicketsEnCurso = true;
   $("registrarTickets").disabled = true;
 
   try {
-    op.tickets = tickets;
-    op.fase = "tickets_pendientes";
-    op.estado = "Tickets pendientes de sincronización";
+    const ticketsTexto = $("tickets").value.trim();
 
-    // Guardar los tickets antes de enviarlos al servidor.
+    if (ticketsTexto === "") {
+      alert("Introduce la cantidad de tickets obtenidos.");
+      return;
+    }
+
+    const tickets = Number(ticketsTexto);
+
+    if (!Number.isInteger(tickets) || tickets < 0) {
+      alert("Introduce una cantidad válida de tickets.");
+      return;
+    }
+
+    const op = await obtenerParticipacionActiva();
+
+    if (!op) {
+      $("mensaje").textContent =
+        "No hay una participación activa.";
+      return;
+    }
+
+    // Los tickets se guardan primero en el teléfono.
+    // Si el cobro aún está pendiente, se conservan allí
+    // hasta que Supabase confirme el movimiento.
+    op.tickets = tickets;
+
+    if (op.movimiento_id) {
+      op.fase = "tickets_pendientes";
+      op.estado = "Tickets pendientes de sincronización";
+    } else if (op.fase !== "requiere_revision") {
+      op.fase = "cobro_pendiente";
+      op.estado = "Tickets guardados. Esperando confirmación del cobro.";
+    }
+
     await guardarOperacion(op);
 
-    $("tickets").value = "";
+    $("mensaje").textContent =
+      "Tickets guardados en este teléfono.";
 
-    await mostrarParticipacionActiva();
     await mostrarCola();
+    await mostrarParticipacionActiva();
 
     if (navigator.onLine) {
       try {
-        await procesarTickets(op);
+        if (!op.movimiento_id && op.fase !== "requiere_revision") {
+          await procesarCobro(op);
+        } else if (op.movimiento_id) {
+          await procesarTickets(op);
+        } else {
+          $("mensaje").textContent =
+            "Los tickets están guardados, pero el cobro requiere revisión antes de poder registrarlos.";
+        }
 
       } catch (error) {
         await guardarErrorOperacion(op, error);
-        $("mensaje").textContent = op.estado;
+        $("mensaje").textContent =
+          "Los tickets siguen guardados. " + op.estado;
       }
 
     } else {
       $("mensaje").textContent =
-        "Los tickets quedaron guardados. Se registrarán cuando vuelva la conexión.";
+        "Los tickets quedaron guardados en este teléfono. Cuando vuelva internet, se confirmará el cobro y se registrarán los tickets.";
     }
 
     await mostrarCola();
@@ -1404,6 +1545,7 @@ $("registrarTickets").addEventListener("click", async () => {
       error.message;
 
   } finally {
+    registroTicketsEnCurso = false;
     $("registrarTickets").disabled = false;
   }
 });
@@ -1446,6 +1588,8 @@ async function procesarTickets(op) {
 
   await eliminarOperacion(op.solicitud_id);
 
+  $("tickets").value = "";
+
   $("mensaje").textContent =
     "Tickets registrados correctamente. " +
     "Tickets otorgados: " + data.tickets_registrados +
@@ -1464,7 +1608,10 @@ async function sincronizar() {
   if (!leerConfig()) return;
 
   sincronizacionEnCurso = true;
-  $("sincronizar").disabled = true;
+
+  if (!$("sincronizar").classList.contains("hidden")) {
+    $("sincronizar").disabled = true;
+  }
 
   try {
     const cola = await leerOperaciones();
@@ -1472,7 +1619,7 @@ async function sincronizar() {
     for (const op of cola) {
       if (!navigator.onLine) break;
 
-      // Las operaciones que requieren revisión nunca se reintentan solas.
+      // Las operaciones que requieren revisión no se reintentan solas.
       if (op.fase === "requiere_revision") continue;
 
       try {
@@ -1484,19 +1631,8 @@ async function sincronizar() {
         }
 
       } catch (error) {
-        try {
-          await guardarErrorOperacion(op, error);
-
-        } catch (errorLocal) {
-          $("mensaje").textContent =
-            "No se pudo actualizar la operación local: " +
-            errorLocal.message;
-          break;
-        }
-
+        await guardarErrorOperacion(op, error);
         $("mensaje").textContent = op.estado;
-
-        // Detener el ciclo para no continuar con operaciones posteriores.
         break;
       }
     }
@@ -1514,7 +1650,16 @@ async function sincronizar() {
   }
 }
 
-$("sincronizar").addEventListener("click", sincronizar);
+$("sincronizar").addEventListener("click", async () => {
+  const activa = await obtenerParticipacionActiva();
+
+  if (activa) {
+    alert("La estación está ocupada. La sincronización se realizará automáticamente al recuperar internet.");
+    return;
+  }
+
+  await sincronizar();
+});
 
 // ======================================
 // 16. INICIO
@@ -1527,13 +1672,11 @@ async function iniciarAplicacion() {
   const tokenTarjeta = parametros.get("card");
 
   // En iPhone, el enlace NFC abre esta página con ?card=TOKEN.
-  // La apertura del enlace activa el cobro automático.
   if (
     tokenTarjeta &&
     leerConfig() &&
     !$("operacion").classList.contains("hidden")
   ) {
-    // Quitar el token de la barra de direcciones después de leerlo.
     window.history.replaceState(
       {},
       document.title,
@@ -1556,9 +1699,13 @@ async function iniciarAplicacion() {
     }
   }
 
+  // La sincronización inicial se hace automáticamente.
+  // Si existe una transacción activa, la pantalla permanece bloqueada.
   if (navigator.onLine) {
     await sincronizar();
   }
+
+  await mostrarParticipacionActiva();
 }
 
 iniciarAplicacion();
