@@ -467,10 +467,8 @@ async function actualizarNombreBase() {
     localStorage.removeItem(CLAVE_CONFIG);
   }
 }
-async function mostrarPantalla() {
-  // Mostrar conectividad inmediatamente.
-  actualizarConexion();
 
+async function mostrarPantalla() {
   const config = leerConfig();
 
   $("configuracion").classList.toggle("hidden", !!config);
@@ -478,13 +476,10 @@ async function mostrarPantalla() {
 
   if (config) {
     $("tituloBase").textContent = config.nombre || "Verificando base...";
-
-    // No bloquear el inicio de la aplicación esperando a Supabase.
-    actualizarNombreBase().catch(error => {
-      console.error("Error verificando la estación:", error);
-    });
+    await actualizarNombreBase();
   }
 
+  actualizarConexion();
   await mostrarCola();
   await mostrarParticipacionActiva();
 }
@@ -1130,22 +1125,20 @@ async function iniciarAplicacion() {
     await procesarTarjeta(tokenTarjeta);
   }
 
-if ("serviceWorker" in navigator) {
-  try {
-    const registro = await navigator.serviceWorker.register(
-      "./sw.js",
-      {
-        updateViaCache: "none"
-      }
-    );
+  if ("serviceWorker" in navigator) {
+    try {
+      await navigator.serviceWorker.register("./sw.js");
+      console.log("Modo sin conexión preparado.");
+    } catch (error) {
+      console.error(
+        "Error al activar el modo sin conexión:",
+        error
+      );
+    }
+  }
 
-    await registro.update();
-
-    console.log("Service Worker registrado.");
-    console.log("Estado:", registro.active ? "Activo" : "Instalándose");
-
-  } catch (error) {
-    console.error("Error con el Service Worker:", error);
+  if (navigator.onLine) {
+    await sincronizar();
   }
 }
 
