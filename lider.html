@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,13 +9,16 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+
     * { box-sizing:border-box; }
+
     :root {
       color-scheme:dark;
       --green:#456b55;
       --yellow:#c5ad68;
       --muted:#b7c0b8;
     }
+
     body {
       margin:0;
       min-height:100vh;
@@ -30,6 +32,7 @@
         linear-gradient(135deg,#0c1510 0%,#17231b 48%,#20271e 100%);
       background-attachment:fixed;
     }
+
     body:before {
       content:"";
       position:fixed;
@@ -41,6 +44,7 @@
         radial-gradient(ellipse at 83% 18%,transparent 0 95px,#8da18b18 96px 98px,transparent 99px 145px),
         linear-gradient(125deg,transparent 0 35%,#d3c58a08 35.2% 35.5%,transparent 35.7% 68%,#8da18b0b 68.2% 68.5%,transparent 68.7%);
     }
+
     body:after {
       content:"";
       position:fixed;
@@ -52,148 +56,454 @@
         conic-gradient(from 210deg at 75% 55%,transparent 0 18%,#c5ad6808 19%,transparent 21% 45%,#9eb49a0a 46%,transparent 49%);
       mix-blend-mode:screen;
     }
-    main { position:relative;z-index:1;width:min(100%,560px);margin:0 auto; }
-    .topline { display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px; }
-    .brand { display:flex;align-items:center;gap:11px; }
-    .brand-name { font-family:'Oswald',sans-serif;font-size:22px;line-height:1;font-weight:600;letter-spacing:1.5px; }
-    .brand-name span { color:var(--yellow); }
-    .station-tag {
-      border:1px solid #8b947f;border-radius:7px;padding:8px 12px;
-      color:#e0e5dc;font-size:11px;font-weight:700;letter-spacing:1px;
-      text-transform:uppercase;background:linear-gradient(145deg,#29372c,#1a251e);
+
+    main {
+      position:relative;
+      z-index:1;
+      width:min(100%,560px);
+      margin:0 auto;
     }
+
+    .topline {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:11px;
+    }
+
+    .brand-name {
+      font-family:'Oswald',sans-serif;
+      font-size:22px;
+      line-height:1;
+      font-weight:600;
+      letter-spacing:1.5px;
+    }
+
+    .brand-name span { color:var(--yellow); }
+
+    .station-tag {
+      border:1px solid #8b947f;
+      border-radius:7px;
+      padding:8px 12px;
+      color:#e0e5dc;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      background:linear-gradient(145deg,#29372c,#1a251e);
+    }
+
     .hero {
-      position:relative;overflow:hidden;isolation:isolate;padding:23px;
-      border:1px solid #718574;border-radius:15px;margin-bottom:15px;
-      background:radial-gradient(ellipse at 88% 10%,#9b95632b,transparent 45%),
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      padding:23px;
+      border:1px solid #718574;
+      border-radius:15px;
+      margin-bottom:15px;
+      background:
+        radial-gradient(ellipse at 88% 10%,#9b95632b,transparent 45%),
         linear-gradient(135deg,#354f3d 0%,#263c2e 48%,#19291f 100%);
       box-shadow:inset 0 2px 3px #ffffff38,inset 0 -14px 25px #020b08aa,0 18px 35px #0008;
     }
+
     .hero:after {
-      content:"";position:absolute;width:220px;height:95px;right:-55px;bottom:-45px;
-      border-radius:50%;transform:rotate(-20deg);
+      content:"";
+      position:absolute;
+      width:220px;
+      height:95px;
+      right:-55px;
+      bottom:-45px;
+      border-radius:50%;
+      transform:rotate(-20deg);
       background:linear-gradient(90deg,#c5ad6844,#c5ad6800);
     }
-    .hero-kicker { color:#d5ddd3;font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase; }
-    h1 { margin:5px 0 4px;font-family:'Oswald',sans-serif;font-size:clamp(32px,7vw,42px);line-height:.98;letter-spacing:.5px;text-transform:uppercase; }
+
+    .hero-kicker {
+      color:#d5ddd3;
+      font-size:12px;
+      letter-spacing:3px;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+
+    h1 {
+      margin:5px 0 4px;
+      font-family:'Oswald',sans-serif;
+      font-size:clamp(32px,7vw,42px);
+      line-height:.98;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+    }
+
     h1 span { color:#d2bd7d; }
-    .hero p { margin:8px 0 0;color:#d1d9d0;font-size:14px;line-height:1.6; }
-    .dashboard { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px; }
+
+    .hero p {
+      margin:8px 0 0;
+      color:#d1d9d0;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .dashboard {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
     .metric {
-      position:relative;overflow:hidden;isolation:isolate;min-height:91px;padding:16px;
-      border-radius:16px;border:1px solid #647466;
-      background:radial-gradient(ellipse at 18% 0%,#a8c0a51c,transparent 48%),
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      min-height:91px;
+      padding:16px;
+      border-radius:16px;
+      border:1px solid #647466;
+      background:
+        radial-gradient(ellipse at 18% 0%,#a8c0a51c,transparent 48%),
         linear-gradient(145deg,#354b3a 0%,#26382c 42%,#17251c 100%);
       box-shadow:inset 0 2px 2px #ffffff2b,inset 0 -12px 20px #0009,0 4px 0 #111b14,0 13px 24px #0008;
     }
+
     .metric:before {
-      content:"";position:absolute;z-index:-1;width:135px;height:135px;right:-45px;top:-76px;
-      border-radius:50%;border:1px solid #d6dfc51c;
+      content:"";
+      position:absolute;
+      z-index:-1;
+      width:135px;
+      height:135px;
+      right:-45px;
+      top:-76px;
+      border-radius:50%;
+      border:1px solid #d6dfc51c;
       box-shadow:0 0 0 12px #d6dfc508,0 0 0 26px #d6dfc506,0 0 28px #0005;
     }
+
     .metric:after {
-      content:"";position:absolute;z-index:-1;left:-24px;bottom:-43px;width:145px;height:65px;
-      border-radius:50%;transform:rotate(-18deg);background:linear-gradient(90deg,#8ba58a24,transparent);
+      content:"";
+      position:absolute;
+      z-index:-1;
+      left:-24px;
+      bottom:-43px;
+      width:145px;
+      height:65px;
+      border-radius:50%;
+      transform:rotate(-18deg);
+      background:linear-gradient(90deg,#8ba58a24,transparent);
     }
+
     .metric.pending {
       border-color:#8c8058;
-      background:radial-gradient(ellipse at 18% 0%,#e3cd8526,transparent 48%),
+      background:
+        radial-gradient(ellipse at 18% 0%,#e3cd8526,transparent 48%),
         linear-gradient(145deg,#575039 0%,#3d3929 48%,#29271e 100%);
       box-shadow:inset 0 2px 2px #fff3,inset 0 -12px 20px #0009,0 4px 0 #211f17,0 13px 24px #0008;
     }
-    .metric-label { color:#b9c9bb;font-size:12px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700; }
+
+    .metric-label {
+      color:#b9c9bb;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:1.5px;
+      font-weight:700;
+    }
+
     .metric.pending .metric-label { color:#f3df9a; }
-    .metric-value { display:block;margin-top:2px;font-family:'Oswald',sans-serif;font-size:32px;line-height:1;font-weight:700;color:#f5f8f2; }
+
+    .metric-value {
+      display:block;
+      margin-top:2px;
+      font-family:'Oswald',sans-serif;
+      font-size:32px;
+      line-height:1;
+      font-weight:700;
+      color:#f5f8f2;
+    }
+
     .metric.pending .metric-value { color:#d4bf82; }
+
     section {
-      position:relative;isolation:isolate;overflow:hidden;padding:21px;margin-bottom:17px;
-      border-radius:20px;border:1px solid #647768;
-      background:radial-gradient(ellipse at 8% 0%,#91aa8b20,transparent 42%),
+      position:relative;
+      isolation:isolate;
+      overflow:hidden;
+      padding:21px;
+      margin-bottom:17px;
+      border-radius:20px;
+      border:1px solid #647768;
+      background:
+        radial-gradient(ellipse at 8% 0%,#91aa8b20,transparent 42%),
         radial-gradient(ellipse at 100% 100%,#8b80501a,transparent 40%),
         linear-gradient(145deg,#2d4032 0%,#223328 45%,#17241c 100%);
       box-shadow:inset 0 2px 3px #ffffff20,inset 0 -15px 24px #050d08a8,0 4px 0 #111b14,0 15px 30px #0008;
     }
+
     section:before {
-      content:"";position:absolute;z-index:-1;width:220px;height:220px;right:-112px;top:-145px;
-      border-radius:50%;border:1px solid #d8e2d31c;
+      content:"";
+      position:absolute;
+      z-index:-1;
+      width:220px;
+      height:220px;
+      right:-112px;
+      top:-145px;
+      border-radius:50%;
+      border:1px solid #d8e2d31c;
       box-shadow:0 0 0 15px #d8e2d308,0 0 0 32px #d8e2d306,0 0 0 52px #d8e2d304;
       pointer-events:none;
     }
+
     section:after {
-      content:"";position:absolute;z-index:-1;left:-60px;bottom:-75px;width:220px;height:115px;
-      border-radius:50%;transform:rotate(-17deg);background:linear-gradient(90deg,#8ca58a1b,transparent);
+      content:"";
+      position:absolute;
+      z-index:-1;
+      left:-60px;
+      bottom:-75px;
+      width:220px;
+      height:115px;
+      border-radius:50%;
+      transform:rotate(-17deg);
+      background:linear-gradient(90deg,#8ca58a1b,transparent);
       pointer-events:none;
     }
-    h2 { margin:0 0 5px;font-family:'Oswald',sans-serif;font-size:23px;line-height:1.1;letter-spacing:.5px;text-transform:uppercase; }
-    .section-intro { margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.5; }
-    .step-label { display:flex;align-items:center;gap:8px;margin:17px 0 7px;color:#e6eee7;font-size:15px;font-weight:700; }
-    .step-number {
-      display:inline-grid;place-items:center;width:23px;height:23px;border-radius:7px;
-      background:linear-gradient(145deg,#f9df78,#c49b28);color:#172016;font-size:13px;font-weight:800;
+
+    h2 {
+      margin:0 0 5px;
+      font-family:'Oswald',sans-serif;
+      font-size:23px;
+      line-height:1.1;
+      letter-spacing:.5px;
+      text-transform:uppercase;
     }
+
+    .section-intro {
+      margin:0 0 16px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .step-label {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:17px 0 7px;
+      color:#e6eee7;
+      font-size:15px;
+      font-weight:700;
+    }
+
+    .step-number {
+      display:inline-grid;
+      place-items:center;
+      width:23px;
+      height:23px;
+      border-radius:7px;
+      background:linear-gradient(145deg,#f9df78,#c49b28);
+      color:#172016;
+      font-size:13px;
+      font-weight:800;
+    }
+
     input {
-      width:100%;min-height:48px;padding:12px 14px;border:1px solid #506957;border-radius:11px;
-      outline:none;background:#09150f;color:#f5f8f4;font:600 14px 'Manrope',sans-serif;
+      width:100%;
+      min-height:48px;
+      padding:12px 14px;
+      border:1px solid #506957;
+      border-radius:11px;
+      outline:none;
+      background:#09150f;
+      color:#f5f8f4;
+      font:600 14px 'Manrope',sans-serif;
       box-shadow:inset 0 3px 8px #0007;
     }
+
     input::placeholder { color:#75877a; }
-    input:focus { border-color:#c5ad68;box-shadow:0 0 0 3px #c5ad6825,inset 0 3px 8px #0007; }
-    button {
-      width:100%;min-height:49px;padding:13px 16px;margin-top:12px;border:1px solid #d4c18b;border-radius:9px;
-      color:#20251d;background:linear-gradient(180deg,#d7c58f 0%,#bba66b 58%,#96814c 100%);
-      box-shadow:inset 0 2px 2px #fff8,0 3px 0 #655b3d,0 8px 15px #0005;
-      font:800 13px 'Manrope',sans-serif;letter-spacing:.4px;cursor:pointer;transition:transform .15s,filter .15s;
+
+    input:focus {
+      border-color:#c5ad68;
+      box-shadow:0 0 0 3px #c5ad6825,inset 0 3px 8px #0007;
     }
-    button:active { transform:translateY(3px);box-shadow:inset 0 2px 2px #fff8,0 1px 0 #655b3d,0 4px 9px #0006; }
+
+    button {
+      width:100%;
+      min-height:49px;
+      padding:13px 16px;
+      margin-top:12px;
+      border:1px solid #d4c18b;
+      border-radius:9px;
+      color:#20251d;
+      background:linear-gradient(180deg,#d7c58f 0%,#bba66b 58%,#96814c 100%);
+      box-shadow:inset 0 2px 2px #fff8,0 3px 0 #655b3d,0 8px 15px #0005;
+      font:800 13px 'Manrope',sans-serif;
+      letter-spacing:.4px;
+      cursor:pointer;
+      transition:transform .15s,filter .15s;
+    }
+
+    button:active {
+      transform:translateY(3px);
+      box-shadow:inset 0 2px 2px #fff8,0 1px 0 #655b3d,0 4px 9px #0006;
+    }
+
     button.secondary {
-      color:#e9f5eb;border-color:#718675;background:linear-gradient(180deg,#58745d,#405d49 65%,#2c4435);
+      color:#e9f5eb;
+      border-color:#718675;
+      background:linear-gradient(180deg,#58745d,#405d49 65%,#2c4435);
       box-shadow:inset 0 2px 2px #ffffff25,0 3px 0 #203729,0 8px 15px #0006;
     }
-    button:disabled { opacity:.5;cursor:not-allowed;transform:none; }
-    .status {
-      padding:12px 14px;border:1px solid #586c5b;border-radius:9px;
-      background:linear-gradient(145deg,#17251b,#101a14);color:#d8e6da;
-      margin:13px 0;font-size:14px;line-height:1.5;overflow-wrap:anywhere;
+
+    button:disabled {
+      opacity:.5;
+      cursor:not-allowed;
+      transform:none;
     }
+
+    .status {
+      padding:12px 14px;
+      border:1px solid #586c5b;
+      border-radius:9px;
+      background:linear-gradient(145deg,#17251b,#101a14);
+      color:#d8e6da;
+      margin:13px 0;
+      font-size:14px;
+      line-height:1.5;
+      overflow-wrap:anywhere;
+    }
+
     #conexion { margin:0; }
-    .small { color:#9eafa2;font-size:13px;line-height:1.4; }
+
+    .small {
+      color:#9eafa2;
+      font-size:13px;
+      line-height:1.4;
+    }
+
     .hidden { display:none !important; }
-    .count { font-weight:800;color:#d4bf82; }
+
+    .count {
+      font-weight:800;
+      color:#d4bf82;
+    }
+
     .operation {
-      position:relative;overflow:hidden;padding:13px 14px;margin:10px 0;border-radius:12px;
+      position:relative;
+      overflow:hidden;
+      padding:13px 14px;
+      margin:10px 0;
+      border-radius:12px;
       border:1px solid #536b57;
-      background:radial-gradient(ellipse at 100% 0%,#a6b99a18,transparent 48%),
+      background:
+        radial-gradient(ellipse at 100% 0%,#a6b99a18,transparent 48%),
         linear-gradient(145deg,#354a38,#25372a 58%,#19261e);
       box-shadow:inset 0 1px 2px #ffffff20,inset 0 -7px 13px #0007,0 3px 0 #142017,0 8px 15px #0006;
-      color:#dce8de;font-size:13px;overflow-wrap:anywhere;
+      color:#dce8de;
+      font-size:13px;
+      overflow-wrap:anywhere;
     }
-    .operation p { margin:5px 0;color:#cbbb83; }
+
+    .operation p {
+      margin:5px 0;
+      color:#cbbb83;
+    }
+
+    /* Botón para eliminar operaciones que requieren revisión */
     .operation .delete-operation {
-      width:auto;min-height:36px;margin-top:9px;padding:8px 12px;color:#fff1e9;
-      border:1px solid #a86e5e;border-radius:9px;background:linear-gradient(180deg,#874b3d,#63352d);
-      box-shadow:none;font-size:11px;
+      width:auto;
+      min-height:36px;
+      margin-top:9px;
+      padding:8px 12px;
+      color:#fff1e9;
+      border:1px solid #a86e5e;
+      border-radius:9px;
+      background:linear-gradient(180deg,#874b3d,#63352d);
+      box-shadow:none;
+      font-size:11px;
     }
-    .queue-head { display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px; }
+
+    .operation .delete-operation:active {
+      transform:translateY(2px);
+      box-shadow:none;
+    }
+
+    .queue-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
     .queue-head h2 { margin:0; }
-    .queue-icon { color:#d4bf82;font-size:23px; }
-    .security-note { margin:13px 0 0;padding-top:12px;border-top:1px solid #304438; }
+
+    .queue-icon {
+      color:#d4bf82;
+      font-size:23px;
+    }
+
+    .security-note {
+      margin:13px 0 0;
+      padding-top:12px;
+      border-top:1px solid #304438;
+    }
+
     .charge-notice {
-      position:relative;overflow:hidden;margin:14px 0 17px;padding:14px 15px 14px 17px;
-      border:1px solid #bda96d;border-left:4px solid #d4bf82;border-radius:12px;color:#f1e7c8;
-      background:radial-gradient(ellipse at 100% 0%,#d9c17c26,transparent 55%),
+      position:relative;
+      overflow:hidden;
+      margin:14px 0 17px;
+      padding:14px 15px 14px 17px;
+      border:1px solid #bda96d;
+      border-left:4px solid #d4bf82;
+      border-radius:12px;
+      color:#f1e7c8;
+      background:
+        radial-gradient(ellipse at 100% 0%,#d9c17c26,transparent 55%),
         linear-gradient(145deg,#51482f,#383323 58%,#28271f);
       box-shadow:inset 0 2px 2px #ffffff20,inset 0 -8px 14px #0008,0 4px 0 #211f17,0 10px 20px #0007;
-      font-size:13px;line-height:1.55;
+      font-size:13px;
+      line-height:1.55;
     }
-    .charge-notice strong { display:block;margin-bottom:4px;color:#f3d98c;font-size:12px;letter-spacing:1px;text-transform:uppercase; }
-    .charge-notice span { color:#fff5d9;font-weight:800; }
-    .footer { padding:8px 0 0;text-align:center;color:#718477;font-size:11px;letter-spacing:2px;text-transform:uppercase; }
-    @media(max-width:420px) { body{padding:18px 12px 30px}.hero{padding:20px}section{padding:17px}.station-tag{font-size:10px} }
+
+    .charge-notice strong {
+      display:block;
+      margin-bottom:4px;
+      color:#f3d98c;
+      font-size:12px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+
+    .charge-notice span {
+      color:#fff5d9;
+      font-weight:800;
+    }
+
+    .footer {
+      padding:8px 0 0;
+      text-align:center;
+      color:#718477;
+      font-size:11px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+
+    @media(max-width:420px) {
+      body { padding:18px 12px 30px; }
+      .hero { padding:20px; }
+      section { padding:17px; }
+      .station-tag { font-size:10px; }
+    }
   </style>
 </head>
 
 <body>
 <main>
+
   <div class="topline">
     <div class="brand">
       <div class="brand-name">BASES <span>DE TICKETS</span></div>
@@ -212,6 +522,7 @@
       <div class="metric-label">Conectividad</div>
       <div id="conexion" class="metric-value" style="font-size:19px;line-height:1.3">Comprobando...</div>
     </div>
+
     <div class="metric pending">
       <div class="metric-label">Operaciones pendientes</div>
       <span id="pendientes" class="metric-value count">0</span>
@@ -221,10 +532,19 @@
   <section id="configuracion">
     <h2>Configurar estación</h2>
     <p class="section-intro">Introduce el código secreto para identificar y autorizar esta base.</p>
-    <label class="step-label" for="tokenEstacion"><span class="step-number">1</span>Código secreto de esta estación</label>
+
+    <label class="step-label" for="tokenEstacion">
+      <span class="step-number">1</span>
+      Código secreto de esta estación
+    </label>
+
     <input id="tokenEstacion" type="password" autocomplete="off" placeholder="Introduce el código secreto">
+
     <button id="guardarConfig">Autenticar base</button>
-    <p class="small security-note">El nombre de la base se obtiene automáticamente. La credencial se guarda en este teléfono. No la compartas.</p>
+
+    <p class="small security-note">
+      El nombre de la base se obtiene automáticamente. La credencial se guarda en este teléfono. No la compartas.
+    </p>
   </section>
 
   <section id="operacion" class="hidden">
@@ -234,11 +554,16 @@
 
     <div class="charge-notice">
       <strong>Funcionamiento automático</strong>
-      Al escanear una tarjeta válida, <span>se descuenta inmediatamente el costo de esta base</span>.
+      Al escanear una tarjeta válida,
+      <span>se descuenta inmediatamente el costo de esta base</span>.
       Los tickets se registran después de terminar el juego.
     </div>
 
-    <label class="step-label" for="tokenTarjeta"><span class="step-number">1</span>Identificar grupo</label>
+    <label class="step-label" for="tokenTarjeta">
+      <span class="step-number">1</span>
+      Identificar grupo
+    </label>
+
     <input id="tokenTarjeta" placeholder="Escanea la tarjeta o pega su token" autocomplete="off">
 
     <button id="leerNfc" class="secondary">◉ &nbsp; Activar lectura NFC</button>
@@ -247,9 +572,15 @@
     <div id="mensaje" class="status">Esperando una tarjeta.</div>
 
     <div id="panelTickets" class="hidden">
-      <label class="step-label" for="tickets"><span class="step-number">2</span>Tickets obtenidos por el grupo</label>
+      <label class="step-label" for="tickets">
+        <span class="step-number">2</span>
+        Tickets obtenidos por el grupo
+      </label>
+
       <p id="grupoActivo" class="small"></p>
+
       <input id="tickets" type="number" min="0" step="1" placeholder="Ej. 25">
+
       <button id="registrarTickets">Registrar tickets</button>
     </div>
 
@@ -262,11 +593,16 @@
       <h2>Estado de operaciones</h2>
       <span class="queue-icon">◷</span>
     </div>
-    <p class="section-intro">Consulta los cobros pendientes y las participaciones que esperan el registro de tickets.</p>
+
+    <p class="section-intro">
+      Consulta los cobros pendientes y las participaciones que esperan el registro de tickets.
+    </p>
+
     <div id="listaPendientes" class="small">No hay operaciones pendientes.</div>
   </section>
 
   <div class="footer">TU RAÍZ ES NUESTRA RAÍZ</div>
+
 </main>
 
 <script>
@@ -579,6 +915,7 @@ async function mostrarParticipacionActiva() {
 
   if (op.fase === "esperando_tickets") {
     $("panelTickets").classList.remove("hidden");
+
     $("grupoActivo").textContent =
       "Grupo identificado: " + (op.equipo_id || "confirmado") +
       ". Cobro confirmado. Movimiento: " + op.movimiento_id;
@@ -588,17 +925,20 @@ async function mostrarParticipacionActiva() {
 
   } else if (op.fase === "tickets_pendientes") {
     $("panelTickets").classList.add("hidden");
+
     $("mensaje").textContent =
       "Los tickets ya están guardados en este teléfono y esperan confirmación del servidor.";
 
   } else if (op.fase === "requiere_revision") {
     $("panelTickets").classList.add("hidden");
+
     $("mensaje").textContent =
       "Esta operación requiere revisión. No escanees otro grupo en esta estación. " +
       (op.estado || "");
 
   } else {
     $("panelTickets").classList.add("hidden");
+
     $("mensaje").textContent =
       "El cobro está pendiente de confirmación. No vuelvas a escanear esta tarjeta.";
   }
@@ -642,6 +982,18 @@ async function mostrarCola() {
 
       elemento.append(titulo, estado, fecha);
 
+      // El botón solo aparece en operaciones que requieren revisión.
+      if (op.fase === "requiere_revision") {
+        const botonEliminar = document.createElement("button");
+
+        botonEliminar.type = "button";
+        botonEliminar.className = "delete-operation";
+        botonEliminar.textContent = "Eliminar operación";
+        botonEliminar.dataset.eliminarOperacion = op.solicitud_id;
+
+        elemento.appendChild(botonEliminar);
+      }
+
       lista.appendChild(elemento);
     });
 
@@ -650,6 +1002,64 @@ async function mostrarCola() {
       "No se pudo consultar el almacenamiento local.";
   }
 }
+
+// ======================================
+// 7.1. ELIMINAR OPERACIONES CON ERROR
+// ======================================
+
+$("listaPendientes").addEventListener("click", async event => {
+  const boton = event.target.closest("[data-eliminar-operacion]");
+
+  if (!boton) return;
+
+  const id = boton.dataset.eliminarOperacion;
+
+  try {
+    const cola = await leerOperaciones();
+
+    const operacion = cola.find(op =>
+      op.solicitud_id === id
+    );
+
+    if (!operacion) {
+      alert("La operación ya no existe.");
+      await mostrarCola();
+      return;
+    }
+
+    // Protección: solo se permite eliminar operaciones con revisión.
+    if (operacion.fase !== "requiere_revision") {
+      alert("Solo se pueden eliminar operaciones que requieren revisión.");
+      return;
+    }
+
+    const confirmado = confirm(
+      "¿Deseas eliminar esta operación del teléfono?\n\n" +
+      "Esta acción no se puede deshacer.\n\n" +
+      "IMPORTANTE: eliminarla no revierte ningún movimiento que ya se haya registrado en Supabase. " +
+      "Verifica que el cobro no se haya completado antes de continuar."
+    );
+
+    if (!confirmado) return;
+
+    boton.disabled = true;
+    boton.textContent = "Eliminando...";
+
+    await eliminarOperacion(id);
+
+    $("mensaje").textContent =
+      "La operación fue eliminada del almacenamiento local. Ya puedes procesar otro grupo.";
+
+    $("tickets").value = "";
+
+    await mostrarCola();
+    await mostrarParticipacionActiva();
+
+  } catch (error) {
+    alert("No se pudo eliminar la operación: " + error.message);
+    await mostrarCola();
+  }
+});
 
 // ======================================
 // 8. PROTECCIÓN CONTRA DOBLE ESCANEO
@@ -702,6 +1112,7 @@ async function guardarErrorOperacion(op, error) {
   if (esErrorTemporal(error)) {
     op.estado = "Pendiente de sincronización: " +
       (error.message || "Error temporal de conexión");
+
   } else {
     op.fase = "requiere_revision";
     op.estado = "Requiere revisión: " +
@@ -781,6 +1192,7 @@ async function procesarTarjeta(valor) {
     if (navigator.onLine) {
       try {
         await procesarCobro(operacion);
+
       } catch (error) {
         await guardarErrorOperacion(operacion, error);
         $("mensaje").textContent = operacion.estado;
@@ -794,11 +1206,13 @@ async function procesarTarjeta(valor) {
     if (operacion) {
       try {
         await guardarErrorOperacion(operacion, error);
+
       } catch (errorLocal) {
         $("mensaje").textContent =
           "No se pudo guardar el estado de la operación: " +
           errorLocal.message;
       }
+
     } else {
       $("mensaje").textContent =
         "No se pudo procesar la tarjeta: " + error.message;
@@ -963,16 +1377,19 @@ $("registrarTickets").addEventListener("click", async () => {
     await guardarOperacion(op);
 
     $("tickets").value = "";
+
     await mostrarParticipacionActiva();
     await mostrarCola();
 
     if (navigator.onLine) {
       try {
         await procesarTickets(op);
+
       } catch (error) {
         await guardarErrorOperacion(op, error);
         $("mensaje").textContent = op.estado;
       }
+
     } else {
       $("mensaje").textContent =
         "Los tickets quedaron guardados. Se registrarán cuando vuelva la conexión.";
@@ -1069,6 +1486,7 @@ async function sincronizar() {
       } catch (error) {
         try {
           await guardarErrorOperacion(op, error);
+
         } catch (errorLocal) {
           $("mensaje").textContent =
             "No se pudo actualizar la operación local: " +
@@ -1129,6 +1547,7 @@ async function iniciarAplicacion() {
     try {
       await navigator.serviceWorker.register("./sw.js");
       console.log("Modo sin conexión preparado.");
+
     } catch (error) {
       console.error(
         "Error al activar el modo sin conexión:",
