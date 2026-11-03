@@ -702,7 +702,31 @@ $("sincronizar").addEventListener("click", sincronizar);
 
 async function iniciarAplicacion() {
 
-  mostrarPantalla();
+  // Primero verificar la autenticación de la estación.
+  await mostrarPantalla();
+
+  // Leer el token de la tarjeta NFC enviado en el enlace.
+  const parametros = new URLSearchParams(window.location.search);
+  const tokenTarjeta = parametros.get("card");
+
+  // Solo cargar la tarjeta si la estación está autenticada.
+  if (
+    tokenTarjeta &&
+    leerConfig() &&
+    !$("operacion").classList.contains("hidden")
+  ) {
+    $("tokenTarjeta").value = tokenTarjeta;
+
+    $("mensaje").textContent =
+      "Grupo identificado mediante NFC. Introduce los tickets obtenidos y pulsa «Registrar cobro y tickets» para confirmar el descuento.";
+
+    // Quitar el token de la barra de direcciones.
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+  }
 
   if ("serviceWorker" in navigator) {
     try {
@@ -722,7 +746,6 @@ async function iniciarAplicacion() {
 }
 
 iniciarAplicacion();
-
 </script>
 </body>
 </html>
