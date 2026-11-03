@@ -594,8 +594,8 @@ const supabaseClient = window.supabase.createClient(
 );
 
 async function iniciar() {
-  const token = new URLSearchParams(window.location.search)
-    .get("card");
+  const parametros = new URLSearchParams(window.location.search);
+  const token = parametros.get("card");
 
   if (!token) {
     document.getElementById("estado").textContent =
@@ -603,6 +603,27 @@ async function iniciar() {
     return;
   }
 
+  // Comprobar si este navegador tiene una sesión de líder guardada.
+  let configLider = null;
+
+  try {
+    configLider = JSON.parse(
+      localStorage.getItem("arcade_lider_config")
+    );
+  } catch (error) {
+    console.warn("No se pudo leer la configuración del líder.", error);
+  }
+
+  // Si hay una sesión guardada, abrir la página del líder.
+  // Allí se debe validar nuevamente la autorización de la estación.
+  if (configLider && configLider.token) {
+    const destino = new URL("lider.html", window.location.href);
+    destino.searchParams.set("card", token);
+    window.location.replace(destino.toString());
+    return;
+  }
+
+  // Si no hay sesión de líder, realizar la consulta pública.
   document.getElementById("estado").textContent =
     "Consultando grupo...";
 
