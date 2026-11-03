@@ -524,13 +524,13 @@ h1 span {
     <div class="hero-line"></div>
   </header>
 
-  <section class="group-block">
+  <section class="group-block" id="bloqueGrupo" hidden>
     <div class="group-label">EQUIPO</div>
     <div class="group-name" id="nombre">Tu grupo</div>
     <div class="group-underline"></div>
   </section>
-
-  <section class="dashboard">
+  
+<section class="dashboard" id="panel" hidden>
     <p class="status" id="estado">
       <span class="status-dot"></span>
       Esperando una tarjeta NFC...
@@ -538,7 +538,7 @@ h1 span {
 
     <!-- Las tarjetas se muestran inicialmente con valores de ejemplo.
          Al escanear una tarjeta válida, se actualizan con los datos reales. -->
-    <section id="consulta">
+  <section id="consulta" hidden>
       <div class="values">
 
         <!-- TARJETA DINERO -->
@@ -597,13 +597,17 @@ async function iniciar() {
   const parametros = new URLSearchParams(window.location.search);
   const token = parametros.get("card");
 
+  const bloqueGrupo = document.getElementById("bloqueGrupo");
+  const panel = document.getElementById("panel");
+  const consulta = document.getElementById("consulta");
+  const estado = document.getElementById("estado");
+
+  // Sin tarjeta: no mostrar grupo, dinero ni tickets.
   if (!token) {
-    document.getElementById("estado").textContent =
-      "Vista previa: valores de ejemplo.";
     return;
   }
 
-  // Comprobar si este navegador tiene una sesión de líder guardada.
+  // Comprobar si existe una configuración de líder.
   let configLider = null;
 
   try {
@@ -614,8 +618,7 @@ async function iniciar() {
     console.warn("No se pudo leer la configuración del líder.", error);
   }
 
-  // Si hay una sesión guardada, abrir la página del líder.
-  // Allí se debe validar nuevamente la autorización de la estación.
+  // Si es un dispositivo de líder, dirigirlo a su página.
   if (configLider && configLider.token) {
     const destino = new URL("lider.html", window.location.href);
     destino.searchParams.set("card", token);
@@ -623,9 +626,9 @@ async function iniciar() {
     return;
   }
 
-  // Si no hay sesión de líder, realizar la consulta pública.
-  document.getElementById("estado").textContent =
-    "Consultando grupo...";
+  // Mostrar únicamente el estado mientras se consulta.
+  panel.hidden = false;
+  estado.textContent = "Consultando grupo...";
 
   const { data, error } = await supabaseClient.rpc(
     "consultar_equipo",
@@ -633,28 +636,28 @@ async function iniciar() {
   );
 
   if (error) {
-    document.getElementById("estado").textContent =
-      "Error: " + error.message;
+    estado.textContent = "No fue posible consultar el grupo.";
     console.error(error);
     return;
   }
 
   if (!data || data.error) {
-    document.getElementById("estado").textContent =
-      "Tarjeta no válida o inactiva.";
+    estado.textContent = "Tarjeta no válida o inactiva.";
     return;
   }
 
+  // Mostrar los datos solamente cuando la tarjeta sea válida.
   document.getElementById("nombre").textContent = data.nombre;
 
   document.getElementById("dinero").textContent =
     "$" + Number(data.monedas).toLocaleString("es-CO");
 
-  document.getElementById("tickets").textContent =
-    data.tickets;
+  document.getElementById("tickets").textContent = data.tickets;
 
-  document.getElementById("estado").style.display = "none";
-  document.querySelector(".success").style.display = "flex";
+  bloqueGrupo.hidden = false;
+  consulta.hidden = false;
+
+  estado.style.display = "none";
 }
 
 iniciar();
