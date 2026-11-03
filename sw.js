@@ -1,31 +1,22 @@
 
-const CACHE_NAME = "banco-arcade-v3";
+const CACHE_NAME = "banco-arcade-v4";
 
-const ARCHIVOS = [
-  "./",
-  "./index.html",
-  "./lider.html",
-  "./lider_nfc_ios.html",
-  "./premios.html"
-];
-
-// Instalar la nueva versión
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ARCHIVOS))
-      .then(() => self.skipWaiting())
-  );
+  // No precargamos archivos: evitamos que un archivo inexistente
+  // impida instalar la nueva versión.
+  event.waitUntil(self.skipWaiting());
 });
 
-// Activar la nueva versión y eliminar cachés antiguas
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
       .then(keys =>
         Promise.all(
           keys
-            .filter(key => key.startsWith("banco-arcade-") && key !== CACHE_NAME)
+            .filter(key =>
+              key.startsWith("banco-arcade-") &&
+              key !== CACHE_NAME
+            )
             .map(key => caches.delete(key))
         )
       )
@@ -33,7 +24,6 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Interceptar solicitudes
 self.addEventListener("fetch", event => {
   const request = event.request;
 
@@ -41,54 +31,45 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(request.url);
 
-  // No interceptar Supabase ni otros servicios externos.
+  // Solo manejar archivos del propio sitio.
   if (url.origin !== self.location.origin) return;
 
-  // Las páginas HTML siempre consultan primero la versión publicada.
-  if (
-    request.mode === "navigate" ||
-    request.destination === "document"
-  ) {
-    event.respondWith(
-      fetch(request)
-        .then(async response => {
-          if (response.ok) {
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put(request, response.clone());
-          }
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
 
-          return response;
-        })
-        .catch(async () => {
-          const guardado = await caches.match(request);
+    try {
+      // Consultar siempre la versión publicada, evitando la caché HTTP.
+      const response = await fetch(request, {
+        cache: "no-store"
+      });
 
-          if (guardado) return guardado;
+      if (response.ok) {
+        await cache.put(request, response.clone());
+      }
 
-          return caches.match("./index.html");
-        })
-    );
+      return response;
 
-    return;
-  }
+    } catch (error) {
+      // Si no hay conexión, utilizar la versión guardada.
+      const saved = await cache.match(request);
 
-  // Para recursos locales distintos de HTML:
-  // primero se intenta obtener la versión de internet.
-  event.respondWith(
-    fetch(request)
-      .then(async response => {
-        if (response.ok) {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, response.clone());
+      if (saved) return saved;
+
+      if (
+        request.mode === "navigate" ||
+        request.destination === "document"
+      ) {
+        const fallback = await cache.match("./index.html");
+
+        if (fallback) return fallback;
+      }
+
+      return new Response("Recurso no disponible sin conexión.", {
+        status: 503,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8"
         }
-
-        return response;
-      })
-      .catch(async () => {
-        const guardado = await caches.match(request);
-
-        if (guardado) return guardado;
-
-        return Response.error();
-      })
-  );
+      });
+    }
+  })());
 });
