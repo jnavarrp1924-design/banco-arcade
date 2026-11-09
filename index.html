@@ -539,7 +539,7 @@ h1 span {
     <!-- Las tarjetas se muestran inicialmente con valores de ejemplo.
          Al escanear una tarjeta válida, se actualizan con los datos reales. -->
   <section id="consulta" hidden>
-      <div class="values">
+      <div class="values" id="valoresViernes">
 
         <!-- TARJETA DINERO -->
         <article class="value-card money-card">
@@ -573,6 +573,11 @@ h1 span {
           <div class="card-bottom-line"></div>
         </article>
 
+      </div>
+      <div id="panelPP" hidden style="padding:35px 10px;text-align:center">
+        <div class="card-label">PINTURA EN POLVO</div>
+        <div class="card-value" id="pp" style="font-size:76px;color:#f0c76a;margin:24px 0">0</div>
+        <div class="card-unit">PP DISPONIBLES</div>
       </div>
       <div class="success">
         <span class="check">✓</span>
@@ -630,33 +635,37 @@ async function iniciar() {
   panel.hidden = false;
   estado.textContent = "Consultando grupo...";
 
+  const { data: modo, error: errorModo } = await supabaseClient.rpc("obtener_modo_evento");
+  if (errorModo) {
+    estado.textContent = "No fue posible consultar el modo del evento.";
+    console.error(errorModo);
+    return;
+  }
+
+  const esSabado = modo === "sabado";
   const { data, error } = await supabaseClient.rpc(
-    "consultar_equipo",
+    esSabado ? "consultar_equipo_sabado" : "consultar_equipo",
     { p_token_tarjeta: token }
   );
 
-  if (error) {
-    estado.textContent = "No fue posible consultar el grupo.";
+  if (error || !data || data.error) {
+    estado.textContent = "Tarjeta no válida o inactiva.";
     console.error(error);
     return;
   }
 
-  if (!data || data.error) {
-    estado.textContent = "Tarjeta no válida o inactiva.";
-    return;
-  }
-
-  // Mostrar los datos solamente cuando la tarjeta sea válida.
   document.getElementById("nombre").textContent = data.nombre;
-
-  document.getElementById("dinero").textContent =
-    "$" + Number(data.monedas).toLocaleString("es-CO");
-
-  document.getElementById("tickets").textContent = data.tickets;
+  document.getElementById("valoresViernes").hidden = esSabado;
+  document.getElementById("panelPP").hidden = !esSabado;
+  if (esSabado) {
+    document.getElementById("pp").textContent = Number(data.pp || 0).toLocaleString("es-CO");
+  } else {
+    document.getElementById("dinero").textContent = "$" + Number(data.monedas).toLocaleString("es-CO");
+    document.getElementById("tickets").textContent = data.tickets;
+  }
 
   bloqueGrupo.hidden = false;
   consulta.hidden = false;
-
   estado.style.display = "none";
 }
 
