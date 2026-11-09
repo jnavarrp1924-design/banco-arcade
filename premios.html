@@ -853,7 +853,8 @@ async function consultarEquipo() {
       equipo = data;
       $("panelSabadoPP").hidden = false;
       $("saldoPP").textContent = Number(equipo.pp || 0).toLocaleString("es-CO");
-      $("saldoTickets").parentElement.hidden = true;
+      $("saldoTickets").hidden = true;
+      $("saldoTickets").previousElementSibling.hidden = true;
       $("saldoDinero").parentElement.hidden = true;
       document.querySelector(".recarga-panel").hidden = true;
       document.querySelector(".encabezado-premios").hidden = true;
@@ -865,7 +866,8 @@ async function consultarEquipo() {
       if (error) throw error;
       equipo = Array.isArray(data) ? data[0] : data;
       $("panelSabadoPP").hidden = true;
-      $("saldoTickets").parentElement.hidden = false;
+      $("saldoTickets").hidden = false;
+      $("saldoTickets").previousElementSibling.hidden = false;
       $("saldoDinero").parentElement.hidden = false;
       document.querySelector(".recarga-panel").hidden = false;
       document.querySelector(".encabezado-premios").hidden = false;
