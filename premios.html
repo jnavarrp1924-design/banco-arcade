@@ -474,6 +474,33 @@
     <div class="linea-decorativa"></div>
   </header>
 
+  <section id="adminEvento">
+    <h2>Administración del evento</h2>
+    <p class="ayuda-recarga">Configuración global de viernes/sábado, competencias y enfrentamientos.</p>
+    <label for="claveAdmin">Clave administrativa</label>
+    <input id="claveAdmin" type="password" autocomplete="off" placeholder="Clave administrativa">
+    <button id="abrirAdmin">Abrir administración</button>
+    <div id="panelAdmin" hidden>
+      <p id="modoActual"></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button id="modoViernes" type="button">Activar viernes</button>
+        <button id="modoSabado" type="button">Activar sábado</button>
+      </div>
+      <h3>Crear competencia</h3>
+      <label for="nombreCompetencia">Nombre</label><input id="nombreCompetencia" placeholder="Nombre de la competencia">
+      <label for="baseCompetencia">Base</label><select id="baseCompetencia"></select>
+      <button id="crearCompetencia" type="button">Guardar competencia</button>
+      <h3>Crear enfrentamiento</h3>
+      <label for="competenciaSelect">Competencia</label><select id="competenciaSelect"></select>
+      <label for="equipoA">Equipo A</label><select id="equipoA"></select>
+      <label for="equipoB">Equipo B</label><select id="equipoB"></select>
+      <label for="ppGanador">PP para ganador</label><input id="ppGanador" type="number" min="0" step="1" value="10">
+      <label for="ppPerdedor">PP para perdedor</label><input id="ppPerdedor" type="number" min="0" step="1" value="5">
+      <button id="crearEnfrentamiento" type="button">Guardar enfrentamiento</button>
+      <div id="resumenAdmin"></div>
+    </div>
+  </section>
+
   <section id="configuracion">
     <h2>Autorización del puesto</h2>
 
@@ -501,6 +528,11 @@
       <p>Tickets disponibles</p>
       <div class="saldo" id="saldoTickets">0</div>
 
+      <div id="panelSabadoPP" hidden style="text-align:center;padding:18px;border:1px solid #c5ad68;border-radius:14px;margin:15px 0">
+        <div class="etiqueta-saldo">PINTURA EN POLVO DISPONIBLE</div>
+        <div id="saldoPP" class="saldo">0</div>
+        <button id="reclamarPP" type="button">Reclamar toda mi PP</button>
+      </div>
       <div class="saldo-dinero">
         <div class="etiqueta-saldo">Dinero disponible</div>
         <div id="saldoDinero">$ 0</div>
@@ -551,6 +583,8 @@ let nombreAutorizado = null;
 let dispositivoAutorizado = false;
 let procesando = false;
 let premiosDisponibles = [];
+let adminDatos = null;
+let modoEventoActual = "viernes";
 
 function formatoPesos(valor) {
   return new Intl.NumberFormat("es-CO", {
@@ -806,32 +840,43 @@ async function consultarEquipo() {
   try {
     mostrarMensaje("Consultando grupo...");
 
-    const { data, error } = await supabaseClient.rpc(
-      "consultar_equipo_premios",
-      {
-        p_nombre_puesto: nombreAutorizado,
-        p_token_tarjeta: token
-      }
-    );
-
-    if (error) throw error;
-
-    const equipo = Array.isArray(data) ? data[0] : data;
-
-    if (!equipo || !equipo.equipo_id) {
-      throw new Error("No se encontró un grupo válido.");
+    const { data: modo, error: errorModo } = await supabaseClient.rpc("obtener_modo_evento");
+    if (errorModo) throw errorModo;
+    modoEventoActual = modo;
+    let equipo;
+    if (modo === "sabado") {
+      const { data, error } = await supabaseClient.rpc("consultar_equipo_sabado", { p_token_tarjeta: token });
+      if (error) throw error;
+      equipo = data;
+      $("panelSabadoPP").hidden = false;
+      $("saldoPP").textContent = Number(equipo.pp || 0).toLocaleString("es-CO");
+      $("saldoTickets").parentElement.hidden = true;
+      $("saldoDinero").parentElement.hidden = true;
+      document.querySelector(".recarga-panel").hidden = true;
+      document.querySelector(".encabezado-premios").hidden = true;
+      $("listaPremios").hidden = true;
+    } else {
+      const { data, error } = await supabaseClient.rpc("consultar_equipo_premios", {
+        p_nombre_puesto: nombreAutorizado, p_token_tarjeta: token
+      });
+      if (error) throw error;
+      equipo = Array.isArray(data) ? data[0] : data;
+      $("panelSabadoPP").hidden = true;
+      $("saldoTickets").parentElement.hidden = false;
+      $("saldoDinero").parentElement.hidden = false;
+      document.querySelector(".recarga-panel").hidden = false;
+      document.querySelector(".encabezado-premios").hidden = false;
+      $("listaPremios").hidden = false;
     }
-
+    if (!equipo || !equipo.equipo_id) throw new Error("No se encontró un grupo válido.");
     equipoActual = equipo;
     tokenActual = token;
-
     $("nombreEquipo").textContent = equipo.nombre || equipo.equipo_id;
-    $("saldoTickets").textContent = equipo.tickets;
-    $("saldoDinero").textContent = formatoPesos(equipo.monedas);
+    $("saldoTickets").textContent = equipo.tickets || 0;
+    $("saldoDinero").textContent = formatoPesos(equipo.monedas || 0);
     $("montoRecarga").value = "";
     $("datosEquipo").hidden = false;
-
-    mostrarPremios();
+    if (modo !== "sabado") mostrarPremios();
     mostrarMensaje("Grupo consultado correctamente.");
 
   } catch (error) {
@@ -1002,6 +1047,53 @@ async function canjearPremio(premio) {
 }
 
 /* EVENTOS */
+
+
+// ADMINISTRACIÓN DEL EVENTO (autorización validada en PostgreSQL)
+async function cargarAdmin() {
+  const clave = $("claveAdmin").value;
+  const { data, error } = await supabaseClient.rpc("admin_listar_sabado", { p_clave: clave });
+  if (error) throw error;
+  adminDatos = data;
+  modoEventoActual = data.modo;
+  $("panelAdmin").hidden = false;
+  $("modoActual").textContent = "Modo global actual: " + data.modo.toUpperCase() +
+    (data.hay_resultados ? " · Rotación bloqueada por resultados registrados." : " · Rotación editable.");
+  const bases = data.bases || [];
+  const equipos = data.equipos || [];
+  $("baseCompetencia").replaceChildren();
+  $("competenciaSelect").replaceChildren();
+  $("equipoA").replaceChildren(); $("equipoB").replaceChildren();
+  for (const b of bases) { const o=document.createElement("option"); o.value=b.id; o.textContent=b.id+" · "+b.nombre; $("baseCompetencia").append(o); }
+  for (const e of data.competencias || []) { const o=document.createElement("option"); o.value=e.id; o.textContent=e.nombre; $("competenciaSelect").append(o); }
+  for (const e of equipos) { for(const id of ["equipoA","equipoB"]) { const o=document.createElement("option"); o.value=e.id; o.textContent=e.id+" · "+e.nombre; $(id).append(o); } }
+  const resumen=$("resumenAdmin"); resumen.replaceChildren();
+  for (const e of data.competencias || []) {
+    const p=document.createElement("p"); p.textContent=e.nombre+" · Base "+e.base_id; resumen.append(p);
+  }
+  for (const e of data.enfrentamientos || []) {
+    const p=document.createElement("p"); p.textContent=e.equipo_a_id+" vs "+e.equipo_b_id+" · "+e.pp_ganador+"/"+e.pp_perdedor+" PP"+(e.registrado?" · registrado":""); resumen.append(p);
+  }
+}
+$("abrirAdmin").addEventListener("click", async()=>{try{await cargarAdmin();}catch(e){alert("No se pudo abrir la administración: "+e.message);}});
+$("modoViernes").addEventListener("click", async()=>{if(!confirm("¿Cambiar todo el sistema al modo viernes?"))return;try{const {error}=await supabaseClient.rpc("cambiar_modo_evento",{p_modo:"viernes",p_clave:$("claveAdmin").value});if(error)throw error;await cargarAdmin();alert("Modo viernes activado.");}catch(e){alert(e.message);}});
+$("modoSabado").addEventListener("click", async()=>{if(!confirm("¿Activar el modo sábado para todos los dispositivos?"))return;try{const {error}=await supabaseClient.rpc("cambiar_modo_evento",{p_modo:"sabado",p_clave:$("claveAdmin").value});if(error)throw error;await cargarAdmin();alert("Modo sábado activado.");}catch(e){alert(e.message);}});
+$("crearCompetencia").addEventListener("click", async()=>{try{const nombre=$("nombreCompetencia").value.trim();if(!nombre)throw new Error("Escribe un nombre.");const {error}=await supabaseClient.rpc("guardar_competencia",{p_clave:$("claveAdmin").value,p_id:null,p_nombre:nombre,p_base_id:Number($("baseCompetencia").value),p_activa:true,p_orden:(adminDatos.competencias||[]).length});if(error)throw error;$("nombreCompetencia").value="";await cargarAdmin();}catch(e){alert(e.message);}});
+$("crearEnfrentamiento").addEventListener("click", async()=>{try{const a=$("equipoA").value,b=$("equipoB").value;if(!a||!b||a===b)throw new Error("Selecciona dos equipos distintos.");const g=Number($("ppGanador").value),p=Number($("ppPerdedor").value);if(!Number.isInteger(g)||g<0||!Number.isInteger(p)||p<0)throw new Error("Los PP deben ser enteros no negativos.");const {error}=await supabaseClient.rpc("guardar_enfrentamiento",{p_clave:$("claveAdmin").value,p_id:null,p_competencia_id:$("competenciaSelect").value,p_equipo_a_id:a,p_equipo_b_id:b,p_pp_ganador:g,p_pp_perdedor:p});if(error)throw error;await cargarAdmin();}catch(e){alert(e.message);}});
+async function reclamarPP() {
+  if (procesando || !equipoActual || !tokenActual) return;
+  if (Number(equipoActual.pp||0)<=0) { mostrarMensaje("No hay PP disponibles para reclamar."); return; }
+  if (!confirm("¿Reclamar toda la PP disponible de "+equipoActual.nombre+"?")) return;
+  procesando=true; $("reclamarPP").disabled=true;
+  try {
+    const {data,error}=await supabaseClient.rpc("reclamar_todo_pp",{p_token_tarjeta:tokenActual,p_solicitud_id:crypto.randomUUID()});
+    if(error)throw error;
+    equipoActual.pp=0; $("saldoPP").textContent="0";
+    mostrarMensaje("Reclamación confirmada: "+data.pp_reclamados+" PP. El saldo disponible quedó en cero.");
+  } catch(e) { mostrarMensaje("No se pudo confirmar la reclamación: "+e.message); }
+  finally { procesando=false; $("reclamarPP").disabled=false; }
+}
+$("reclamarPP").addEventListener("click", reclamarPP);
 
 $("guardarConfig").addEventListener("click", validarDispositivo);
 $("escanearNFC").addEventListener("click", leerNFC);
