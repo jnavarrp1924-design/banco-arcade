@@ -938,7 +938,7 @@ body.transaccion-activa #operacion {
 
 </section>
 
-<div class="footer">TU RAÍZ ES NUESTRA RAÍZ</div>
+<div class="footer" id="lemaPie">TU RAÍZ ES NUESTRA RAÍZ</div>
 
 </main>
 
@@ -2020,7 +2020,25 @@ $("sincronizar").addEventListener("click", async () => {
 // 17. INICIO
 // ======================================
 
+async function actualizarLemaEvento() {
+  try {
+    const { data: modo, error } = await supabaseClient.rpc("obtener_modo_evento");
+    if (error) throw error;
+    const lema = modo === "sabado"
+      ? "Viviendo desde nuestra raíz al estilo de Calasanz"
+      : "TU RAÍZ ES NUESTRA RAÍZ";
+    const pie = $("lemaPie");
+    if (pie) pie.textContent = lema.toUpperCase();
+    document.title = modo === "sabado" ? "Viviendo desde nuestra raíz al estilo de Calasanz" : "Bases de tickets";
+  } catch (error) {
+    console.warn("No se pudo consultar el modo del evento para actualizar el lema.", error);
+  }
+}
+window.addEventListener("focus", actualizarLemaEvento);
+window.addEventListener("pageshow", actualizarLemaEvento);
+
 async function iniciarAplicacion() {
+  await actualizarLemaEvento();
   await mostrarPantalla();
 
   const parametros = new URLSearchParams(window.location.search);
