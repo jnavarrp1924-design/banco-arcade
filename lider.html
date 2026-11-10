@@ -847,6 +847,11 @@ body.transaccion-activa #operacion {
     Esperando una tarjeta.
   </div>
 
+  <section id="panelSabado" hidden>
+    <div class="operation-step"><span>2</span>Rotación y resultado del sábado</div>
+    <div id="listaEnfrentamientosSabado"></div>
+  </section>
+
   <div id="panelTickets" class="hidden">
 
     <div class="operation-step">
@@ -973,6 +978,7 @@ let sincronizacionEnCurso = false;
 let lecturaNfcActiva = false;
 let procesamientoTarjeta = false;
 let registroTicketsEnCurso = false;
+let modoEventoActual = "viernes";
 
 function leerConfig() {
   try {
@@ -1210,18 +1216,85 @@ async function mostrarParticipacionActiva() {
 // ======================================
 
 async function autenticarEstacion(token) {
-  const { data, error } = await supabaseClient.rpc(
-    "autenticar_base_lider",
-    { p_token_estacion: token }
-  );
-
+  const { data: modo, error: errorModo } = await supabaseClient.rpc("obtener_modo_evento");
+  if (errorModo) throw errorModo;
+  modoEventoActual = modo === "sabado" ? "sabado" : "viernes";
+  const rpc = modoEventoActual === "sabado" ? "autenticar_base_sabado" : "autenticar_base_lider";
+  const { data, error } = await supabaseClient.rpc(rpc, { p_token_estacion: token });
   if (error) throw error;
-
-  if (!data || !data.base_id || !data.nombre) {
-    throw new Error("Supabase no devolvió los datos de la base.");
-  }
-
+  if (!data || !data.base_id || !data.nombre) throw new Error("Supabase no devolvió los datos de la base.");
+  if (modoEventoActual === "sabado") activarInterfazSabado();
   return data;
+}
+
+function activarInterfazSabado() {
+  const hero = document.querySelector(".hero p");
+  if (hero) hero.textContent = "Escanea el grupo A o B para consultar el enfrentamiento asignado a esta base y registrar el resultado.";
+  const notice = document.querySelector(".charge-notice");
+  if (notice) notice.hidden = true;
+  ["panelTickets","tarjetaSincronizacion"].forEach(id => { const el=$(id); if(el) el.hidden=true; });
+  const p = $("panelSabado");
+  if (p) p.hidden = false;
+  const config = $("configuracion");
+  if (config) config.querySelector(".section-intro").textContent = "Introduce el código de la estación exclusiva del sábado.";
+}
+
+async function procesarTarjetaSabado(token) {
+  const config = leerConfig();
+  if (!config || !config.token) throw new Error("Estación sin autenticar.");
+  if (!navigator.onLine) throw new Error("El sábado necesita conexión para consultar y registrar resultados.");
+  $("mensaje").textContent = "Consultando rotación del grupo...";
+  const { data, error } = await supabaseClient.rpc("consultar_enfrentamientos_grupo_sabado", {
+    p_token_estacion: config.token, p_token_tarjeta: token
+  });
+  if (error) throw error;
+  activarInterfazSabado();
+  const panel = $("panelSabado");
+  const lista = $("listaEnfrentamientosSabado");
+  panel.hidden = false;
+  lista.replaceChildren();
+  if (!data || !Array.isArray(data.enfrentamientos) || data.enfrentamientos.length === 0) {
+    $("mensaje").textContent = "Grupo identificado: " + (data?.grupo_id || "") + ". Aún no hay enfrentamientos programados para esta base.";
+    return;
+  }
+  $("mensaje").textContent = "Grupo " + data.grupo_id + " identificado. Selecciona el resultado al terminar el juego.";
+  for (const f of data.enfrentamientos) {
+    const card = document.createElement("article");
+    card.className = "action-card";
+    const title = document.createElement("h3");
+    title.textContent = f.competencia || "Enfrentamiento";
+    const rival = document.createElement("p");
+    rival.textContent = "Participan: " + f.grupo_a_id + " vs. " + f.grupo_b_id + " · PP: " + f.pp_ganador + " al ganador / " + f.pp_perdedor + " al otro grupo";
+    const state = document.createElement("p");
+    state.textContent = f.registrado ? "Resultado ya registrado: " + f.ganador_grupo_id : "Pendiente de resultado";
+    card.append(title,rival,state);
+    if (!f.registrado) {
+      for (const winner of [f.grupo_a_id,f.grupo_b_id]) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "Registrar ganador: " + winner;
+        btn.addEventListener("click", async () => {
+          if (!confirm("¿Confirmas que " + winner + " ganó este enfrentamiento?")) return;
+          btn.disabled = true;
+          try {
+            const { data: result, error: saveError } = await supabaseClient.rpc("registrar_resultado_grupo_sabado", {
+              p_token_estacion: config.token,
+              p_enfrentamiento_id: f.enfrentamiento_id,
+              p_ganador_grupo_id: winner
+            });
+            if (saveError) throw saveError;
+            $("mensaje").textContent = result?.repetido ? "Este resultado ya estaba registrado." : "Resultado guardado. Los PP se asignaron a ambos grupos.";
+            await procesarTarjetaSabado(token);
+          } catch (e) {
+            $("mensaje").textContent = "No se pudo registrar el resultado: " + e.message;
+            btn.disabled = false;
+          }
+        });
+        card.append(btn);
+      }
+    }
+    lista.append(card);
+  }
 }
 
 async function actualizarNombreBase() {
@@ -1581,6 +1654,19 @@ async function procesarTarjeta(valor) {
   if (!token || token.length < 32) {
     $("mensaje").textContent =
       "La tarjeta no contiene un token válido.";
+    return;
+  }
+
+  if (modoEventoActual === "sabado") {
+    if (procesamientoTarjeta) return;
+    procesamientoTarjeta = true;
+    try {
+      await procesarTarjetaSabado(token);
+    } catch (error) {
+      $("mensaje").textContent = "No se pudo procesar el grupo: " + error.message;
+    } finally {
+      procesamientoTarjeta = false;
+    }
     return;
   }
 
@@ -2024,6 +2110,8 @@ async function actualizarLemaEvento() {
   try {
     const { data: modo, error } = await supabaseClient.rpc("obtener_modo_evento");
     if (error) throw error;
+    modoEventoActual = modo === "sabado" ? "sabado" : "viernes";
+    if (modoEventoActual === "sabado") activarInterfazSabado();
     const lema = modo === "sabado"
       ? "Viviendo desde nuestra raíz al estilo de Calasanz"
       : "TU RAÍZ ES NUESTRA RAÍZ";
