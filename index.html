@@ -686,7 +686,7 @@ h1 span {
         <h2>Rotación y resultados · <span id="divisionSabado"></span></h2>
         <div id="estadoTablaSabado" class="estado-pendiente">La programación de enfrentamientos aún no está disponible.</div>
         <table id="resultadosSabado" hidden>
-          <thead><tr><th>Base</th><th>Enfrentamiento</th><th>Resultado</th><th>PP</th></tr></thead>
+          <thead><tr><th>Base</th><th>RIVAL</th><th>Resultado</th><th>PP</th></tr></thead>
           <tbody id="filasSabado"></tbody>
         </table>
       </section>
@@ -830,7 +830,7 @@ async function iniciar() {
     document.getElementById("resultadosSabado").hidden = lista.length === 0;
     for (const item of lista) {
       const tr = document.createElement("tr");
-      const rival = document.createElement("td"); rival.textContent = (item.rival || "Por definir") + (item.competencia ? " · " + item.competencia : "");
+      const rival = document.createElement("td"); rival.textContent = item.rival || "Por definir";
       const base = document.createElement("td"); base.textContent = item.base || "Base";
       const resultado = document.createElement("td");
       resultado.textContent = item.registrado ? item.resultado : "Pendiente";
