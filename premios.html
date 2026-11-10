@@ -921,7 +921,7 @@ async function consultarEquipo() {
       $("panelSabadoPP").hidden = false;
       $("saldoPP").textContent = Number(equipo.pp_total || 0).toLocaleString("es-CO");
       $("detallePPEquipo").textContent = "A: " + Number(equipo.pp_a || 0).toLocaleString("es-CO") + " PP · B: " + Number(equipo.pp_b || 0).toLocaleString("es-CO") + " PP";
-      $("grupoPPActual").textContent = "Tarjeta consultada: " + (equipo.grupo_id || "") + " · Canje consolidado del equipo " + equipo.equipo_id;
+      $("grupoPPActual").textContent = "Tarjeta consultada: " + (equipo.nombre_grupo || equipo.grupo_id || "") + " · Canje consolidado del equipo " + (equipo.nombre_equipo || equipo.equipo_id);
       $("saldoTickets").hidden = true;
       $("saldoTickets").previousElementSibling.hidden = true;
       $("saldoDinero").parentElement.hidden = true;
@@ -945,7 +945,7 @@ async function consultarEquipo() {
     if (!equipo || !equipo.equipo_id) throw new Error("No se encontró un grupo válido.");
     equipoActual = equipo;
     tokenActual = token;
-    $("nombreEquipo").textContent = modo === "sabado" ? ((equipo.nombre || equipo.equipo_id) + " · " + equipo.grupo_id) : (equipo.nombre || equipo.equipo_id);
+    $("nombreEquipo").textContent = modo === "sabado" ? (equipo.nombre_grupo || ((equipo.nombre || equipo.equipo_id) + " - " + (equipo.division || ""))) : (equipo.nombre || equipo.equipo_id);
     $("saldoTickets").textContent = equipo.tickets || 0;
     $("saldoDinero").textContent = formatoPesos(equipo.monedas || 0);
     $("montoRecarga").value = "";
