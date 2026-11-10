@@ -824,7 +824,7 @@ async function iniciar() {
     document.getElementById("resultadosSabado").hidden = lista.length === 0;
     for (const item of lista) {
       const tr = document.createElement("tr");
-      const rival = document.createElement("td"); rival.textContent = item.rival || "Por definir";
+      const rival = document.createElement("td"); rival.textContent = (item.rival || "Por definir") + (item.competencia ? " · " + item.competencia : "");
       const base = document.createElement("td"); base.textContent = item.base || "Base";
       const resultado = document.createElement("td");
       resultado.textContent = item.registrado ? item.resultado : "Pendiente";
