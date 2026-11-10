@@ -460,35 +460,35 @@ h1 span {
 /* PUNTOS DE PARTICIPACIÓN: MODO SÁBADO */
 
 .pp-card {
-  color:#fff8df;
-  border:1px solid #b99a52;
-  background:linear-gradient(145deg,#67501c 0%,#493711 42%,#241b0b 100%);
-  box-shadow:inset 0 2px 3px #ffffff35,inset 0 -9px 18px #120e05c9,0 15px 25px #000a,0 3px 0 #392b0e;
+  color:#f1ead7;
+  border:1px solid #9d8958;
+  background:linear-gradient(145deg,#5a4b2c 0%,#40351f 46%,#272216 100%);
+  box-shadow:inset 0 1px 2px #ffffff18,inset 0 -9px 18px #120e05a8,0 15px 25px #000a,0 3px 0 #302819;
 }
 .pp-card::before {
   content:"";
   position:absolute;
   inset:0;
-  background:radial-gradient(ellipse at 50% 20%,#ffe7a533,transparent 68%);
+  background:radial-gradient(ellipse at 50% 20%,#d9c28a12,transparent 68%);
   pointer-events:none;
 }
 .pp-card .card-icon {
-  background:radial-gradient(circle,#806322,#2b210d 72%);
-  border:2px solid #d5b86d;
-  box-shadow:0 0 0 5px #d5b86d1c,0 0 22px #e5bd5533,inset 0 0 15px #000b;
+  background:radial-gradient(circle,#665638,#292317 72%);
+  border:2px solid #a99769;
+  box-shadow:0 0 0 5px #a9976914,0 0 14px #b5a07118,inset 0 0 15px #000b;
 }
 .pp-card .card-label {
-  background:linear-gradient(180deg,#80652b,#554117 55%,#30230d);
-  border:1px solid #d5b86d;
+  background:linear-gradient(180deg,#756344,#51442b 55%,#302819);
+  border:1px solid #a99769;
 }
 .pp-card .card-value {
-  color:#fff8df;
-  text-shadow:0 1px 0 #f7e5b1,0 2px 0 #b99a52,0 3px 0 #60491d,0 5px 9px #000d,0 0 12px #ffe6a333;
+  color:#f1ead7;
+  text-shadow:0 1px 0 #d9cfb5,0 2px 0 #92805a,0 3px 0 #51452d,0 5px 9px #000d;
 }
-.pp-card .card-unit { color:#f0d99a; }
+.pp-card .card-unit { color:#cfc19d; }
 .pp-card .card-bottom-line {
-  background:#d5b86d;
-  box-shadow:0 0 12px #e5bd5544;
+  background:#a99769;
+  box-shadow:0 0 8px #a9976922;
 }
 /* El atributo hidden debe prevalecer sobre el display:grid de .values. */
 .values[hidden] {
@@ -636,32 +636,21 @@ h1 span {
         <article class="value-card pp-card">
           <div class="card-frame"></div>
           <div class="card-icon">
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Granitos de polvo dorado">
-              <g fill="#f4d27a" stroke="#fff0bd" stroke-width="1.2">
-                <circle cx="15" cy="19" r="3.2"/>
-                <circle cx="27" cy="11" r="2.2"/>
-                <circle cx="43" cy="16" r="3.8"/>
-                <circle cx="53" cy="27" r="2.4"/>
-                <circle cx="10" cy="36" r="2.1"/>
-                <circle cx="22" cy="31" r="4.2"/>
-                <circle cx="38" cy="31" r="2.5"/>
-                <circle cx="49" cy="43" r="3.2"/>
-                <circle cx="30" cy="49" r="3.7"/>
-                <circle cx="14" cy="52" r="2.5"/>
-                <circle cx="39" cy="56" r="1.8"/>
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Montañita de arena">
+              <path d="M5 49.5C12 45.5 17 39 24 35.5C29 32.8 31 25 36 25C41 25 45 34 50 38C55 42 59 45 61 49.5V55H5V49.5Z" fill="#b7a174" stroke="#d0c09a" stroke-width="1.4" stroke-linejoin="round"/>
+              <path d="M18 43.5C24 40 28 36.5 34 35.5C40 34.5 44 39 49 43" stroke="#d6c7a5" stroke-width="1.5" stroke-linecap="round" opacity=".55"/>
+              <g fill="#e0d2b2" opacity=".85">
+                <circle cx="24" cy="43" r="1.1"/><circle cx="31" cy="38" r=".9"/>
+                <circle cx="38" cy="41" r="1.2"/><circle cx="45" cy="46" r=".9"/>
+                <circle cx="18" cy="49" r="1"/><circle cx="34" cy="49" r="1.1"/>
+                <circle cx="52" cy="50" r=".8"/><circle cx="27" cy="53" r=".8"/>
               </g>
-              <g fill="#fff3c4">
-                <circle cx="18" cy="9" r="1.1"/>
-                <circle cx="35" cy="20" r="1.3"/>
-                <circle cx="57" cy="49" r="1.2"/>
-                <circle cx="6" cy="25" r="1.1"/>
-                <circle cx="25" cy="59" r="1.1"/>
-              </g>
+              <path d="M5 55H61" stroke="#d0c09a" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </div>
-          <div class="card-label">PUNTOS PARA PINTURA EN POLVO</div>
+          <div class="card-label">pintura en polvo</div>
           <div class="card-value" id="puntosPP">0</div>
-          <div class="card-unit">DISPONIBLES</div>
+          <div class="card-unit">PUNTOS</div>
           <div class="card-bottom-line"></div>
         </article>
       </div>
