@@ -945,7 +945,7 @@ async function consultarEquipo() {
     if (!equipo || !equipo.equipo_id) throw new Error("No se encontró un grupo válido.");
     equipoActual = equipo;
     tokenActual = token;
-    $("nombreEquipo").textContent = equipo.nombre || equipo.equipo_id;
+    $("nombreEquipo").textContent = modo === "sabado" ? ((equipo.nombre || equipo.equipo_id) + " · " + equipo.grupo_id) : (equipo.nombre || equipo.equipo_id);
     $("saldoTickets").textContent = equipo.tickets || 0;
     $("saldoDinero").textContent = formatoPesos(equipo.monedas || 0);
     $("montoRecarga").value = "";
