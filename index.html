@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080f1e">
-<title>Tu raíz es nuestra raíz</title>
+<title id="tituloPagina">Tu raíz es nuestra raíz</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -517,10 +517,10 @@ h1 span {
 <body>
 <main>
 
-  <div class="topline">VIVE DESDE TU RAÍZ</div>
+  <div class="topline" id="lemaSuperior">VIVE DESDE TU RAÍZ</div>
 
   <header class="hero">
-    <h1>Tu raíz es <span>nuestra raíz</span></h1>
+    <h1 id="lemaPrincipal">Tu raíz es <span>nuestra raíz</span></h1>
     <div class="hero-line"></div>
   </header>
 
@@ -581,7 +581,7 @@ h1 span {
     </section>
   </section>
 
-  <footer class="footer">TU RAÍZ ES NUESTRA RAÍZ</footer>
+  <footer class="footer" id="lemaPie">TU RAÍZ ES NUESTRA RAÍZ</footer>
 </main>
 
 <script>
@@ -593,7 +593,32 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_KEY
 );
 
+async function actualizarLemaEvento() {
+  try {
+    const { data: modo, error } = await supabaseClient.rpc("obtener_modo_evento");
+    if (error) throw error;
+    const sabado = modo === "sabado";
+    const lema = sabado
+      ? "Viviendo desde nuestra raíz al estilo de Calasanz"
+      : "Tu raíz es nuestra raíz";
+    document.title = lema;
+    const titulo = document.getElementById("tituloPagina");
+    if (titulo) titulo.textContent = lema;
+    const principal = document.getElementById("lemaPrincipal");
+    if (principal) principal.textContent = lema;
+    const superior = document.getElementById("lemaSuperior");
+    if (superior) superior.textContent = sabado ? lema.toUpperCase() : "VIVE DESDE TU RAÍZ";
+    const pie = document.getElementById("lemaPie");
+    if (pie) pie.textContent = lema.toUpperCase();
+  } catch (error) {
+    console.warn("No se pudo consultar el modo del evento para actualizar el lema.", error);
+  }
+}
+window.addEventListener("focus", actualizarLemaEvento);
+window.addEventListener("pageshow", actualizarLemaEvento);
+
 async function iniciar() {
+  await actualizarLemaEvento();
   const parametros = new URLSearchParams(window.location.search);
   const token = parametros.get("card");
 
