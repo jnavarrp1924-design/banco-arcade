@@ -665,19 +665,19 @@ h1 span {
       <div class="values" id="valoresSabado" hidden>
         <article class="value-card pp-card">
           <div class="card-frame"></div><div class="card-icon">✦</div>
-          <div class="card-label">PP TOTAL DEL EQUIPO</div>
+          <div class="card-label" id="etiquetaPPTotal">PINTURA EN POLVO DEL EQUIPO</div>
           <div class="card-value" id="puntosPPTotal">0</div>
-          <div class="card-unit">A + B</div><div class="card-bottom-line"></div>
+          <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
         </article>
         <article class="value-card pp-card">
           <div class="card-frame"></div><div class="card-icon">A</div>
-          <div class="card-label">PUNTOS GRUPO A</div>
+          <div class="card-label" id="etiquetaPPA">PINTURA EN POLVO DEL GRUPO A</div>
           <div class="card-value" id="puntosPPA">0</div>
           <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
         </article>
         <article class="value-card pp-card">
           <div class="card-frame"></div><div class="card-icon">B</div>
-          <div class="card-label">PUNTOS GRUPO B</div>
+          <div class="card-label" id="etiquetaPPB">PINTURA EN POLVO DEL GRUPO B</div>
           <div class="card-value" id="puntosPPB">0</div>
           <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
         </article>
@@ -801,8 +801,14 @@ async function iniciar() {
   }
 
   // Mostrar los datos solamente cuando la tarjeta sea válida.
+  const nombreEquipoSabado = data.nombre_equipo || data.nombre || data.equipo_id || "";
+  const divisionSabadoActual = data.division || (data.grupo_id || "").slice(-1);
+  const nombreGrupoBase = data.nombre_grupo || "";
+  const nombrePersonalizado = nombreGrupoBase && !/^Grupo\\s+\\d+\\s*[·-]\\s*[AB]$/i.test(nombreGrupoBase);
+  const nombreGrupoSabado = (nombrePersonalizado ? nombreGrupoBase : nombreEquipoSabado) + " - " + divisionSabadoActual;
+
   document.getElementById("nombre").textContent =
-    modoEventoActual === "sabado" ? ((data.nombre_grupo || data.nombre_equipo || data.nombre || data.equipo_id) + " · " + data.grupo_id) : data.nombre;
+    modoEventoActual === "sabado" ? nombreGrupoSabado : data.nombre;
 
   const valoresViernes = document.getElementById("valoresViernes");
   const valoresSabado = document.getElementById("valoresSabado");
@@ -811,7 +817,10 @@ async function iniciar() {
     document.getElementById("puntosPPTotal").textContent = Number(data.pp_total ?? 0).toLocaleString("es-CO");
     document.getElementById("puntosPPA").textContent = Number(data.pp_a ?? 0).toLocaleString("es-CO");
     document.getElementById("puntosPPB").textContent = Number(data.pp_b ?? 0).toLocaleString("es-CO");
-    document.getElementById("divisionSabado").textContent = data.grupo_id || "";
+    document.getElementById("divisionSabado").textContent = nombreGrupoSabado;
+    document.getElementById("etiquetaPPTotal").textContent = 'PINTURA EN POLVO DEL "' + nombreEquipoSabado.toLocaleUpperCase("es-CO") + '"';
+    document.getElementById("etiquetaPPA").textContent = 'PINTURA EN POLVO DE "' + (nombrePersonalizado && divisionSabadoActual === "A" ? nombreGrupoSabado : nombreEquipoSabado + " - A").toLocaleUpperCase("es-CO") + '"';
+    document.getElementById("etiquetaPPB").textContent = 'PINTURA EN POLVO DE "' + (nombrePersonalizado && divisionSabadoActual === "B" ? nombreGrupoSabado : nombreEquipoSabado + " - B").toLocaleUpperCase("es-CO") + '"';
     valoresViernes.hidden = true;
     valoresSabado.hidden = false;
     const tabla = document.getElementById("tablaSabado");
