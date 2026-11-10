@@ -697,6 +697,8 @@ body.transaccion-activa #operacion {
   border-color:#c5ad68;
 }
 
+#tarjetaSincronizacion[hidden], #panelSabado[hidden] { display:none !important; }
+
 @media(max-width:420px) {
   body { padding:18px 12px 30px; }
   .hero { padding:20px; }
@@ -967,6 +969,7 @@ const supabaseClient = window.supabase.createClient(
 // ======================================
 
 const CLAVE_CONFIG = "arcade_lider_config";
+const CLAVE_CONFIG_SABADO = "arcade_lider_config_sabado";
 const CLAVE_ULTIMO_ESCANEO = "arcade_ultimo_escaneo";
 const DB_NAME = "banco_arcade_local";
 const STORE_NAME = "operaciones";
@@ -980,9 +983,13 @@ let procesamientoTarjeta = false;
 let registroTicketsEnCurso = false;
 let modoEventoActual = "viernes";
 
+function claveConfigActual() {
+  return modoEventoActual === "sabado" ? CLAVE_CONFIG_SABADO : CLAVE_CONFIG;
+}
+
 function leerConfig() {
   try {
-    return JSON.parse(localStorage.getItem(CLAVE_CONFIG)) || null;
+    return JSON.parse(localStorage.getItem(claveConfigActual())) || null;
   } catch {
     return null;
   }
@@ -1228,6 +1235,7 @@ async function autenticarEstacion(token) {
 }
 
 function activarInterfazSabado() {
+  document.body.classList.add("modo-sabado");
   const hero = document.querySelector(".hero p");
   if (hero) hero.textContent = "Escanea el grupo A o B para consultar el enfrentamiento asignado a esta base y registrar el resultado.";
   const notice = document.querySelector(".charge-notice");
@@ -1237,6 +1245,18 @@ function activarInterfazSabado() {
   if (p) p.hidden = false;
   const config = $("configuracion");
   if (config) config.querySelector(".section-intro").textContent = "Introduce el código de la estación exclusiva del sábado.";
+}
+
+function desactivarInterfazSabado() {
+  document.body.classList.remove("modo-sabado");
+  const hero = document.querySelector(".hero p");
+  if (hero) hero.textContent = "El cobro se realiza automáticamente al escanear la tarjeta. Los tickets se registran al finalizar el juego.";
+  const notice = document.querySelector(".charge-notice");
+  if (notice) notice.hidden = false;
+  const sync = $("tarjetaSincronizacion");
+  if (sync) sync.hidden = false;
+  const panel = $("panelSabado");
+  if (panel) panel.hidden = true;
 }
 
 async function procesarTarjetaSabado(token) {
@@ -1307,7 +1327,7 @@ async function actualizarNombreBase() {
     config.base_id = base.base_id;
     config.nombre = base.nombre;
 
-    localStorage.setItem(CLAVE_CONFIG, JSON.stringify(config));
+    localStorage.setItem(claveConfigActual(), JSON.stringify(config));
     $("tituloBase").textContent = base.nombre;
 
   } catch (error) {
@@ -1373,7 +1393,7 @@ $("guardarConfig").addEventListener("click", async () => {
   try {
     const base = await autenticarEstacion(token);
 
-    localStorage.setItem(CLAVE_CONFIG, JSON.stringify({
+    localStorage.setItem(claveConfigActual(), JSON.stringify({
       token,
       base_id: base.base_id,
       nombre: base.nombre
@@ -1408,7 +1428,7 @@ $("cambiarConfig").addEventListener("click", async () => {
 
   if (!confirm("¿Deseas cambiar la configuración de esta estación?")) return;
 
-  localStorage.removeItem(CLAVE_CONFIG);
+  localStorage.removeItem(claveConfigActual());
   await mostrarPantalla();
 });
 
@@ -2112,6 +2132,7 @@ async function actualizarLemaEvento() {
     if (error) throw error;
     modoEventoActual = modo === "sabado" ? "sabado" : "viernes";
     if (modoEventoActual === "sabado") activarInterfazSabado();
+    else desactivarInterfazSabado();
     const lema = modo === "sabado"
       ? "Viviendo desde nuestra raíz al estilo de Calasanz"
       : "TU RAÍZ ES NUESTRA RAÍZ";
