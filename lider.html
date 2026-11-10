@@ -698,6 +698,8 @@ body.transaccion-activa #operacion {
 }
 
 #tarjetaSincronizacion[hidden], #panelSabado[hidden] { display:none !important; }
+body.modo-sabado #panelTickets,
+body.modo-sabado #tarjetaSincronizacion { display:none !important; }
 
 @media(max-width:420px) {
   body { padding:18px 12px 30px; }
@@ -1240,9 +1242,8 @@ function activarInterfazSabado() {
   if (hero) hero.textContent = "Escanea el grupo A o B para consultar el enfrentamiento asignado a esta base y registrar el resultado.";
   const notice = document.querySelector(".charge-notice");
   if (notice) notice.hidden = true;
-  ["panelTickets","tarjetaSincronizacion"].forEach(id => { const el=$(id); if(el) el.hidden=true; });
   const p = $("panelSabado");
-  if (p) p.hidden = false;
+  if (p) p.hidden = true;
   const config = $("configuracion");
   if (config) config.querySelector(".section-intro").textContent = "Introduce el código de la estación exclusiva del sábado.";
 }
@@ -1253,8 +1254,8 @@ function desactivarInterfazSabado() {
   if (hero) hero.textContent = "El cobro se realiza automáticamente al escanear la tarjeta. Los tickets se registran al finalizar el juego.";
   const notice = document.querySelector(".charge-notice");
   if (notice) notice.hidden = false;
-  const sync = $("tarjetaSincronizacion");
-  if (sync) sync.hidden = false;
+  const config = $("configuracion");
+  if (config) config.querySelector(".section-intro").textContent = "Introduce el código secreto para identificar y autorizar esta base.";
   const panel = $("panelSabado");
   if (panel) panel.hidden = true;
 }
