@@ -503,12 +503,35 @@ h1 span {
 }
 
 #valoresSabado {
-  grid-template-columns:1fr;
+  grid-template-columns:repeat(3,minmax(0,1fr));
 }
-
 #valoresSabado .value-card {
-  width:min(100%,280px);
+  width:100%;
+  min-width:0;
+  height:260px;
   margin:0 auto;
+}
+#tablaSabado {
+  margin-top:24px;
+  padding:18px;
+  border:1px solid #8f805b;
+  border-radius:14px;
+  background:#282419;
+  color:#f1ead7;
+}
+#tablaSabado h2 { margin:0 0 8px; font-size:19px; }
+#tablaSabado .tabla-ayuda { color:#cfc19d; font-size:12px; margin-bottom:14px; }
+#resultadosSabado { width:100%; border-collapse:collapse; font-size:12px; }
+#resultadosSabado th,#resultadosSabado td { padding:10px 7px; border-bottom:1px solid #ffffff20; text-align:left; }
+#resultadosSabado th { color:#d7c69d; }
+.estado-pendiente { color:#cfc19d; }
+.estado-ganado { color:#9ad6a0; }
+.estado-perdido { color:#e4a0a0; }
+@media(max-width:520px) {
+  #valoresSabado { grid-template-columns:1fr; }
+  #valoresSabado .value-card { width:min(100%,280px); }
+  #resultadosSabado { font-size:11px; }
+  #resultadosSabado th,#resultadosSabado td { padding:8px 4px; }
 }
 
 #valoresSabado .card-label {
@@ -638,29 +661,36 @@ h1 span {
 
       </div>
 
-      <!-- MODO SÁBADO: únicamente puntos de participación (PP) -->
+      <!-- MODO SÁBADO: saldo consolidado e individual de A/B -->
       <div class="values" id="valoresSabado" hidden>
         <article class="value-card pp-card">
-          <div class="card-frame"></div>
-          <div class="card-icon">
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Montañita de arena">
-              <path d="M5 49.5C12 45.5 17 39 24 35.5C29 32.8 31 25 36 25C41 25 45 34 50 38C55 42 59 45 61 49.5V55H5V49.5Z" fill="#b7a174" stroke="#d0c09a" stroke-width="1.4" stroke-linejoin="round"/>
-              <path d="M18 43.5C24 40 28 36.5 34 35.5C40 34.5 44 39 49 43" stroke="#d6c7a5" stroke-width="1.5" stroke-linecap="round" opacity=".55"/>
-              <g fill="#e0d2b2" opacity=".85">
-                <circle cx="24" cy="43" r="1.1"/><circle cx="31" cy="38" r=".9"/>
-                <circle cx="38" cy="41" r="1.2"/><circle cx="45" cy="46" r=".9"/>
-                <circle cx="18" cy="49" r="1"/><circle cx="34" cy="49" r="1.1"/>
-                <circle cx="52" cy="50" r=".8"/><circle cx="27" cy="53" r=".8"/>
-              </g>
-              <path d="M5 55H61" stroke="#d0c09a" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="card-label">PINTURA EN POLVO</div>
-          <div class="card-value" id="puntosPP">0</div>
-          <div class="card-unit">PUNTOS</div>
-          <div class="card-bottom-line"></div>
+          <div class="card-frame"></div><div class="card-icon">✦</div>
+          <div class="card-label">PP TOTAL DEL EQUIPO</div>
+          <div class="card-value" id="puntosPPTotal">0</div>
+          <div class="card-unit">A + B</div><div class="card-bottom-line"></div>
+        </article>
+        <article class="value-card pp-card">
+          <div class="card-frame"></div><div class="card-icon">A</div>
+          <div class="card-label">PUNTOS GRUPO A</div>
+          <div class="card-value" id="puntosPPA">0</div>
+          <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
+        </article>
+        <article class="value-card pp-card">
+          <div class="card-frame"></div><div class="card-icon">B</div>
+          <div class="card-label">PUNTOS GRUPO B</div>
+          <div class="card-value" id="puntosPPB">0</div>
+          <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
         </article>
       </div>
+      <section id="tablaSabado" hidden>
+        <h2>Rotación y resultados · <span id="divisionSabado"></span></h2>
+        <p class="tabla-ayuda">La tabla se irá completando a medida que se configuren los enfrentamientos y se registren los resultados.</p>
+        <div id="estadoTablaSabado" class="estado-pendiente">La programación de enfrentamientos aún no está disponible.</div>
+        <table id="resultadosSabado" hidden>
+          <thead><tr><th>Base</th><th>Enfrentamiento</th><th>Resultado</th><th>PP</th></tr></thead>
+          <tbody id="filasSabado"></tbody>
+        </table>
+      </section>
 
       <div class="success">
         <span class="check">✓</span>
@@ -771,17 +801,40 @@ async function iniciar() {
   }
 
   // Mostrar los datos solamente cuando la tarjeta sea válida.
-  document.getElementById("nombre").textContent = data.nombre;
+  document.getElementById("nombre").textContent =
+    modoEventoActual === "sabado" ? (data.nombre_equipo || data.nombre || data.equipo_id) : data.nombre;
 
   const valoresViernes = document.getElementById("valoresViernes");
   const valoresSabado = document.getElementById("valoresSabado");
 
   if (modoEventoActual === "sabado") {
-    document.getElementById("puntosPP").textContent =
-      Number(data.pp ?? 0).toLocaleString("es-CO");
+    document.getElementById("puntosPPTotal").textContent = Number(data.pp_total ?? 0).toLocaleString("es-CO");
+    document.getElementById("puntosPPA").textContent = Number(data.pp_a ?? 0).toLocaleString("es-CO");
+    document.getElementById("puntosPPB").textContent = Number(data.pp_b ?? 0).toLocaleString("es-CO");
+    document.getElementById("divisionSabado").textContent = data.grupo_id || "";
     valoresViernes.hidden = true;
     valoresSabado.hidden = false;
+    const tabla = document.getElementById("tablaSabado");
+    const filas = document.getElementById("filasSabado");
+    const lista = Array.isArray(data.resultados) ? data.resultados : [];
+    filas.replaceChildren();
+    document.getElementById("estadoTablaSabado").hidden = lista.length > 0;
+    document.getElementById("estadoTablaSabado").textContent = lista.length
+      ? "" : "La programación de enfrentamientos aún no está disponible.";
+    document.getElementById("resultadosSabado").hidden = lista.length === 0;
+    for (const item of lista) {
+      const tr = document.createElement("tr");
+      const rival = document.createElement("td"); rival.textContent = item.rival || "Por definir";
+      const base = document.createElement("td"); base.textContent = item.base || "Base";
+      const resultado = document.createElement("td");
+      resultado.textContent = item.registrado ? item.resultado : "Pendiente";
+      resultado.className = item.resultado === "GANÓ" ? "estado-ganado" : item.resultado === "PERDIÓ" ? "estado-perdido" : "estado-pendiente";
+      const pp = document.createElement("td"); pp.textContent = item.registrado ? Number(item.pp || 0).toLocaleString("es-CO") : "—";
+      tr.append(base,rival,resultado,pp); filas.append(tr);
+    }
+    tabla.hidden = false;
   } else {
+    document.getElementById("tablaSabado").hidden = true;
     document.getElementById("dinero").textContent =
       "$" + Number(data.monedas).toLocaleString("es-CO");
     document.getElementById("tickets").textContent = data.tickets;
