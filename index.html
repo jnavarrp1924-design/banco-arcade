@@ -766,7 +766,7 @@ async function iniciar() {
 
   try {
     configLider = JSON.parse(
-      localStorage.getItem("arcade_lider_config")
+      localStorage.getItem(modoEventoActual === "sabado" ? "arcade_lider_config_sabado" : "arcade_lider_config")
     );
   } catch (error) {
     console.warn("No se pudo leer la configuración del líder.", error);
