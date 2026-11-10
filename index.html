@@ -684,7 +684,6 @@ h1 span {
       </div>
       <section id="tablaSabado" hidden>
         <h2>Rotación y resultados · <span id="divisionSabado"></span></h2>
-        <p class="tabla-ayuda">La tabla se irá completando a medida que se configuren los enfrentamientos y se registren los resultados.</p>
         <div id="estadoTablaSabado" class="estado-pendiente">La programación de enfrentamientos aún no está disponible.</div>
         <table id="resultadosSabado" hidden>
           <thead><tr><th>Base</th><th>Enfrentamiento</th><th>Resultado</th><th>PP</th></tr></thead>
@@ -803,9 +802,7 @@ async function iniciar() {
   // Mostrar los datos solamente cuando la tarjeta sea válida.
   const nombreEquipoSabado = data.nombre_equipo || data.nombre || data.equipo_id || "";
   const divisionSabadoActual = data.division || (data.grupo_id || "").slice(-1);
-  const nombreGrupoBase = data.nombre_grupo || "";
-  const nombrePersonalizado = nombreGrupoBase && !/^Grupo\\s+\\d+\\s*[·-]\\s*[AB]$/i.test(nombreGrupoBase);
-  const nombreGrupoSabado = (nombrePersonalizado ? nombreGrupoBase : nombreEquipoSabado) + " - " + divisionSabadoActual;
+  const nombreGrupoSabado = data.nombre_grupo || (nombreEquipoSabado + " - " + divisionSabadoActual);
 
   document.getElementById("nombre").textContent =
     modoEventoActual === "sabado" ? nombreGrupoSabado : data.nombre;
@@ -819,8 +816,8 @@ async function iniciar() {
     document.getElementById("puntosPPB").textContent = Number(data.pp_b ?? 0).toLocaleString("es-CO");
     document.getElementById("divisionSabado").textContent = nombreGrupoSabado;
     document.getElementById("etiquetaPPTotal").textContent = 'PINTURA EN POLVO DEL "' + nombreEquipoSabado.toLocaleUpperCase("es-CO") + '"';
-    document.getElementById("etiquetaPPA").textContent = 'PINTURA EN POLVO DE "' + (nombrePersonalizado && divisionSabadoActual === "A" ? nombreGrupoSabado : nombreEquipoSabado + " - A").toLocaleUpperCase("es-CO") + '"';
-    document.getElementById("etiquetaPPB").textContent = 'PINTURA EN POLVO DE "' + (nombrePersonalizado && divisionSabadoActual === "B" ? nombreGrupoSabado : nombreEquipoSabado + " - B").toLocaleUpperCase("es-CO") + '"';
+    document.getElementById("etiquetaPPA").textContent = 'PINTURA EN POLVO DE "' + (data.nombre_grupo_a || (nombreEquipoSabado + " - A")).toLocaleUpperCase("es-CO") + '"';
+    document.getElementById("etiquetaPPB").textContent = 'PINTURA EN POLVO DE "' + (data.nombre_grupo_b || (nombreEquipoSabado + " - B")).toLocaleUpperCase("es-CO") + '"';
     valoresViernes.hidden = true;
     valoresSabado.hidden = false;
     const tabla = document.getElementById("tablaSabado");
@@ -829,7 +826,7 @@ async function iniciar() {
     filas.replaceChildren();
     document.getElementById("estadoTablaSabado").hidden = lista.length > 0;
     document.getElementById("estadoTablaSabado").textContent = lista.length
-      ? "" : "La programación de enfrentamientos aún no está disponible.";
+      ? "" : "Todavía no hay enfrentamientos asignados a este grupo.";
     document.getElementById("resultadosSabado").hidden = lista.length === 0;
     for (const item of lista) {
       const tr = document.createElement("tr");
