@@ -802,7 +802,7 @@ async function iniciar() {
 
   // Mostrar los datos solamente cuando la tarjeta sea válida.
   document.getElementById("nombre").textContent =
-    modoEventoActual === "sabado" ? ((data.nombre_equipo || data.nombre || data.equipo_id) + " · " + data.grupo_id) : data.nombre;
+    modoEventoActual === "sabado" ? ((data.nombre_grupo || data.nombre_equipo || data.nombre || data.equipo_id) + " · " + data.grupo_id) : data.nombre;
 
   const valoresViernes = document.getElementById("valoresViernes");
   const valoresSabado = document.getElementById("valoresSabado");
