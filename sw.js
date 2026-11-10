@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "banco-arcade-v11";
+const CACHE_NAME = "banco-arcade-v12";
 
 self.addEventListener("install", event => {
   // No precargamos archivos: evitamos que un archivo inexistente
