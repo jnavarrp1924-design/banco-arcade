@@ -523,7 +523,7 @@
   <header>
     <div class="marca" id="lemaMarca">Tu raíz es nuestra raíz</div>
     <h1>Zona de <span class="titulo-acento">premios</span></h1>
-    <p class="subtitulo">Canjea tickets de equipos · Carga dinero</p>
+    <p class="subtitulo" id="subtituloPremios">Canjea tickets de equipos · Carga dinero</p>
     <div class="linea-decorativa"></div>
   </header>
 
@@ -574,7 +574,7 @@
       <div id="panelSabadoPP" hidden style="text-align:center;padding:18px;border:1px solid #c5ad68;border-radius:14px;margin:15px 0">
         <div class="etiqueta-saldo">PINTURA EN POLVO DISPONIBLE</div>
         <div id="saldoPP" class="saldo">0</div>
-        <button id="reclamarPP" type="button">Reclamar toda mi PP</button>
+        <button id="reclamarPP" type="button">Reclamar todo</button>
       </div>
       <div class="saldo-dinero">
         <div class="etiqueta-saldo">Dinero disponible</div>
@@ -636,8 +636,12 @@ async function actualizarLemaEvento() {
       : "Tu raíz es nuestra raíz";
     const marca = $("lemaMarca");
     const pie = $("lemaPie");
+    const subtitulo = $("subtituloPremios");
     if (marca) marca.textContent = lema;
     if (pie) pie.textContent = lema;
+    if (subtitulo) subtitulo.textContent = modo === "sabado"
+      ? "CANJEA LA PINTURA EN POLVO"
+      : "Canjea tickets de equipos · Carga dinero";
     document.title = modo === "sabado" ? "Viviendo desde nuestra raíz al estilo de Calasanz · Premios" : "Premios · Banco Arcade";
   } catch (error) {
     console.warn("No se pudo consultar el modo del evento para actualizar el lema.", error);
