@@ -785,7 +785,7 @@ async function iniciar() {
   estado.textContent = "Consultando grupo...";
 
   const { data, error } = await supabaseClient.rpc(
-    modoEventoActual === "sabado" ? "consultar_equipo_sabado" : "consultar_equipo",
+    modoEventoActual === "sabado" ? "consultar_grupo_sabado" : "consultar_equipo",
     { p_token_tarjeta: token }
   );
 
@@ -802,7 +802,7 @@ async function iniciar() {
 
   // Mostrar los datos solamente cuando la tarjeta sea válida.
   document.getElementById("nombre").textContent =
-    modoEventoActual === "sabado" ? (data.nombre_equipo || data.nombre || data.equipo_id) : data.nombre;
+    modoEventoActual === "sabado" ? ((data.nombre_equipo || data.nombre || data.equipo_id) + " · " + data.grupo_id) : data.nombre;
 
   const valoresViernes = document.getElementById("valoresViernes");
   const valoresSabado = document.getElementById("valoresSabado");
