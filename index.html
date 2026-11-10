@@ -599,17 +599,25 @@ async function actualizarLemaEvento() {
     if (error) throw error;
     const sabado = modo === "sabado";
     const lema = sabado
-      ? "Viviendo desde nuestra raíz al estilo de Calasanz"
+      ? "VIVIENDO DESDE NUESTRA RAÍZ"
       : "Tu raíz es nuestra raíz";
     document.title = lema;
     const titulo = document.getElementById("tituloPagina");
     if (titulo) titulo.textContent = lema;
     const principal = document.getElementById("lemaPrincipal");
-    if (principal) principal.textContent = lema;
+    if (principal) {
+      principal.innerHTML = sabado
+        ? 'VIVIENDO DESDE <span>NUESTRA RAÍZ</span>'
+        : 'Tu raíz es <span>nuestra raíz</span>';
+    }
     const superior = document.getElementById("lemaSuperior");
-    if (superior) superior.textContent = sabado ? lema.toUpperCase() : "VIVE DESDE TU RAÍZ";
+    if (superior) superior.textContent = sabado
+      ? "VIVIENDO DESDE NUESTRA RAÍZ AL ESTILO DE CALASANZ"
+      : "VIVE DESDE TU RAÍZ";
     const pie = document.getElementById("lemaPie");
-    if (pie) pie.textContent = lema.toUpperCase();
+    if (pie) pie.textContent = sabado
+      ? "VIVIENDO DESDE NUESTRA RAÍZ AL ESTILO DE CALASANZ"
+      : "TU RAÍZ ES NUESTRA RAÍZ";
   } catch (error) {
     console.warn("No se pudo consultar el modo del evento para actualizar el lema.", error);
   }
