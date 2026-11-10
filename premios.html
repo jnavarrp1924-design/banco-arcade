@@ -521,7 +521,7 @@
 <main>
 
   <header>
-    <div class="marca">Tu raíz es nuestra raíz</div>
+    <div class="marca" id="lemaMarca">Tu raíz es nuestra raíz</div>
     <h1>Zona de <span class="titulo-acento">premios</span></h1>
     <p class="subtitulo">Canjea tickets de equipos · Carga dinero</p>
     <div class="linea-decorativa"></div>
@@ -605,7 +605,7 @@
     <p id="mensaje">El dispositivo debe ser autorizado para comenzar.</p>
   </section>
 
-  <footer>Tu raíz es nuestra raíz</footer>
+  <footer id="lemaPie">Tu raíz es nuestra raíz</footer>
 
 </main>
 
@@ -626,6 +626,25 @@ let nombreAutorizado = null;
 let dispositivoAutorizado = false;
 let procesando = false;
 let premiosDisponibles = [];
+
+async function actualizarLemaEvento() {
+  try {
+    const { data: modo, error } = await supabaseClient.rpc("obtener_modo_evento");
+    if (error) throw error;
+    const lema = modo === "sabado"
+      ? "Viviendo desde nuestra raíz al estilo de Calasanz"
+      : "Tu raíz es nuestra raíz";
+    const marca = $("lemaMarca");
+    const pie = $("lemaPie");
+    if (marca) marca.textContent = lema;
+    if (pie) pie.textContent = lema;
+    document.title = modo === "sabado" ? "Viviendo desde nuestra raíz al estilo de Calasanz · Premios" : "Premios · Banco Arcade";
+  } catch (error) {
+    console.warn("No se pudo consultar el modo del evento para actualizar el lema.", error);
+  }
+}
+window.addEventListener("focus", actualizarLemaEvento);
+window.addEventListener("pageshow", actualizarLemaEvento);
 
 function formatoPesos(valor) {
   return new Intl.NumberFormat("es-CO", {
@@ -1098,6 +1117,7 @@ async function canjearPremio(premio) {
 
 // ADMINISTRACIÓN DISCRETA: solo permite cambiar el modo global.
 async function cargarAdmin() {
+  await actualizarLemaEvento();
   const clave = $("claveAdmin").value;
   const { data, error } = await supabaseClient.rpc("admin_listar_sabado", { p_clave: clave });
   if (error) throw error;
@@ -1181,6 +1201,7 @@ window.addEventListener("online", () => {
 
 bloquearPuesto();
 actualizarConexion();
+actualizarLemaEvento();
 </script>
 </body>
 </html>
