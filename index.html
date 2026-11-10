@@ -457,6 +457,44 @@ h1 span {
   box-shadow:0 0 12px #be3a4d55;
 }
 
+/* PUNTOS DE PARTICIPACIÓN: MODO SÁBADO */
+
+.pp-card {
+  color:#fff8df;
+  border:1px solid #b99a52;
+  background:linear-gradient(145deg,#67501c 0%,#493711 42%,#241b0b 100%);
+  box-shadow:inset 0 2px 3px #ffffff35,inset 0 -9px 18px #120e05c9,0 15px 25px #000a,0 3px 0 #392b0e;
+}
+.pp-card::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 50% 20%,#ffe7a533,transparent 68%);
+  pointer-events:none;
+}
+.pp-card .card-icon {
+  background:radial-gradient(circle,#806322,#2b210d 72%);
+  border:2px solid #d5b86d;
+  box-shadow:0 0 0 5px #d5b86d1c,0 0 22px #e5bd5533,inset 0 0 15px #000b;
+}
+.pp-card .card-label {
+  background:linear-gradient(180deg,#80652b,#554117 55%,#30230d);
+  border:1px solid #d5b86d;
+}
+.pp-card .card-value {
+  color:#fff8df;
+  text-shadow:0 1px 0 #f7e5b1,0 2px 0 #b99a52,0 3px 0 #60491d,0 5px 9px #000d,0 0 12px #ffe6a333;
+}
+.pp-card .card-unit { color:#f0d99a; }
+.pp-card .card-bottom-line {
+  background:#d5b86d;
+  box-shadow:0 0 12px #e5bd5544;
+}
+#valoresSabado .value-card {
+  width:min(100%,280px);
+  margin:0 auto;
+}
+
 /* DETALLE INFERIOR */
 
 .success {
@@ -539,7 +577,7 @@ h1 span {
     <!-- Las tarjetas se muestran inicialmente con valores de ejemplo.
          Al escanear una tarjeta válida, se actualizan con los datos reales. -->
   <section id="consulta" hidden>
-      <div class="values">
+      <div class="values" id="valoresViernes">
 
         <!-- TARJETA DINERO -->
         <article class="value-card money-card">
@@ -574,6 +612,24 @@ h1 span {
         </article>
 
       </div>
+
+      <!-- MODO SÁBADO: únicamente puntos de participación (PP) -->
+      <div class="values" id="valoresSabado" hidden>
+        <article class="value-card pp-card">
+          <div class="card-frame"></div>
+          <div class="card-icon">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M32 6 39 23 57 24 43 36 47 54 32 44 17 54 21 36 7 24 25 23 32 6Z" fill="#f4d27a" stroke="#fff0bd" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="m32 17 4.5 10 10.5 1-8 7 2.5 10L32 40l-9.5 5 2.5-10-8-7 10.5-1L32 17Z" fill="#fff3c4"/>
+            </svg>
+          </div>
+          <div class="card-label">PUNTOS PP</div>
+          <div class="card-value" id="puntosPP">0</div>
+          <div class="card-unit">DISPONIBLES</div>
+          <div class="card-bottom-line"></div>
+        </article>
+      </div>
+
       <div class="success">
         <span class="check">✓</span>
         Consulta realizada correctamente.
@@ -593,11 +649,14 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_KEY
 );
 
+let modoEventoActual = "viernes";
+
 async function actualizarLemaEvento() {
   try {
     const { data: modo, error } = await supabaseClient.rpc("obtener_modo_evento");
     if (error) throw error;
-    const sabado = modo === "sabado";
+    modoEventoActual = modo === "sabado" ? "sabado" : "viernes";
+    const sabado = modoEventoActual === "sabado";
     const lema = sabado
       ? "VIVIENDO DESDE NUESTRA RAÍZ"
       : "Tu raíz es nuestra raíz";
@@ -664,7 +723,7 @@ async function iniciar() {
   estado.textContent = "Consultando grupo...";
 
   const { data, error } = await supabaseClient.rpc(
-    "consultar_equipo",
+    modoEventoActual === "sabado" ? "consultar_equipo_sabado" : "consultar_equipo",
     { p_token_tarjeta: token }
   );
 
@@ -682,10 +741,21 @@ async function iniciar() {
   // Mostrar los datos solamente cuando la tarjeta sea válida.
   document.getElementById("nombre").textContent = data.nombre;
 
-  document.getElementById("dinero").textContent =
-    "$" + Number(data.monedas).toLocaleString("es-CO");
+  const valoresViernes = document.getElementById("valoresViernes");
+  const valoresSabado = document.getElementById("valoresSabado");
 
-  document.getElementById("tickets").textContent = data.tickets;
+  if (modoEventoActual === "sabado") {
+    document.getElementById("puntosPP").textContent =
+      Number(data.pp ?? 0).toLocaleString("es-CO");
+    valoresViernes.hidden = true;
+    valoresSabado.hidden = false;
+  } else {
+    document.getElementById("dinero").textContent =
+      "$" + Number(data.monedas).toLocaleString("es-CO");
+    document.getElementById("tickets").textContent = data.tickets;
+    valoresViernes.hidden = false;
+    valoresSabado.hidden = true;
+  }
 
   bloqueGrupo.hidden = false;
   consulta.hidden = false;
