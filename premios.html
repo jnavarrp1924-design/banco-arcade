@@ -574,7 +574,9 @@
       <div id="panelSabadoPP" hidden style="text-align:center;padding:18px;border:1px solid #c5ad68;border-radius:14px;margin:15px 0">
         <div class="etiqueta-saldo">PINTURA EN POLVO DISPONIBLE</div>
         <div id="saldoPP" class="saldo">0</div>
-        <button id="reclamarPP" type="button">Reclamar todo</button>
+        <p id="detallePPEquipo" style="font-size:13px;color:#d8cda9;line-height:1.6">A: 0 PP · B: 0 PP</p>
+        <p id="grupoPPActual" style="font-size:12px;color:#d8cda9">Consulta desde cualquiera de las dos tarjetas A/B.</p>
+        <button id="reclamarPP" type="button">Reclamar PP del equipo completo</button>
       </div>
       <div class="saldo-dinero">
         <div class="etiqueta-saldo">Dinero disponible</div>
@@ -913,11 +915,13 @@ async function consultarEquipo() {
     modoEventoActual = modo;
     let equipo;
     if (modo === "sabado") {
-      const { data, error } = await supabaseClient.rpc("consultar_equipo_sabado", { p_token_tarjeta: token });
+      const { data, error } = await supabaseClient.rpc("consultar_grupo_sabado", { p_token_tarjeta: token });
       if (error) throw error;
       equipo = data;
       $("panelSabadoPP").hidden = false;
-      $("saldoPP").textContent = Number(equipo.pp || 0).toLocaleString("es-CO");
+      $("saldoPP").textContent = Number(equipo.pp_total || 0).toLocaleString("es-CO");
+      $("detallePPEquipo").textContent = "A: " + Number(equipo.pp_a || 0).toLocaleString("es-CO") + " PP · B: " + Number(equipo.pp_b || 0).toLocaleString("es-CO") + " PP";
+      $("grupoPPActual").textContent = "Tarjeta consultada: " + (equipo.grupo_id || "") + " · Canje consolidado del equipo " + equipo.equipo_id;
       $("saldoTickets").hidden = true;
       $("saldoTickets").previousElementSibling.hidden = true;
       $("saldoDinero").parentElement.hidden = true;
@@ -1167,14 +1171,19 @@ $("modoSabado").addEventListener("click", async () => {
 });
 async function reclamarPP() {
   if (procesando || !equipoActual || !tokenActual) return;
-  if (Number(equipoActual.pp||0)<=0) { mostrarMensaje("No hay PP disponibles para reclamar."); return; }
-  if (!confirm("¿Reclamar toda la PP disponible de "+equipoActual.nombre+"?")) return;
+  const total = Number(equipoActual.pp_total || 0);
+  if (total <= 0) { mostrarMensaje("El equipo no tiene PP disponibles para reclamar."); return; }
+  if (!confirm("¿Reclamar los " + total.toLocaleString("es-CO") + " PP consolidados de " + equipoActual.equipo_id + "? Se descontarán los saldos A y B completos.")) return;
   procesando=true; $("reclamarPP").disabled=true;
   try {
-    const {data,error}=await supabaseClient.rpc("reclamar_todo_pp",{p_token_tarjeta:tokenActual,p_solicitud_id:crypto.randomUUID()});
+    const {data,error}=await supabaseClient.rpc("reclamar_pp_equipo_sabado",{
+      p_token_tarjeta:tokenActual,p_solicitud_id:crypto.randomUUID()
+    });
     if(error)throw error;
-    equipoActual.pp=0; $("saldoPP").textContent="0";
-    mostrarMensaje("Reclamación confirmada: "+data.pp_reclamados+" PP. El saldo disponible quedó en cero.");
+    equipoActual.pp_total=0; equipoActual.pp_a=0; equipoActual.pp_b=0; equipoActual.pp=0;
+    $("saldoPP").textContent="0";
+    $("detallePPEquipo").textContent="A: 0 PP · B: 0 PP";
+    mostrarMensaje("Canje consolidado confirmado: "+Number(data.pp_reclamados||0).toLocaleString("es-CO")+" PP. Los saldos A y B quedaron en cero.");
   } catch(e) { mostrarMensaje("No se pudo confirmar la reclamación: "+e.message); }
   finally { procesando=false; $("reclamarPP").disabled=false; }
 }
