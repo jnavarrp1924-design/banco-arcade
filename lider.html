@@ -1281,24 +1281,30 @@ async function procesarTarjetaSabado(token) {
   $("mensaje").textContent = "Grupo " + data.grupo_id + " identificado. Para habilitar este resultado, ambos grupos deben haber completado sus enfrentamientos en las bases anteriores.";
   for (const f of data.enfrentamientos) {
     const bloqueadoPorAnterior = f.habilitado === false;
+    const grupoActual = data.grupo_id;
+    const grupoRival = f.grupo_a_id === grupoActual
+      ? f.grupo_b_id
+      : f.grupo_b_id === grupoActual
+        ? f.grupo_a_id
+        : null;
     const card = document.createElement("article");
     card.className = "action-card";
     const title = document.createElement("h3");
     title.textContent = f.competencia || "Enfrentamiento";
-    const rival = document.createElement("p");
-    rival.textContent = "Participan: " + f.grupo_a_id + " vs. " + f.grupo_b_id + " · PP: " + f.pp_ganador + " al ganador / " + f.pp_perdedor + " al otro grupo";
+    const grupo = document.createElement("p");
+    grupo.textContent = "Grupo: " + grupoActual;
     const state = document.createElement("p");
     state.textContent = f.registrado
-      ? "Resultado ya registrado: " + f.ganador_grupo_id
+      ? "Resultado registrado: " + (f.ganador_grupo_id === grupoActual ? "GANÓ" : "PERDIÓ")
       : bloqueadoPorAnterior
         ? "Falta por pasar por una base anterior."
-        : "Habilitado para registrar resultado.";
-    card.append(title,rival,state);
-    if (!f.registrado) {
-      for (const winner of [f.grupo_a_id,f.grupo_b_id]) {
+        : "Selecciona el resultado del grupo.";
+    card.append(title,grupo,state);
+    if (!f.registrado && grupoRival) {
+      for (const resultado of ["GANÓ","PERDIÓ"]) {
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.textContent = "Registrar ganador: " + winner;
+        btn.textContent = resultado;
         btn.disabled = bloqueadoPorAnterior;
         if (bloqueadoPorAnterior) btn.title = "Falta por pasar por una base anterior.";
         btn.addEventListener("click", async () => {
@@ -1308,13 +1314,14 @@ async function procesarTarjetaSabado(token) {
               " antes de habilitar este resultado.";
             return;
           }
-          if (!confirm("¿Confirmas que " + winner + " ganó este enfrentamiento?")) return;
+          const ganador = resultado === "GANÓ" ? grupoActual : grupoRival;
+          if (!confirm("¿Confirmas que el grupo " + grupoActual + " " + resultado.toLowerCase() + "?")) return;
           btn.disabled = true;
           try {
             const { data: result, error: saveError } = await supabaseClient.rpc("registrar_resultado_grupo_sabado", {
               p_token_estacion: config.token,
               p_enfrentamiento_id: f.enfrentamiento_id,
-              p_ganador_grupo_id: winner
+              p_ganador_grupo_id: ganador
             });
             if (saveError) throw saveError;
             $("mensaje").textContent = result?.repetido ? "Este resultado ya estaba registrado." : "Resultado guardado. Los PP se asignaron a ambos grupos.";
