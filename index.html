@@ -508,13 +508,58 @@ h1 span {
 #valoresSabado .value-card {
   width:100%;
   min-width:0;
-  height:260px;
+  height:280px;
   margin:0 auto;
+  padding:16px 8px;
+  display:grid;
+  grid-template-rows:76px minmax(42px,auto) minmax(48px,1fr) auto 3px;
+  justify-items:center;
+  align-items:center;
+  row-gap:8px;
 }
 
-/* Separación adicional entre el marco rectangular y el óvalo */
+/* Distribución uniforme y centrada del contenido de las tres tarjetas */
 #valoresSabado .card-icon {
-  margin-top:10px;
+  width:76px;
+  height:76px;
+  margin:0;
+  flex:none;
+}
+#valoresSabado .card-icon svg {
+  width:64px;
+  height:64px;
+  transform:none;
+}
+#valoresSabado .card-label {
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 4px;
+  font-size:10px;
+  line-height:1.05;
+  letter-spacing:.8px;
+  overflow-wrap:anywhere;
+  text-align:center;
+}
+#valoresSabado .card-value {
+  width:100%;
+  font-size:clamp(30px,5vw,42px);
+  line-height:1;
+  margin:0;
+}
+#valoresSabado .card-unit {
+  font-size:11px;
+  line-height:1;
+  letter-spacing:2px;
+  text-align:center;
+}
+#valoresSabado .card-bottom-line {
+  width:65%;
+  align-self:center;
 }
 #tablaSabado {
   margin-top:24px;
