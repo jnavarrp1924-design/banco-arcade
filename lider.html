@@ -1278,7 +1278,7 @@ async function procesarTarjetaSabado(token) {
     $("mensaje").textContent = "Grupo identificado: " + (data?.grupo_id || "") + ". Aún no hay enfrentamientos programados para esta base.";
     return;
   }
-  $("mensaje").textContent = "Grupo " + data.grupo_id + " identificado. Registra los resultados en el orden de la lista: no podrás avanzar si hay un enfrentamiento anterior pendiente.";
+  $("mensaje").textContent = "Grupo " + data.grupo_id + " identificado. Para habilitar este resultado, ambos grupos deben haber completado sus enfrentamientos en las bases anteriores.";
   for (const f of data.enfrentamientos) {
     const bloqueadoPorAnterior = f.habilitado === false;
     const card = document.createElement("article");
