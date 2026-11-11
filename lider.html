@@ -1279,9 +1279,8 @@ async function procesarTarjetaSabado(token) {
     return;
   }
   $("mensaje").textContent = "Grupo " + data.grupo_id + " identificado. Registra los resultados en el orden de la lista: no podrás avanzar si hay un enfrentamiento anterior pendiente.";
-  let hayPendienteAnterior = false;
   for (const f of data.enfrentamientos) {
-    const bloqueadoPorAnterior = hayPendienteAnterior;
+    const bloqueadoPorAnterior = f.habilitado === false;
     const card = document.createElement("article");
     card.className = "action-card";
     const title = document.createElement("h3");
@@ -1289,7 +1288,11 @@ async function procesarTarjetaSabado(token) {
     const rival = document.createElement("p");
     rival.textContent = "Participan: " + f.grupo_a_id + " vs. " + f.grupo_b_id + " · PP: " + f.pp_ganador + " al ganador / " + f.pp_perdedor + " al otro grupo";
     const state = document.createElement("p");
-    state.textContent = f.registrado ? "Resultado ya registrado: " + f.ganador_grupo_id : "Pendiente de resultado";
+    state.textContent = f.registrado
+      ? "Resultado ya registrado: " + f.ganador_grupo_id
+      : bloqueadoPorAnterior
+        ? "Falta por pasar por una base anterior."
+        : "Habilitado para registrar resultado.";
     card.append(title,rival,state);
     if (!f.registrado) {
       for (const winner of [f.grupo_a_id,f.grupo_b_id]) {
@@ -1297,12 +1300,12 @@ async function procesarTarjetaSabado(token) {
         btn.type = "button";
         btn.textContent = "Registrar ganador: " + winner;
         btn.disabled = bloqueadoPorAnterior;
-        if (bloqueadoPorAnterior) {
-          btn.title = "Completa primero los enfrentamientos anteriores.";
-        }
+        if (bloqueadoPorAnterior) btn.title = "Falta por pasar por una base anterior.";
         btn.addEventListener("click", async () => {
           if (bloqueadoPorAnterior) {
-            $("mensaje").textContent = "No puedes registrar este ganador todavía. Completa primero todos los enfrentamientos anteriores.";
+            $("mensaje").textContent = "Falta por pasar por una base anterior" +
+              (f.base_pendiente ? ": " + f.base_pendiente : ".") +
+              " antes de habilitar este resultado.";
             return;
           }
           if (!confirm("¿Confirmas que " + winner + " ganó este enfrentamiento?")) return;
@@ -1323,15 +1326,14 @@ async function procesarTarjetaSabado(token) {
         });
         card.append(btn);
       }
-    }
-    if (!f.registrado) {
       if (bloqueadoPorAnterior) {
         const aviso = document.createElement("p");
         aviso.className = "small";
-        aviso.textContent = "Bloqueado: registra primero el enfrentamiento anterior.";
+        aviso.textContent = "Falta por pasar por una base anterior" +
+          (f.base_pendiente ? ": " + f.base_pendiente : ".") +
+          " Los botones de resultado están deshabilitados.";
         card.append(aviso);
       }
-      hayPendienteAnterior = true;
     }
     lista.append(card);
   }
