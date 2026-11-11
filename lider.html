@@ -1293,13 +1293,17 @@ async function procesarTarjetaSabado(token) {
     title.textContent = f.competencia || "Enfrentamiento";
     const grupo = document.createElement("p");
     grupo.textContent = "Grupo: " + grupoActual;
+    grupo.style.textAlign = "center";
+    grupo.style.fontWeight = "800";
+    grupo.style.fontSize = "16px";
     const state = document.createElement("p");
-    state.textContent = f.registrado
-      ? "Resultado registrado: " + (f.ganador_grupo_id === grupoActual ? "GANÓ" : "PERDIÓ")
-      : bloqueadoPorAnterior
-        ? "Falta por pasar por una base anterior."
-        : "Selecciona el resultado del grupo.";
-    card.append(title,grupo,state);
+    if (f.registrado) {
+      state.textContent = "Resultado registrado: " + (f.ganador_grupo_id === grupoActual ? "GANÓ" : "PERDIÓ");
+    } else if (!bloqueadoPorAnterior) {
+      state.textContent = "Selecciona el resultado del grupo.";
+    }
+    card.append(title,grupo);
+    if (state.textContent) card.append(state);
     if (!f.registrado && grupoRival) {
       for (const resultado of ["GANÓ","PERDIÓ"]) {
         const btn = document.createElement("button");
@@ -1336,9 +1340,8 @@ async function procesarTarjetaSabado(token) {
       if (bloqueadoPorAnterior) {
         const aviso = document.createElement("p");
         aviso.className = "small";
-        aviso.textContent = "Falta por pasar por una base anterior" +
-          (f.base_pendiente ? ": " + f.base_pendiente : ".") +
-          " Los botones de resultado están deshabilitados.";
+        aviso.textContent = "Falta por pasar por una base anterior: " +
+          (f.base_pendiente || "base pendiente") + ".";
         card.append(aviso);
       }
     }
