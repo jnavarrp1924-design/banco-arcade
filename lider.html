@@ -1278,8 +1278,10 @@ async function procesarTarjetaSabado(token) {
     $("mensaje").textContent = "Grupo identificado: " + (data?.grupo_id || "") + ". Aún no hay enfrentamientos programados para esta base.";
     return;
   }
-  $("mensaje").textContent = "Grupo " + data.grupo_id + " identificado. Selecciona el resultado al terminar el juego.";
+  $("mensaje").textContent = "Grupo " + data.grupo_id + " identificado. Registra los resultados en el orden de la lista: no podrás avanzar si hay un enfrentamiento anterior pendiente.";
+  let hayPendienteAnterior = false;
   for (const f of data.enfrentamientos) {
+    const bloqueadoPorAnterior = hayPendienteAnterior;
     const card = document.createElement("article");
     card.className = "action-card";
     const title = document.createElement("h3");
@@ -1294,7 +1296,15 @@ async function procesarTarjetaSabado(token) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = "Registrar ganador: " + winner;
+        btn.disabled = bloqueadoPorAnterior;
+        if (bloqueadoPorAnterior) {
+          btn.title = "Completa primero los enfrentamientos anteriores.";
+        }
         btn.addEventListener("click", async () => {
+          if (bloqueadoPorAnterior) {
+            $("mensaje").textContent = "No puedes registrar este ganador todavía. Completa primero todos los enfrentamientos anteriores.";
+            return;
+          }
           if (!confirm("¿Confirmas que " + winner + " ganó este enfrentamiento?")) return;
           btn.disabled = true;
           try {
@@ -1313,6 +1323,15 @@ async function procesarTarjetaSabado(token) {
         });
         card.append(btn);
       }
+    }
+    if (!f.registrado) {
+      if (bloqueadoPorAnterior) {
+        const aviso = document.createElement("p");
+        aviso.className = "small";
+        aviso.textContent = "Bloqueado: registra primero el enfrentamiento anterior.";
+        card.append(aviso);
+      }
+      hayPendienteAnterior = true;
     }
     lista.append(card);
   }
