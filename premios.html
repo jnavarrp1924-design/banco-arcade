@@ -522,7 +522,7 @@
 
   <header>
     <div class="marca" id="lemaMarca">Tu raíz es nuestra raíz</div>
-    <h1>Zona de <span class="titulo-acento">canje</span></h1>
+    <h1 id="tituloZona">Zona de <span class="titulo-acento">canje</span></h1>
     <p class="subtitulo" id="subtituloPremios">Canjea tickets de equipos · Carga dinero</p>
     <div class="linea-decorativa"></div>
   </header>
@@ -639,6 +639,10 @@ async function actualizarLemaEvento() {
     const marca = $("lemaMarca");
     const pie = $("lemaPie");
     const subtitulo = $("subtituloPremios");
+    const tituloZona = $("tituloZona");
+    if (tituloZona) tituloZona.innerHTML = modo === "sabado"
+      ? 'Zona de <span class="titulo-acento">canje</span>'
+      : 'Zona de <span class="titulo-acento">premio</span>';
     if (marca) marca.textContent = lema;
     if (pie) pie.textContent = lema;
     if (subtitulo) subtitulo.textContent = modo === "sabado"
