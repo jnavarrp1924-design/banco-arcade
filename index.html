@@ -462,7 +462,7 @@ h1 span {
   box-shadow:0 0 12px #be3a4d55;
 }
 
-/* PUNTOS DE PARTICIPACIÓN: MODO SÁBADO */
+/* GRAMOS DE PINTURA: MODO SÁBADO */
 
 .pp-card {
   color:#f1ead7;
@@ -648,22 +648,35 @@ h1 span {
   .ticket-card .card-value { font-size:55px; }
 }
 
-/* Corrección móvil: centrar cada elemento dentro de las tarjetas del sábado. */
-#valoresSabado .value-card > :not(.card-frame) {
-  justify-self:center;
-  align-self:center;
+/* Centrado consistente del contenido en las tarjetas del sábado, también en móvil. */
+#valoresSabado .value-card {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
   text-align:center;
+}
+#valoresSabado .value-card > :not(.card-frame) {
+  position:relative;
+  left:auto;
+  right:auto;
+  align-self:center;
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+  transform:none;
 }
 #valoresSabado .card-icon {
   display:grid;
   place-items:center;
-  justify-self:center;
+  flex:0 0 76px;
+  width:76px;
   margin-inline:auto;
 }
 #valoresSabado .card-icon svg {
   display:block;
-  justify-self:center;
-  align-self:center;
+  width:64px;
+  height:64px;
   margin:auto;
   transform:none;
 }
@@ -671,14 +684,24 @@ h1 span {
   display:flex;
   justify-content:center;
   align-items:center;
-  text-align:center;
+  width:calc(100% - 8px);
   margin-inline:auto;
-}
-#valoresSabado .card-value,
-#valoresSabado .card-unit,
-#valoresSabado .card-bottom-line {
-  justify-self:center;
   text-align:center;
+}
+#valoresSabado .card-value {
+  display:block;
+  width:100%;
+  margin-inline:auto;
+  text-align:center;
+}
+#valoresSabado .card-unit {
+  display:block;
+  width:100%;
+  margin-inline:auto;
+  text-align:center;
+}
+#valoresSabado .card-bottom-line {
+  display:block;
   margin-inline:auto;
 }
 
@@ -758,7 +781,7 @@ h1 span {
           </div>
           <div class="card-label" id="etiquetaPPTotal">PINTURA EN POLVO DEL EQUIPO</div>
           <div class="card-value" id="puntosPPTotal">0</div>
-          <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
+          <div class="card-unit">GRAMOS</div><div class="card-bottom-line"></div>
         </article>
         <article class="value-card pp-card">
           <div class="card-frame"></div><div class="card-icon" aria-label="Arena">
@@ -770,7 +793,7 @@ h1 span {
           </div>
           <div class="card-label" id="etiquetaPPA">PINTURA EN POLVO DEL GRUPO A</div>
           <div class="card-value" id="puntosPPA">0</div>
-          <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
+          <div class="card-unit">GRAMOS</div><div class="card-bottom-line"></div>
         </article>
         <article class="value-card pp-card">
           <div class="card-frame"></div><div class="card-icon" aria-label="Arena">
@@ -782,14 +805,14 @@ h1 span {
           </div>
           <div class="card-label" id="etiquetaPPB">PINTURA EN POLVO DEL GRUPO B</div>
           <div class="card-value" id="puntosPPB">0</div>
-          <div class="card-unit">PUNTOS</div><div class="card-bottom-line"></div>
+          <div class="card-unit">GRAMOS</div><div class="card-bottom-line"></div>
         </article>
       </div>
       <section id="tablaSabado" hidden>
         <h2>Rotación y resultados · <span id="divisionSabado"></span></h2>
         <div id="estadoTablaSabado" class="estado-pendiente">La programación de enfrentamientos aún no está disponible.</div>
         <table id="resultadosSabado" hidden>
-          <thead><tr><th>Base</th><th>RIVAL</th><th>Resultado</th><th>PP</th></tr></thead>
+          <thead><tr><th>Base</th><th>RIVAL</th><th>Resultado</th><th>GRAMOS</th></tr></thead>
           <tbody id="filasSabado"></tbody>
         </table>
       </section>
