@@ -425,6 +425,58 @@
       background: rgba(0,0,0,.18);
     }
 
+    #listaPremios {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .premio {
+      min-width: 0;
+      padding: 9px;
+      margin: 0;
+      border-radius: 10px;
+    }
+
+    .premio::after { display: none; }
+
+    .premio strong {
+      font-size: 18px;
+      line-height: 1.05;
+      letter-spacing: .4px;
+      overflow-wrap: anywhere;
+    }
+
+    .premio .costo {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .premio img {
+      max-height: 70px;
+      margin-bottom: 6px;
+    }
+
+    .premio .canjear {
+      font-size: 14px;
+      line-height: 1.1;
+      padding: 8px 5px;
+      margin: 5px 0 1px;
+      letter-spacing: .3px;
+      box-shadow: 0 3px 0 #713313;
+    }
+
+    #listaPremios .sin-premios {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 340px) {
+      #listaPremios { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .premio { padding: 7px; }
+      .premio strong { font-size: 16px; }
+      .premio .canjear { font-size: 12px; }
+    }
+
     .sin-premios {
       color: var(--texto-suave);
       text-align: center;
@@ -760,12 +812,6 @@ function mostrarPremios() {
     const nombre = document.createElement("strong");
     nombre.textContent = premio.nombre;
     tarjeta.appendChild(nombre);
-
-    if (premio.descripcion) {
-      const descripcion = document.createElement("p");
-      descripcion.textContent = premio.descripcion;
-      tarjeta.appendChild(descripcion);
-    }
 
     const costo = document.createElement("p");
     costo.className = "costo";
