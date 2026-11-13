@@ -431,55 +431,6 @@
       padding: 16px 0;
     }
 
-    .mision-card {
-      position: relative;
-      padding: 17px;
-      margin: 14px 0;
-      border: 1px solid rgba(232, 184, 91, .3);
-      border-radius: 14px;
-      background: linear-gradient(145deg, #302014, #1b130e 75%);
-      box-shadow: 0 8px 16px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,220,180,.08);
-    }
-    .mision-card h3 {
-      margin: 0 0 8px;
-      color: var(--naranja-claro);
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 23px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-    .mision-card .mision-instrucciones {
-      color: #e0cdb9;
-      font-size: 15px;
-      line-height: 1.45;
-      margin: 7px 0 12px;
-    }
-    .mision-card .mision-presupuesto {
-      color: var(--dorado);
-      font-weight: 700;
-      font-size: 16px;
-      margin: 0 0 12px;
-    }
-    .mision-material {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 7px 0;
-      border-top: 1px solid rgba(255,177,95,.12);
-      color: #d6c3b0;
-      font-size: 14px;
-    }
-    .mision-material .material-precio {
-      flex: 0 0 auto;
-      color: var(--dorado);
-      font-weight: 700;
-      text-align: right;
-    }
-    .mision-especial {
-      color: #ffbd76;
-      font-weight: 700;
-    }
-
     #mensaje {
       white-space: pre-wrap;
       font-weight: 600;
@@ -648,13 +599,6 @@
         <p class="sin-premios">Cargando premios...</p>
       </div>
 
-      <div class="encabezado-premios" id="encabezadoMisiones">
-        <h2>Misiones de los grupos</h2>
-      </div>
-      <div id="listaMisiones">
-        <p class="sin-premios">Las misiones aparecerán al consultar el grupo.</p>
-      </div>
-
       <button id="limpiar" class="secundario">Consultar otro grupo</button>
     </div>
   </section>
@@ -761,10 +705,10 @@ async function cargarPremios() {
 
   try {
     const { data, error } = await supabaseClient
-      .from("premios")
-      .select("id,nombre,descripcion,imagen_url,costo_tickets,activo")
+      .from("catalogo_premios")
+      .select("id,nombre,descripcion,imagen_url,costo_tickets,activo,orden")
       .eq("activo", true)
-      .order("nombre", { ascending: true });
+      .order("orden", { ascending: true });
 
     if (error) throw error;
 
@@ -779,83 +723,6 @@ async function cargarPremios() {
     aviso.className = "sin-premios";
     aviso.textContent = "No se pudieron cargar los premios: " + error.message;
     $("listaPremios").appendChild(aviso);
-  }
-}
-
-/* CARGAR Y MOSTRAR LAS NUEVE MISIONES EN TARJETAS INDEPENDIENTES */
-async function cargarMisiones() {
-  const contenedor = $("listaMisiones");
-  contenedor.replaceChildren();
-  const cargando = document.createElement("p");
-  cargando.className = "sin-premios";
-  cargando.textContent = "Cargando misiones...";
-  contenedor.appendChild(cargando);
-
-  try {
-    const { data: misiones, error: errorMisiones } = await supabaseClient
-      .from("misiones")
-      .select("id,nombre,instrucciones,presupuesto_tickets,orden")
-      .eq("activa", true)
-      .order("orden", { ascending: true });
-    if (errorMisiones) throw errorMisiones;
-
-    const { data: materiales, error: errorMateriales } = await supabaseClient
-      .from("materiales_mision")
-      .select("id,mision_id,nombre,cantidad_ideal,unidad,precio_unitario_tickets,especial,orden")
-      .eq("activo", true)
-      .order("orden", { ascending: true });
-    if (errorMateriales) throw errorMateriales;
-
-    contenedor.replaceChildren();
-    (misiones || []).forEach(mision => {
-      const tarjeta = document.createElement("article");
-      tarjeta.className = "mision-card";
-
-      const titulo = document.createElement("h3");
-      titulo.textContent = mision.nombre;
-      tarjeta.appendChild(titulo);
-
-      const instrucciones = document.createElement("p");
-      instrucciones.className = "mision-instrucciones";
-      instrucciones.textContent = mision.instrucciones;
-      tarjeta.appendChild(instrucciones);
-
-      const presupuesto = document.createElement("p");
-      presupuesto.className = "mision-presupuesto";
-      presupuesto.textContent = "Presupuesto del grupo: " + mision.presupuesto_tickets + " tickets";
-      tarjeta.appendChild(presupuesto);
-
-      (materiales || []).filter(item => item.mision_id === mision.id).forEach(item => {
-        const fila = document.createElement("div");
-        fila.className = "mision-material";
-
-        const detalle = document.createElement("span");
-        detalle.textContent = item.nombre + " · " + item.cantidad_ideal + " " + item.unidad;
-        if (item.especial) detalle.className = "mision-especial";
-
-        const precio = document.createElement("span");
-        precio.className = "material-precio";
-        precio.textContent = Number(item.precio_unitario_tickets).toLocaleString("es-CO") + " tickets / unidad";
-
-        fila.append(detalle, precio);
-        tarjeta.appendChild(fila);
-      });
-
-      contenedor.appendChild(tarjeta);
-    });
-
-    if (!misiones || misiones.length === 0) {
-      const aviso = document.createElement("p");
-      aviso.className = "sin-premios";
-      aviso.textContent = "No hay misiones activas.";
-      contenedor.appendChild(aviso);
-    }
-  } catch (error) {
-    contenedor.replaceChildren();
-    const aviso = document.createElement("p");
-    aviso.className = "sin-premios";
-    aviso.textContent = "No se pudieron cargar las misiones: " + error.message;
-    contenedor.appendChild(aviso);
   }
 }
 
@@ -1089,12 +956,6 @@ async function consultarEquipo() {
     $("datosEquipo").hidden = false;
     if (modo !== "sabado") {
       mostrarPremios();
-      $("encabezadoMisiones").hidden = false;
-      $("listaMisiones").hidden = false;
-      await cargarMisiones();
-    } else {
-      $("encabezadoMisiones").hidden = true;
-      $("listaMisiones").hidden = true;
     }
     mostrarMensaje("Grupo consultado correctamente.");
 
@@ -1345,7 +1206,6 @@ $("limpiar").addEventListener("click", () => {
   $("tokenTarjeta").value = "";
   $("montoRecarga").value = "";
   $("datosEquipo").hidden = true;
-  $("listaMisiones").replaceChildren();
   mostrarMensaje("Listo para consultar otro grupo.");
 });
 
