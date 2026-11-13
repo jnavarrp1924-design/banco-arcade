@@ -705,6 +705,93 @@ h1 span {
   margin-inline:auto;
 }
 
+
+/* GUÍA DE BASES: SOLO VIERNES */
+.bases-guide {
+  margin-top:22px;
+  padding:16px 12px 14px;
+  border:1px solid #54749b;
+  border-radius:18px;
+  background:linear-gradient(145deg,#10243d,#091729);
+  box-shadow:inset 0 1px 0 #ffffff18,0 10px 24px #0005;
+  position:relative;
+  z-index:2;
+}
+.bases-guide h2 {
+  margin:0 0 5px;
+  color:#f2e4c3;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:24px;
+  letter-spacing:1px;
+  text-align:center;
+  text-transform:uppercase;
+}
+.bases-guide .guide-subtitle {
+  margin:0 0 12px;
+  color:#afc0d8;
+  font-size:12px;
+  text-align:center;
+}
+.bases-table {
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  font-size:12px;
+}
+.bases-table th,
+.bases-table td {
+  padding:8px 5px;
+  border-bottom:1px solid #ffffff20;
+  text-align:left;
+  vertical-align:middle;
+  overflow-wrap:anywhere;
+}
+.bases-table th {
+  color:#d7c69d;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.bases-table th:first-child,
+.bases-table td:first-child { width:43%; }
+.bases-table th:nth-child(2),
+.bases-table td:nth-child(2) { width:23%; }
+.bases-table th:last-child,
+.bases-table td:last-child { width:34%; }
+.bases-table td:first-child {
+  color:#f4f6fb;
+  font-weight:700;
+}
+.bases-table td:nth-child(2) {
+  color:#f0d99e;
+  font-weight:700;
+  white-space:nowrap;
+}
+.bases-table td:last-child { color:#c2d0e3; }
+.canje-note {
+  margin-top:13px;
+  padding:10px 11px;
+  border:1px solid #91435b;
+  border-radius:10px;
+  background:#68132933;
+  color:#f7dce4;
+  font-size:12px;
+  text-align:center;
+}
+.canje-note strong {
+  color:#fff1d2;
+  letter-spacing:.4px;
+}
+@media (max-width:380px) {
+  .bases-guide { padding:13px 8px; }
+  .bases-table { font-size:10px; }
+  .bases-table th,.bases-table td { padding:7px 3px; }
+  .bases-table th { font-size:9px; letter-spacing:.5px; }
+  .bases-table th:first-child,.bases-table td:first-child { width:41%; }
+  .bases-table th:nth-child(2),.bases-table td:nth-child(2) { width:25%; }
+  .bases-table th:last-child,.bases-table td:last-child { width:34%; }
+}
+
 </style>
 </head>
 
@@ -768,6 +855,31 @@ h1 span {
         </article>
 
       </div>
+
+      <section class="bases-guide" id="basesViernes" hidden>
+        <h2>Mapa de las 14 bases</h2>
+        <p class="guide-subtitle">Consulta el nombre de cada juego, su costo de entrada y dónde encontrarlo.</p>
+        <table class="bases-table">
+          <thead><tr><th>Base</th><th>Precio</th><th>¿Dónde queda?</th></tr></thead>
+          <tbody>
+              <tr><td>01 · Pescando</td><td>$5.100</td><td>Segundo piso de primaria</td></tr>
+              <tr><td>02 · Tiro al blanco</td><td>$6.300</td><td>Provincia</td></tr>
+              <tr><td>03 · Paseando por el aro</td><td>$4.200</td><td>Frente a la bodega</td></tr>
+              <tr><td>04 · Boli - Rana</td><td>$6.400</td><td>Biblioteca de primaria</td></tr>
+              <tr><td>05 · Dos palos, una bola</td><td>$7.600</td><td>Mesas de pimpón</td></tr>
+              <tr><td>06 · 21</td><td>$5.200</td><td>Parque de tránsito</td></tr>
+              <tr><td>07 · Soda Pong</td><td>$6.200</td><td>Pasillo de bachillerato</td></tr>
+              <tr><td>08 · La pompa</td><td>$6.100</td><td>Segundo piso de bachillerato</td></tr>
+              <tr><td>09 · Armando palabras</td><td>$5.300</td><td>Teatro</td></tr>
+              <tr><td>10 · Retos mentales</td><td>$7.700</td><td>Pasillo de entrada a portería</td></tr>
+              <tr><td>11 · Paseando el pimpón</td><td>$8.600</td><td>Pasillo de primaria</td></tr>
+              <tr><td>12 · Básquetbol</td><td>$6.100</td><td>Parte de atrás de danzas</td></tr>
+              <tr><td>13 · Aritos y estacas</td><td>$5.400</td><td>Junto a los baños de preescolar (parte externa)</td></tr>
+              <tr><td>14 · Fútbol americano</td><td>$5.300</td><td>Ubicación por definir</td></tr>
+          </tbody>
+        </table>
+        <div class="canje-note"><strong>OFICINA DE CANJE:</strong> Salón de tercero.</div>
+      </section>
 
       <!-- MODO SÁBADO: saldo consolidado e individual de A/B -->
       <div class="values" id="valoresSabado" hidden>
@@ -944,6 +1056,7 @@ async function iniciar() {
     document.getElementById("etiquetaPPTotal").textContent = 'PINTURA EN POLVO DEL "' + nombreEquipoSabado.toLocaleUpperCase("es-CO") + '"';
     document.getElementById("etiquetaPPA").textContent = 'PINTURA EN POLVO DE "' + (data.nombre_grupo_a || (nombreEquipoSabado + " - A")).toLocaleUpperCase("es-CO") + '"';
     document.getElementById("etiquetaPPB").textContent = 'PINTURA EN POLVO DE "' + (data.nombre_grupo_b || (nombreEquipoSabado + " - B")).toLocaleUpperCase("es-CO") + '"';
+    document.getElementById("basesViernes").hidden = true;
     valoresViernes.hidden = true;
     valoresSabado.hidden = false;
     const tabla = document.getElementById("tablaSabado");
@@ -972,6 +1085,7 @@ async function iniciar() {
     document.getElementById("tickets").textContent = data.tickets;
     valoresViernes.hidden = false;
     valoresSabado.hidden = true;
+    document.getElementById("basesViernes").hidden = false;
   }
 
   bloqueGrupo.hidden = false;
