@@ -425,10 +425,29 @@
       background: rgba(0,0,0,.18);
     }
 
+    #buscarPremio {
+      margin: 0 0 10px;
+      padding: 10px 12px;
+      font-size: 15px;
+      border-color: rgba(255, 173, 93, .4);
+    }
+
+    #contadorPremios {
+      color: var(--texto-suave);
+      font-size: 13px;
+      margin: 0 0 9px;
+      text-align: right;
+    }
+
     #listaPremios {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      gap: 7px;
+      max-height: 68vh;
+      overflow-y: auto;
+      padding: 2px 3px 8px 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--naranja) rgba(0,0,0,.2);
     }
 
     .premio {
@@ -449,7 +468,14 @@
 
     .premio .costo {
       font-size: 14px;
-      margin: 5px 0;
+      margin: 5px 0 2px;
+    }
+
+    .premio .detalle-premio {
+      color: #bca995;
+      font-size: 11px;
+      line-height: 1.15;
+      margin: 2px 0 4px;
     }
 
     .premio img {
@@ -647,6 +673,8 @@
         <h2>Premios disponibles</h2>
       </div>
 
+      <input id="buscarPremio" type="search" placeholder="Buscar entre los 84 premios..." autocomplete="off" aria-label="Buscar premio">
+      <p id="contadorPremios">84 premios en el catálogo</p>
       <div id="listaPremios">
         <p class="sin-premios">Cargando premios...</p>
       </div>
@@ -784,6 +812,19 @@ function mostrarPremios() {
   const contenedor = $("listaPremios");
   contenedor.replaceChildren();
 
+  const busqueda = ($("buscarPremio")?.value || "").trim().toLocaleLowerCase("es");
+  const filtrados = premiosDisponibles.filter(premio =>
+    (premio.nombre || "").toLocaleLowerCase("es").includes(busqueda) ||
+    (premio.descripcion || "").toLocaleLowerCase("es").includes(busqueda)
+  );
+
+  const contador = $("contadorPremios");
+  if (contador) {
+    contador.textContent = busqueda
+      ? filtrados.length + " resultado(s) de " + premiosDisponibles.length + " premios"
+      : premiosDisponibles.length + " premios en el catálogo";
+  }
+
   if (premiosDisponibles.length === 0) {
     const aviso = document.createElement("p");
     aviso.className = "sin-premios";
@@ -792,7 +833,15 @@ function mostrarPremios() {
     return;
   }
 
-  premiosDisponibles.forEach(premio => {
+  if (filtrados.length === 0) {
+    const aviso = document.createElement("p");
+    aviso.className = "sin-premios";
+    aviso.textContent = "No se encontraron premios con esa búsqueda.";
+    contenedor.appendChild(aviso);
+    return;
+  }
+
+  filtrados.forEach(premio => {
     const tarjeta = document.createElement("div");
     tarjeta.className = "premio";
 
@@ -817,6 +866,13 @@ function mostrarPremios() {
     costo.className = "costo";
     costo.textContent = premio.costo_tickets + " tickets";
     tarjeta.appendChild(costo);
+
+    if (premio.descripcion) {
+      const detalle = document.createElement("p");
+      detalle.className = "detalle-premio";
+      detalle.textContent = premio.descripcion;
+      tarjeta.appendChild(detalle);
+    }
 
     const boton = document.createElement("button");
     boton.className = "canjear";
@@ -1240,6 +1296,8 @@ async function reclamarPP() {
   finally { procesando=false; $("reclamarPP").disabled=false; }
 }
 $("reclamarPP").addEventListener("click", reclamarPP);
+
+$("buscarPremio").addEventListener("input", mostrarPremios);
 
 $("guardarConfig").addEventListener("click", validarDispositivo);
 $("escanearNFC").addEventListener("click", leerNFC);
