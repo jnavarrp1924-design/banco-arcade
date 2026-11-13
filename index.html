@@ -647,6 +647,41 @@ h1 span {
   .card-value { font-size:22px; }
   .ticket-card .card-value { font-size:55px; }
 }
+
+/* Corrección móvil: centrar cada elemento dentro de las tarjetas del sábado. */
+#valoresSabado .value-card > :not(.card-frame) {
+  justify-self:center;
+  align-self:center;
+  text-align:center;
+}
+#valoresSabado .card-icon {
+  display:grid;
+  place-items:center;
+  justify-self:center;
+  margin-inline:auto;
+}
+#valoresSabado .card-icon svg {
+  display:block;
+  justify-self:center;
+  align-self:center;
+  margin:auto;
+  transform:none;
+}
+#valoresSabado .card-label {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  margin-inline:auto;
+}
+#valoresSabado .card-value,
+#valoresSabado .card-unit,
+#valoresSabado .card-bottom-line {
+  justify-self:center;
+  text-align:center;
+  margin-inline:auto;
+}
+
 </style>
 </head>
 
