@@ -669,6 +669,16 @@
         <button id="recargarSaldo">Confirmar carga de dinero</button>
       </div>
 
+      <div class="recarga-panel" id="descuentoManualPanel">
+        <h3>Descontar tickets manualmente</h3>
+        <p class="ayuda-recarga">Registra una deducción autorizada indicando la cantidad y el motivo. El movimiento quedará guardado.</p>
+        <label for="cantidadDescuento">Cantidad de tickets que se descontarán</label>
+        <input id="cantidadDescuento" type="number" min="1" step="1" inputmode="numeric" placeholder="Ej. 20">
+        <label for="motivoDescuento">Motivo del descuento</label>
+        <input id="motivoDescuento" type="text" maxlength="180" placeholder="Escribe el motivo">
+        <button id="confirmarDescuento" type="button">Confirmar descuento</button>
+      </div>
+
       <div class="encabezado-premios">
         <h2>Premios disponibles</h2>
       </div>
@@ -1147,6 +1157,65 @@ async function recargarSaldo() {
   }
 }
 
+/* DESCUENTO MANUAL DE TICKETS */
+async function descontarTicketsManual() {
+  if (procesando) return;
+  if (!dispositivoAutorizado || !nombreAutorizado || !equipoActual || !tokenActual) {
+    mostrarMensaje("Primero autoriza el puesto y consulta un equipo.");
+    return;
+  }
+  if (!navigator.onLine) {
+    mostrarMensaje("Sin conexión. No se puede confirmar el descuento.");
+    return;
+  }
+
+  const cantidad = Number($("cantidadDescuento").value);
+  const motivo = $("motivoDescuento").value.trim();
+
+  if (!Number.isSafeInteger(cantidad) || cantidad <= 0) {
+    mostrarMensaje("Ingresa una cantidad entera de tickets mayor que cero.");
+    return;
+  }
+  if (!motivo) {
+    mostrarMensaje("Escribe el motivo del descuento.");
+    return;
+  }
+  if (cantidad > Number(equipoActual.tickets || 0)) {
+    mostrarMensaje("El equipo no tiene tickets suficientes.");
+    return;
+  }
+  if (!confirm("¿Descontar " + cantidad + " tickets a " + equipoActual.nombre + "?\\nMotivo: " + motivo)) return;
+
+  procesando = true;
+  $("confirmarDescuento").disabled = true;
+  document.querySelectorAll(".canjear").forEach(b => b.disabled = true);
+  try {
+    const { data, error } = await supabaseClient.rpc("descontar_tickets_manual", {
+      p_nombre_puesto: nombreAutorizado,
+      p_token_tarjeta: tokenActual,
+      p_cantidad: cantidad,
+      p_motivo: motivo,
+      p_solicitud_id: crypto.randomUUID()
+    });
+    if (error) throw error;
+    const resultado = Array.isArray(data) ? data[0] : data;
+    if (!resultado || resultado.tickets_restantes === undefined) {
+      throw new Error("No se recibió el saldo actualizado. Consulta nuevamente el equipo.");
+    }
+    equipoActual.tickets = resultado.tickets_restantes;
+    $("saldoTickets").textContent = resultado.tickets_restantes;
+    $("cantidadDescuento").value = "";
+    $("motivoDescuento").value = "";
+    mostrarMensaje("Descuento registrado: " + cantidad + " tickets.\\nMotivo: " + motivo + "\\nTickets restantes: " + resultado.tickets_restantes);
+  } catch (error) {
+    mostrarMensaje("No se pudo registrar el descuento: " + error.message);
+  } finally {
+    procesando = false;
+    $("confirmarDescuento").disabled = false;
+    mostrarPremios();
+  }
+}
+
 /* CANJEAR PREMIO */
 
 async function canjearPremio(premio) {
@@ -1302,7 +1371,7 @@ $("buscarPremio").addEventListener("input", mostrarPremios);
 $("guardarConfig").addEventListener("click", validarDispositivo);
 $("escanearNFC").addEventListener("click", leerNFC);
 $("consultar").addEventListener("click", consultarEquipo);
-$("recargarSaldo").addEventListener("click", recargarSaldo);
+$("recargarSaldo").addEventListener("click", recargarSaldo);\n$("confirmarDescuento").addEventListener("click", descontarTicketsManual);
 
 $("limpiar").addEventListener("click", () => {
   equipoActual = null;
