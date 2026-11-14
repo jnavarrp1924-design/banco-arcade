@@ -1239,7 +1239,7 @@ async function autenticarEstacion(token) {
 function activarInterfazSabado() {
   document.body.classList.add("modo-sabado");
   const hero = document.querySelector(".hero p");
-  if (hero) hero.textContent = "Escanea el grupo A o B para consultar el enfrentamiento asignado a esta base y registrar el resultado.";
+  if (hero) hero.textContent = "Escanea la tarjeta del grupo para consultar el enfrentamiento asignado a esta base y registrar el resultado.";
   const notice = document.querySelector(".charge-notice");
   if (notice) notice.hidden = true;
   const p = $("panelSabado");
