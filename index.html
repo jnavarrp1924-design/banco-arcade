@@ -881,7 +881,7 @@ h1 span {
         <div class="canje-note"><strong>OFICINA DE CANJE:</strong> Salón de tercero.</div>
       </section>
 
-      <!-- MODO SÁBADO: saldo consolidado e individual de A/B -->
+      <!-- MODO SÁBADO: saldo único del grupo completo -->
       <div class="values" id="valoresSabado" hidden>
         <article class="value-card pp-card">
           <div class="card-frame"></div><div class="card-icon" aria-label="Arena">
@@ -891,32 +891,8 @@ h1 span {
               <circle cx="28" cy="51" r="2.5" fill="#f4dfa9"/><circle cx="68" cy="37" r="2.5" fill="#f4dfa9"/><circle cx="78" cy="45" r="2" fill="#f4dfa9"/>
             </svg>
           </div>
-          <div class="card-label" id="etiquetaPPTotal">PINTURA EN POLVO DEL EQUIPO</div>
+          <div class="card-label" id="etiquetaPPTotal">PINTURA EN POLVO DEL GRUPO</div>
           <div class="card-value" id="puntosPPTotal">0</div>
-          <div class="card-unit">GRAMOS</div><div class="card-bottom-line"></div>
-        </article>
-        <article class="value-card pp-card">
-          <div class="card-frame"></div><div class="card-icon" aria-label="Arena">
-            <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
-              <path d="M13 72 Q27 57 42 62 Q55 39 72 54 Q84 59 89 72 Z" fill="#d7bd7c" stroke="#f0d99e" stroke-width="3" stroke-linejoin="round"/>
-              <path d="M20 73 Q45 66 80 73" fill="none" stroke="#fff0c2" stroke-width="3" stroke-linecap="round"/>
-              <circle cx="28" cy="51" r="2.5" fill="#f4dfa9"/><circle cx="68" cy="37" r="2.5" fill="#f4dfa9"/><circle cx="78" cy="45" r="2" fill="#f4dfa9"/>
-            </svg>
-          </div>
-          <div class="card-label" id="etiquetaPPA">PINTURA EN POLVO DEL GRUPO A</div>
-          <div class="card-value" id="puntosPPA">0</div>
-          <div class="card-unit">GRAMOS</div><div class="card-bottom-line"></div>
-        </article>
-        <article class="value-card pp-card">
-          <div class="card-frame"></div><div class="card-icon" aria-label="Arena">
-            <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
-              <path d="M13 72 Q27 57 42 62 Q55 39 72 54 Q84 59 89 72 Z" fill="#d7bd7c" stroke="#f0d99e" stroke-width="3" stroke-linejoin="round"/>
-              <path d="M20 73 Q45 66 80 73" fill="none" stroke="#fff0c2" stroke-width="3" stroke-linecap="round"/>
-              <circle cx="28" cy="51" r="2.5" fill="#f4dfa9"/><circle cx="68" cy="37" r="2.5" fill="#f4dfa9"/><circle cx="78" cy="45" r="2" fill="#f4dfa9"/>
-            </svg>
-          </div>
-          <div class="card-label" id="etiquetaPPB">PINTURA EN POLVO DEL GRUPO B</div>
-          <div class="card-value" id="puntosPPB">0</div>
           <div class="card-unit">GRAMOS</div><div class="card-bottom-line"></div>
         </article>
       </div>
@@ -1039,8 +1015,7 @@ async function iniciar() {
 
   // Mostrar los datos solamente cuando la tarjeta sea válida.
   const nombreEquipoSabado = data.nombre_equipo || data.nombre || data.equipo_id || "";
-  const divisionSabadoActual = data.division || (data.grupo_id || "").slice(-1);
-  const nombreGrupoSabado = data.nombre_grupo || (nombreEquipoSabado + " - " + divisionSabadoActual);
+  const nombreGrupoSabado = data.nombre_grupo || nombreEquipoSabado;
 
   document.getElementById("nombre").textContent =
     modoEventoActual === "sabado" ? nombreGrupoSabado : data.nombre;
@@ -1049,13 +1024,9 @@ async function iniciar() {
   const valoresSabado = document.getElementById("valoresSabado");
 
   if (modoEventoActual === "sabado") {
-    document.getElementById("puntosPPTotal").textContent = Number(data.pp_total ?? 0).toLocaleString("es-CO");
-    document.getElementById("puntosPPA").textContent = Number(data.pp_a ?? 0).toLocaleString("es-CO");
-    document.getElementById("puntosPPB").textContent = Number(data.pp_b ?? 0).toLocaleString("es-CO");
+    document.getElementById("puntosPPTotal").textContent = Number(data.pp_total ?? data.pp ?? 0).toLocaleString("es-CO");
     document.getElementById("divisionSabado").textContent = nombreGrupoSabado;
-    document.getElementById("etiquetaPPTotal").textContent = 'PINTURA EN POLVO DEL "' + nombreEquipoSabado.toLocaleUpperCase("es-CO") + '"';
-    document.getElementById("etiquetaPPA").textContent = 'PINTURA EN POLVO DE "' + (data.nombre_grupo_a || (nombreEquipoSabado + " - A")).toLocaleUpperCase("es-CO") + '"';
-    document.getElementById("etiquetaPPB").textContent = 'PINTURA EN POLVO DE "' + (data.nombre_grupo_b || (nombreEquipoSabado + " - B")).toLocaleUpperCase("es-CO") + '"';
+    document.getElementById("etiquetaPPTotal").textContent = 'PINTURA EN POLVO DE "' + nombreEquipoSabado.toLocaleUpperCase("es-CO") + '"';
     document.getElementById("basesViernes").hidden = true;
     valoresViernes.hidden = true;
     valoresSabado.hidden = false;
